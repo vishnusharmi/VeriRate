@@ -4,10 +4,9 @@ require('dotenv').config();
 
 
 
-exports.register = async , (req, res)=>{
-    try{
-        const {email, password,role}= req.body;
+// exports.register = async , (req, res)=>{
+//     try{
+//         const {email, password,role}= req.body;
 
        
-    }
-}
+//     }
