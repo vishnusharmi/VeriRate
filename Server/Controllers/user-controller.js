@@ -1,12 +1,17 @@
 const bcrypt = require ('bcryptjs')
-const user = require('../Models/userModel')
+const registerServices = require('../Services/user-service')
 require('dotenv').config();
 
 
 
-// exports.register = async , (req, res)=>{
-//     try{
-//         const {email, password,role}= req.body;
-
-       
-//     }
+exports.register = async  (req, res)=>{
+  
+  
+    try{
+         const data = await registerServices.registerUser (req.body);
+        //  console.log(data)
+         res.status(201).json(data)
+    }catch(error){
+        res.status(500).json({message : error.message})
+    }
+    }
