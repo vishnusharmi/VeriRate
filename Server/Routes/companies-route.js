@@ -7,5 +7,5 @@ companiesRouter.get("/get-companies", companiesController.getAll)
 .get("/get-company/:id", companiesController.getById)
 .delete("/delete-company/:id", companiesController.deleteCompany)
 .put("/update-company/:id", companiesController.updateCompany);
-
+ 
 module.exports = companiesRouter;
