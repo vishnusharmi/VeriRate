@@ -1,21 +1,22 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const sequelize = require("./config/db");
+const sequelize = require("./Config/DBconnection");
+const  blackListRoute  = require("./Routes/blackList-route");
 require("dotenv").config();
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
-
-
+app.use("/api",blackListRoute)
 
 
 const PORT = process.env.PORT || 3000;
 
+
 sequelize
-  .sync()
+  .sync({})
   .then(() => {
     app.listen(PORT, () => console.log(`running on http://localhost:${PORT}`));
   })
