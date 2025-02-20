@@ -8,16 +8,16 @@ const ratingRoutes = require("./Routes/ratingRoutes");
 const router = require("./Routes/EmployeeRoutes");
 
 const userRouters = require('./Routes/user-route');
+const loginRoutes = require('./Routes/userLoginRoute')
 require("dotenv").config();
 
 const app = express();
 app.use(cors());
 // app.use(cors());
 app.use(express.json());
+app.use('/api' , loginRoutes)
 app.use("/api",auditLogsRouter)
 app.use('/api',userRouters)
-
-
 app.use("/api", ratingRoutes);
 app.use("/api", companiesRouter);
 
