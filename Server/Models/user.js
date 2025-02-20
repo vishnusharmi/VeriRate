@@ -1,8 +1,8 @@
-const express = require("express")
-const database = require("../Config/DBconnection")
+
+const sequelize = require("../Config/DBconnection");
 const { DataTypes } = require("sequelize")
 
-exports.userModel = new database.define('user', {
+const  User=  sequelize.define('User', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -11,7 +11,6 @@ exports.userModel = new database.define('user', {
     email: {
         type: DataTypes.STRING,
         allowNull: false,
-
     },
     password: {
         type: DataTypes.STRING,
@@ -26,19 +25,19 @@ exports.userModel = new database.define('user', {
     company_id: {
         type: DataTypes.INTEGER,
         allowNull: true,
-        references: {
-            model: "company",
-            key: "id"
-        }
+        // references: {
+        //     model: "company",
+        //     key: "id"
+        // }
     },
 
     confirmPassword :{
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
     },
     newPassword : {
         type : DataTypes.STRING,
-        allowNull: false
+        allowNull: true
 
     },
  otp: {
@@ -57,4 +56,7 @@ exports.userModel = new database.define('user', {
 },
     {
         timestamps: true
-    })
+    });
+
+
+    module.exports=User;
