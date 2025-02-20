@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const userModel = require('../Models/userModel');
+const userModel = require('../Models/user');
 const { generateOTP, sendOTPEmail } = require('./otpServices');
 
 exports.validateLogin = async (data) => {
@@ -35,8 +35,9 @@ exports.validateLogin = async (data) => {
         
 
         return {
-            jwtToken:token,
-            message: "OTP sent to email. Please verify OTP to proceed."
+           
+            message: "OTP sent to email. Please verify OTP to proceed.",
+            jwtToken:token
         }
 
       

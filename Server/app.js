@@ -3,13 +3,15 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const sequelize = require("./Config/DBconnection");
 const userRouters = require('./Routes/user-route');
+const loginRoutes = require('./Routes/userLoginRoute')
 require("dotenv").config();
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use('/api',userRouters)
+app.use('/api',userRouters);
+app.use('/api' , loginRoutes)
 
 
 

@@ -4,13 +4,15 @@ const loginSevices = require('../Services/loginServices')
 
 
 exports.login = async (req,res) => {
-  const loginData = req.body
+  // const loginData = req.body
   try {
   const loginData = req.body
-    const {statusCode,message} = await loginSevices.validateLogin(loginData);
-    res.status(statusCode).json({
-      message
-    })
+  console.log(loginData);
+  
+    const loginUser = await loginSevices.validateLogin(loginData);
+    console.log('kasjdnfkjasdf');
+    
+    res.status(200).json(loginUser)
 
 
   } catch (error) {
