@@ -2,7 +2,9 @@ const express = require("express");
 const dotenv = require("dotenv");
 const companiesRouter = require("./Routes/companies-route");
 const cors = require("cors");
-const sequelize = require("../Config/DBconnection");
+const sequelize = require("./Config/DBconnection");
+const router = require("./Routes/EmployeeRoutes");
+
 const userRouters = require('./Routes/user-route');
 require("dotenv").config();
 
@@ -16,6 +18,8 @@ app.use("/api", companiesRouter);
 
 
 const PORT = process.env.PORT || 3000;
+
+app.use("/api", router);
 
 sequelize
   .sync({force:false})
