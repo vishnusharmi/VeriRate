@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const companiesRouter = require("./Routes/companies-route");
 const cors = require("cors");
 const sequelize = require("./Config/DBconnection");
+const ratingRoutes = require("./Routes/ratingRoutes");
 const router = require("./Routes/EmployeeRoutes");
 
 const userRouters = require('./Routes/user-route');
@@ -14,6 +15,8 @@ app.use(cors());
 app.use(express.json());
 app.use('/api',userRouters)
 
+
+app.use("/api", ratingRoutes);
 app.use("/api", companiesRouter);
 
 
