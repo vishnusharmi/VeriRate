@@ -4,9 +4,10 @@ const loginSevices = require('../Services/loginServices')
 
 
 exports.login = async (req,res) => {
-  const {email , password} = req.body
+  const loginData = req.body
   try {
-    const {statusCode,message} = await loginSevices.validateLogin({email,password});
+  const loginData = req.body
+    const {statusCode,message} = await loginSevices.validateLogin(loginData);
     res.status(statusCode).json({
       message
     })
