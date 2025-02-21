@@ -4,8 +4,10 @@ const cors = require("cors");
 const sequelize = require("./Config/DBconnection");
 const userRouters = require('./Routes/user-route');
 require("dotenv").config();
+const allAssociations = require('./associations/associationsEXPL')
 
 const app = express();
+allAssociations();
 
 app.use(cors());
 app.use(express.json());
@@ -17,7 +19,7 @@ app.use('/api',userRouters)
 const PORT = process.env.PORT || 3000;
 
 sequelize
-  .sync({force:false})
+  .sync()
   .then(() => {
     app.listen(PORT, () => console.log(`running on http://localhost:${PORT}`));
   })
