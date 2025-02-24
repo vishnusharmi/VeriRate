@@ -15,14 +15,6 @@ const Ratings = sequelize.define("Ratings", {
         //     key: "employee_id",
         // },
     },
-    company_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        // references: {
-        //     model: "Companies",
-        //     key: "company_id",
-        // },
-    },
     rating: {
         type: DataTypes.INTEGER,
         allowNull: false,
