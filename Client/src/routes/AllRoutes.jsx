@@ -17,9 +17,13 @@ import Blacklist from "../pages/employerDashboard/pages/Blacklist/Blacklist.jsx"
 import EmployeeList from "../pages/employerDashboard/pages/EmployeeList/EmployeeList.jsx";
 import History from "../pages/employerDashboard/pages/History/History.jsx";
 import Reviews from "../pages/employerDashboard/pages/Reviews/Reviews.jsx";
+<<<<<<< HEAD
+import EmployeerVerificationSearch from "../pages/employerDashboard/pages/EmployeerVerificationSearch/EmployeerVerificationSearch.jsx";
+=======
 import EmployeeRatingsFeedback from "../pages/employerDashboard/pages/RatingsAndFeedback/EmployeeRatingsFeedback.jsx";
 import UserManagement from "../pages/adminDashboard/pages/UserManagement/UserManagement.jsx";
 import SecurityCompliance from "../pages/employerDashboard/pages/SecurityCompliance/SecurityCompliance.jsx"
+>>>>>>> e03c132d439f29cbecd3f562b2ded7d66a91e06c
 
 const AllRoutes = () => {
   return (
@@ -41,6 +45,10 @@ const AllRoutes = () => {
         <Route path="/company/blacklist" element={<Blacklist />} />
         <Route path="/company/employee-list" element={<EmployeeList />} />
         <Route path="/company/history" element={<History />} />
+        <Route
+          path="/company/verification"
+          element={<EmployeerVerificationSearch />}
+        />
         <Route path="/company/reviews" element={<Reviews />} />
         <Route path="/company/ratings-feedback" element={<EmployeeRatingsFeedback />} />
         <Route path="/company/security-compliance" element={<SecurityCompliance/>} />

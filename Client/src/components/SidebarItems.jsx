@@ -10,6 +10,7 @@ import {
   PeopleAlt,
   Security
 } from "@mui/icons-material";
+import DomainVerificationIcon from '@mui/icons-material/DomainVerification';
 import LogoutIcon from "@mui/icons-material/Logout";
 import BadgeIcon from "@mui/icons-material/Badge";
 import { NavLink } from "react-router";
@@ -27,11 +28,12 @@ const SidebarItems = () => {
     { name: "SecurityCompliance", icon: <Security />, path: "/admin/security-compliance" },
   ];
 
-  const employeeMenuItems = [
+  const employerMenuItems = [
     { name: "Dashboard", icon: <Dashboard />, path: "/company" },
     { name: "Employee List", icon: <People />, path: "/company/employee-list" },
     { name: "Reviews", icon: <Reviews />, path: "/company/reviews" },
     { name: "Blacklist", icon: <Block />, path: "/company/blacklist" },
+    {name: "Verification", icon: <DomainVerificationIcon/>, path:"/company/verification"},
     {
       name: "Analytics",
       icon: <Analytics />,
@@ -46,7 +48,7 @@ const SidebarItems = () => {
     { name: "SecurityCompliance", icon: <Security />, path: "/company/security-compliance" }
   ];
 
-  let items = role === "admin" ? adminMenuItems : employeeMenuItems;
+  let items = role === "admin" ? adminMenuItems : employerMenuItems;
 
   return (
     <>
