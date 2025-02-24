@@ -7,11 +7,11 @@ import { useState } from "react";
 const Records = () => {
   const [employees, setEmployees] = useState("2,847");
   const [disputes, setDisputes] = useState("279");
-  const [health, setHealth] = useState("98.92");
+  const [health, setHealth] = useState("68.9");
 
   const [employePercent, setEmployePercent] = useState("12");
-  const [disputePercent, setDisputePercent] = useState("-8");
-  const [healthPercent, setHealthPercent] = useState("2");
+  const [disputePercent, setDisputePercent] = useState("-3");
+  const [solvedPercent, setSolvedPercent] = useState("5");
 
   const [recentActivities, setRecentActivities] = useState([
     { id: 1, title: "New company registration approved", time: "2 hours ago" },
@@ -25,7 +25,7 @@ const Records = () => {
     </p>
   );
 
-  const getCardBorderColor = (percent) => (Number(percent) > 0 ? "border-green-600" : "border-red-600");
+  const getCardBorderColor = (percent) => (Number(percent) > 0 ? "border-green-500" : "border-red-600");
 
 // shadow-[inset_0px_-30px_36px_-28px_rgba(0,0,0,0.35),inset_0px_20px_36px_-28px_rgba(0,0,0,0.35)]
   return (
@@ -54,11 +54,11 @@ const Records = () => {
           <ReportProblemIcon className="text-orange-500" style={{ fontSize: 35 }} />
         </div>
 
-        <div className={`w-full p-5 bg-gray-100 rounded-2xl border-2 ${getCardBorderColor(healthPercent)} shadow flex justify-between items-center`}>
+        <div className={`w-full p-5 bg-gray-100 rounded-2xl border-2 ${getCardBorderColor(solvedPercent)} shadow flex justify-between items-center`}>
           <div>
-            <p className="text-sm text-gray-500">System Monitoring</p>
-            <p className="text-l font-bold">{health}% System Health</p>
-            {renderPercentage(healthPercent)}
+            <p className="text-sm text-gray-500">Dispute Management</p>
+            <p className="text-l font-bold">{health}% Solved Conflicts</p>
+            {renderPercentage(solvedPercent)}
           </div>
           <MonitorHeartIcon className="text-green-500" style={{ fontSize: 35 }} />
         </div>

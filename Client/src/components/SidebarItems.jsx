@@ -7,11 +7,15 @@ import {
   Person,
   Reviews,
   Settings,
+  PeopleAlt,
+  Security
 } from "@mui/icons-material";
+import DomainVerificationIcon from '@mui/icons-material/DomainVerification';
 import LogoutIcon from "@mui/icons-material/Logout";
 import BadgeIcon from "@mui/icons-material/Badge";
 import DescriptionIcon from '@mui/icons-material/Description';
 import { NavLink } from "react-router";
+import RateReviewIcon from '@mui/icons-material/RateReview';
 
 const SidebarItems = () => {
   const role = "admin";
@@ -22,13 +26,17 @@ const SidebarItems = () => {
     { name: "Disputes", icon: <Person />, path: "/admin/disputes" },
     {name: "Records", icon: <DescriptionIcon/>, path: "/admin/records"},
     { name: "Monitoring", icon: <Settings />, path: "/admin/monitoring" }
+    { name: "Monitoring", icon: <Settings />, path: "/admin/monitoring" },
+    {name:'User Management' , icon:<PeopleAlt/>, path:"/admin/usermanagement"},
+    { name: "SecurityCompliance", icon: <Security />, path: "/admin/security-compliance" },
   ];
 
-  const employeeMenuItems = [
+  const employerMenuItems = [
     { name: "Dashboard", icon: <Dashboard />, path: "/company" },
     { name: "Employee List", icon: <People />, path: "/company/employee-list" },
     { name: "Reviews", icon: <Reviews />, path: "/company/reviews" },
     { name: "Blacklist", icon: <Block />, path: "/company/blacklist" },
+    {name: "Verification", icon: <DomainVerificationIcon/>, path:"/company/verification"},
     {
       name: "Analytics",
       icon: <Analytics />,
@@ -39,9 +47,11 @@ const SidebarItems = () => {
       icon: <History />,
       path: "/company/history",
     },
+    { name: "Ratings and Feedback", icon: <RateReviewIcon />, path: "/company/ratings-feedback" },
+    { name: "SecurityCompliance", icon: <Security />, path: "/company/security-compliance" }
   ];
 
-  let items = role === "admin" ? adminMenuItems : employeeMenuItems;
+  let items = role === "admin" ? adminMenuItems : employerMenuItems;
 
   return (
     <>
