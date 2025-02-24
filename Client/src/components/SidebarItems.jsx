@@ -13,7 +13,7 @@ import BadgeIcon from "@mui/icons-material/Badge";
 import { NavLink } from "react-router";
 
 const SidebarItems = () => {
-  const role = "admin//";
+  const role = "admin/";
 
   const adminMenuItems = [
     { name: "Dashboard", icon: <Dashboard />, path: "/admin" },

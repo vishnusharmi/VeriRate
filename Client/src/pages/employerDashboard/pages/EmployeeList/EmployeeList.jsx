@@ -1,307 +1,408 @@
-import React, { useState, useEffect } from "react";
-import { DataGrid } from "@mui/x-data-grid";
-import Paper from "@mui/material/Paper";
-import IconButton from "@mui/material/IconButton";
-import Button from "@mui/material/Button";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
-import TextField from "@mui/material/TextField";
-import Snackbar from "@mui/material/Snackbar";
-import MuiAlert from "@mui/material/Alert";
+import { useState, useEffect } from "react";
+import {
+  Box,
+  Grid,
+  Card,
+  CardContent,
+  Typography,
+  Paper,
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@mui/material";
+import { PieChart, Pie, Cell, Tooltip } from "recharts";
 
-const API = "https://dummyjson.com"; //This is the dummy api for testing purposes. Replace it with your own API...............................................
+// Import some MUI icons for visual flair
+import BusinessIcon from "@mui/icons-material/Business";
+import GavelIcon from "@mui/icons-material/Gavel";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
-// Customized alert for Snackbar notifications...............................................
-const Alert = React.forwardRef(function Alert(props, ref) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-});
+const API = "https://dummyjson.com";
+// Donut chart data (static for now)
+const chartData = [
+  { name: "Payment", value: 42 },
+  { name: "Service", value: 28 },
+  { name: "Technical", value: 17 },
+  { name: "Other", value: 13 },
+];
+const COLORS = ["#0088FF", "#00C49F", "#FFBB28", "#FF8042"];
 
-// Start with an empty array; data will be fetched from the backend...............................................
-const initialRows = [];
+// Helper style objects for statuses
+const statusStyles = {
+  Active: {
+    color: "green",
+    backgroundColor: "#d6ffe6",
+    fontWeight: "bold",
+    padding: "4px 8px",
+    borderRadius: "20px",
+    display: "inline-block",
+    minWidth: "60px",
+    textAlign: "center",
+  },
+  Review: {
+    color: "#dc3545",
+    backgroundColor: "#ffe6ea",
+    fontWeight: "bold",
+    padding: "4px 8px",
+    borderRadius: "20px",
+    display: "inline-block",
+    minWidth: "60px",
+    textAlign: "center",
+  },
+  Pending: {
+    color: "#ffc107",
+    backgroundColor: "#fff9e6",
+    fontWeight: "bold",
+    padding: "4px 8px",
+    borderRadius: "20px",
+    display: "inline-block",
+    minWidth: "60px",
+    textAlign: "center",
+  },
+};
 
-function EmployeeList() {
-  const [rows, setRows] = useState(initialRows);
-  const [open, setOpen] = useState(false);
-  const [currentEmployee, setCurrentEmployee] = useState(null);
-  const [dialogMode, setDialogMode] = useState(""); // "edit" or "add"...............................................
-  const [toastOpen, setToastOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastSeverity, setToastSeverity] = useState("success");
+export default function EnhancedDashboard() {
+  // State for Recent Company Records
+  const [recentRecords, setRecentRecords] = useState([
+    // Default static data as fallback
+    { company: "Acme Corporation", status: "Active", lastUpdated: "Today" },
+    {
+      company: "Globex Industries",
+      status: "Review",
+      lastUpdated: "Yesterday",
+    },
+    {
+      company: "Stark Enterprises",
+      status: "Active",
+      lastUpdated: "2 days ago",
+    },
+    {
+      company: "Wayne Industries",
+      status: "Pending",
+      lastUpdated: "1 week ago",
+    },
+  ]);
 
-  // Fetch Employees on component mount...............................................
-
+  // ---------------- Backend Logic ----------------
   useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        const response = await fetch(`${API}/users`); // GET all users
-        if (response.ok) {
-          const data = await response.json();
-          console.log("Fetched employees:", data);
-          // Set rows to the "users" array inside the returned object.
-          setRows(data.users);
-        } else {
-          console.error("Failed to fetch employees");
+    // Example: Fetch recent company records from backend API.
+    // Since DummyJSON doesn't have a 'companies' endpoint, we'll fetch users
+    // and map the first 4 users to mimic company records.
+    fetch(`${API}/users`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.users) {
+          // Map the first 4 users to our record format.
+          const mappedRecords = data.users.slice(0, 4).map((user) => ({
+            company: `${user.firstName} ${user.lastName}`,
+            // For demonstration, assign status randomly.
+            status: ["Active", "Review", "Active", "Pending"][
+              Math.floor(Math.random() * 4)
+            ],
+            // Use a static value for last updated; adjust as needed.
+            lastUpdated: "Today",
+          }));
+          setRecentRecords(mappedRecords);
         }
-      } catch (error) {
-        console.error("Error fetching employees:", error);
-      }
-    };
-
-    fetchEmployees();
+      })
+      .catch((error) => {
+        console.error("Error fetching recent company records:", error);
+      });
   }, []);
 
-  // Delete an employee with backend logic...............................................
-
-  const handleDelete = async (id) => {
-    try {
-      // DELETE request to remove an employee by id...............................................
-      const response = await fetch(`${API}/users/${id}`, {
-        method: "DELETE",
-      });
-      if (response.ok) {
-        setRows((prevRows) => prevRows.filter((row) => row.id !== id));
-        setToastMessage("Employee deleted successfully");
-        setToastSeverity("success");
-        setToastOpen(true);
-      } else {
-        console.error("Failed to delete employee");
-      }
-    } catch (error) {
-      console.error("Error deleting employee:", error);
-    }
-  };
-
-  // Open edit dialog with selected employee's data...............................................
-
-  const handleEdit = (employee) => {
-    setCurrentEmployee(employee);
-    setDialogMode("edit");
-    setOpen(true);
-  };
-
-  // Open add dialog with empty employee data...............................................
-
-  const handleAdd = () => {
-    // Create a temporary employee object; backend will assign a real ID...............................................
-    setCurrentEmployee({ firstName: "", lastName: "", phone: "", email: "" });
-    setDialogMode("add");
-    setOpen(true);
-  };
-
-  // Close the dialog and reset state...............................................
-
-  const handleClose = () => {
-    setOpen(false);
-    setCurrentEmployee(null);
-    setDialogMode("");
-  };
-
-  // Save (add or update) an employee with backend logic...............................................
-
-  const handleSave = async () => {
-    if (currentEmployee) {
-      if (dialogMode === "edit") {
-        // PUT request to update an employee...............................................
-        try {
-          const response = await fetch(`${API}/users/${currentEmployee.id}`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(currentEmployee),
-          });
-          if (response.ok) {
-            setRows((prevRows) =>
-              prevRows.map((row) =>
-                row.id === currentEmployee.id ? currentEmployee : row
-              )
-            );
-            setToastMessage("Employee updated successfully");
-          } else {
-            console.error("Failed to update employee");
-          }
-        } catch (error) {
-          console.error("Error updating employee:", error);
-        }
-      } else if (dialogMode === "add") {
-        // POST request to add a new employee...............................................
-
-        // This is DummyJSON uses /users/add for adding new users...............................................
-        try {
-          const response = await fetch(`${API}/users/add`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(currentEmployee),
-          });
-          if (response.ok) {
-            const newEmployee = await response.json();
-            setRows((prevRows) => [...prevRows, newEmployee]);
-            setToastMessage("Employee added successfully");
-          } else {
-            console.error("Failed to add employee");
-          }
-        } catch (error) {
-          console.error("Error adding employee:", error);
-        }
-      }
-      setToastSeverity("success");
-      setToastOpen(true);
-    }
-    handleClose();
-  };
-
-  // Close the Snackbar toast notification...............................................
-
-  const handleToastClose = (event, reason) => {
-    if (reason === "clickaway") return;
-    setToastOpen(false);
-  };
-
-  // Define columns for the DataGrid...............................................
-  const columns = [
-    { field: "id", headerName: "ID", width: 70 },
-    { field: "firstName", headerName: "First name", width: 130 },
-    { field: "lastName", headerName: "Last name", width: 130 },
-    { field: "phone", headerName: "Phone", width: 150 },
-    { field: "email", headerName: "Email", width: 200 },
-    {
-      field: "actions",
-      headerName: "Actions",
-      width: 150,
-      sortable: false,
-      renderCell: (params) => (
-        <>
-          <IconButton color="primary" onClick={() => handleEdit(params.row)}>
-            <EditIcon />
-          </IconButton>
-          <IconButton color="error" onClick={() => handleDelete(params.row.id)}>
-            <DeleteIcon />
-          </IconButton>
-        </>
-      ),
-    },
-  ];
-
   return (
-    <div>
-      {/* Header with the "Add Employee" button */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          marginBottom: "10px",
-        }}
-      >
-        <Button
-          style={{ margin: "10px" }}
-          variant="contained"
-          color="primary"
-          onClick={handleAdd}
-        >
-          Add Employee
-        </Button>
-      </div>
+    <Box
+      sx={{
+        // Subtle gradient background
+        background: "linear-gradient(120deg, #f0f4f7 0%, #f9fafc 100%)",
+        minHeight: "100vh",
+        p: 2,
+      }}
+    >
+      {/* Top Row: Stats Cards */}
+      <Grid container spacing={2}>
+        {/* Total Company Records */}
+        <Grid item xs={12} md={4}>
+          <Card
+            sx={{
+              borderRadius: 3,
+              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.15)",
+            }}
+          >
+            <CardContent>
+              <Box display="flex" alignItems="center" mb={1}>
+                <BusinessIcon
+                  sx={{ color: "primary.main", fontSize: 40, mr: 2 }}
+                />
+                <Typography variant="h6" fontWeight="bold">
+                  Total Company Records
+                </Typography>
+              </Box>
+              <Typography variant="h4" fontWeight="bold" color="primary">
+                1,254
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                +24 this month
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
 
-      {/* Employee Data Grid */}
-      <Paper style={{ height: 400, width: "100%" }}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          pageSize={5}
-          rowsPerPageOptions={[5, 10]}
-          // checkboxSelection
-          disableSelectionOnClick
-        />
-      </Paper>
+        {/* Active Disputes */}
+        <Grid item xs={12} md={4}>
+          <Card
+            sx={{
+              borderRadius: 3,
+              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.15)",
+            }}
+          >
+            <CardContent>
+              <Box display="flex" alignItems="center" mb={1}>
+                <GavelIcon sx={{ color: "error.main", fontSize: 40, mr: 2 }} />
+                <Typography variant="h6" fontWeight="bold">
+                  Active Disputes
+                </Typography>
+              </Box>
+              <Typography variant="h4" fontWeight="bold" color="error">
+                37
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                12 high priority
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
 
-      {/* Dialog for Adding/Editing an Employee */}
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>
-          {dialogMode === "edit" ? "Edit Employee" : "Add Employee"}
-        </DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="First Name"
-            type="text"
-            fullWidth
-            value={currentEmployee ? currentEmployee.firstName : ""}
-            onChange={(e) =>
-              setCurrentEmployee({
-                ...currentEmployee,
-                firstName: e.target.value,
-              })
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Last Name"
-            type="text"
-            fullWidth
-            value={currentEmployee ? currentEmployee.lastName : ""}
-            onChange={(e) =>
-              setCurrentEmployee({
-                ...currentEmployee,
-                lastName: e.target.value,
-              })
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Phone"
-            type="text"
-            fullWidth
-            value={currentEmployee ? currentEmployee.phone : ""}
-            onChange={(e) =>
-              setCurrentEmployee({
-                ...currentEmployee,
-                phone: e.target.value,
-              })
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Email"
-            type="email"
-            fullWidth
-            value={currentEmployee ? currentEmployee.email : ""}
-            onChange={(e) =>
-              setCurrentEmployee({
-                ...currentEmployee,
-                email: e.target.value,
-              })
-            }
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleSave} color="primary">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+        {/* Compliance Score */}
+        <Grid item xs={12} md={4}>
+          <Card
+            sx={{
+              borderRadius: 3,
+              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.15)",
+            }}
+          >
+            <CardContent>
+              <Box display="flex" alignItems="center" mb={1}>
+                <CheckCircleIcon
+                  sx={{ color: "success.main", fontSize: 40, mr: 2 }}
+                />
+                <Typography variant="h6" fontWeight="bold">
+                  Compliance Score
+                </Typography>
+              </Box>
+              <Typography variant="h4" fontWeight="bold" color="success.main">
+                92%
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                +5% from last quarter
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
 
-      {/* Snackbar Toast Notification */}
-      <Snackbar
-        open={toastOpen}
-        autoHideDuration={3000}
-        onClose={handleToastClose}
-      >
-        <Alert onClose={handleToastClose} severity={toastSeverity}>
-          {toastMessage}
-        </Alert>
-      </Snackbar>
-    </div>
+      {/* Middle Row: Recent Records & Disputation Breakdown */}
+      <Grid container spacing={2} sx={{ mt: 2 }}>
+        {/* Recent Company Records */}
+        <Grid item xs={12} md={8}>
+          <Card
+            sx={{
+              borderRadius: 3,
+              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.15)",
+            }}
+          >
+            <CardContent>
+              <Typography variant="h4" fontWeight="bold" gutterBottom>
+                Recent Company Records
+              </Typography>
+              <TableContainer component={Paper} sx={{ boxShadow: 0 }}>
+                <Table
+                  sx={{
+                    // Apply border spacing to create gaps between rows
+                    borderSpacing: "0 16px",
+                    borderCollapse: "separate",
+                  }}
+                >
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: "bold" }}>Company</TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>
+                        Last Updated
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {/* Map over recentRecords fetched from backend */}
+                    {recentRecords.map((record, index) => (
+                      <TableRow
+                        key={index}
+                        sx={{
+                          boxShadow: 6,
+                          borderRadius: 10,
+                          backgroundColor: "#fff",
+                        }}
+                      >
+                        <TableCell>{record.company}</TableCell>
+                        <TableCell>
+                          <span
+                            style={
+                              statusStyles[record.status] ||
+                              statusStyles["Pending"]
+                            }
+                          >
+                            {record.status}
+                          </span>
+                        </TableCell>
+                        <TableCell>{record.lastUpdated}</TableCell>
+                        <TableCell>
+                          <Typography
+                            sx={{
+                              color: "primary.main",
+                              cursor: "pointer",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            View
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Disputation Breakdown */}
+        <Grid item xs={12} md={4}>
+          <Card
+            sx={{
+              borderRadius: 3,
+              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.15)",
+              fontWeight: "bold",
+            }}
+          >
+            <CardContent>
+              <Typography variant="h6" fontWeight="bold" gutterBottom>
+                Disputation Breakdown
+              </Typography>
+              {/* Flex column for the donut chart and breakdown details */}
+              <Box display="flex" flexDirection="column" gap={2}>
+                {/* Donut Chart */}
+                <PieChart width={300} height={220}>
+                  <Pie
+                    data={chartData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={70}
+                    label
+                  >
+                    {chartData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                        style={{ cursor: "pointer" }}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+                {/* Breakdown List in a flex column */}
+                <Box display="flex" flexDirection="column" gap={1}>
+                  {chartData.map((item, index) => (
+                    <Box
+                      key={index}
+                      display="flex"
+                      alignItems="center"
+                      gap={1}
+                      p={1}
+                      sx={{
+                        backgroundColor: "#fff",
+                        borderRadius: 2,
+                        boxShadow: 5,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: 16,
+                          height: 16,
+                          borderRadius: "50%",
+                          bgcolor: COLORS[index % COLORS.length],
+                          mr: 1,
+                        }}
+                      />
+                      <Typography variant="body1" fontWeight="bold" mr={1}>
+                        {item.name}
+                      </Typography>
+                      <Typography variant="body1">{item.value}</Typography>
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Bottom Row: System Compliance Overview */}
+      <Grid container spacing={2} sx={{ mt: 2 }}>
+        <Grid item xs={12}>
+          <Card
+            sx={{
+              borderRadius: 3,
+              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.15)",
+            }}
+          >
+            <CardContent>
+              <Typography variant="h5" fontWeight="bold" gutterBottom>
+                System Compliance Overview
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={6} md={3}>
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    Data Protection
+                  </Typography>
+                  <Typography variant="h5" color="#00C49F" fontWeight="bold">
+                    98%
+                  </Typography>
+                </Grid>
+                <Grid item xs={6} md={3}>
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    Access Controls
+                  </Typography>
+                  <Typography variant="h5" color="#FF8042" fontWeight="bold">
+                    94%
+                  </Typography>
+                </Grid>
+                <Grid item xs={6} md={3}>
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    Audit Logging
+                  </Typography>
+                  <Typography variant="h5" color="#00C49F" fontWeight="bold">
+                    99%
+                  </Typography>
+                </Grid>
+                <Grid item xs={6} md={3}>
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    System
+                  </Typography>
+                  <Typography variant="h5" color="#FFBB28" fontWeight="bold">
+                    85%
+                  </Typography>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
   );
 }
-
-export default EmployeeList;
