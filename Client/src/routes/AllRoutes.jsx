@@ -16,6 +16,7 @@ import Blacklist from "../pages/employerDashboard/pages/Blacklist/Blacklist.jsx"
 import EmployeeList from "../pages/employerDashboard/pages/EmployeeList/EmployeeList.jsx";
 import History from "../pages/employerDashboard/pages/History/History.jsx";
 import Reviews from "../pages/employerDashboard/pages/Reviews/Reviews.jsx";
+import EmployeeRatingsFeedback from "../pages/employerDashboard/pages/RatingsAndFeedback/EmployeeRatingsFeedback.jsx";
 
 const AllRoutes = () => {
   return (
@@ -36,6 +37,7 @@ const AllRoutes = () => {
         <Route path="/company/employee-list" element={<EmployeeList />} />
         <Route path="/company/history" element={<History />} />
         <Route path="/company/reviews" element={<Reviews />} />
+        <Route path="/company/ratings-feedback" element={<EmployeeRatingsFeedback />} />
       </Route>
     </Routes>
   );
