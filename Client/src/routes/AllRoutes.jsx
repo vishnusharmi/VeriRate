@@ -34,7 +34,7 @@ const AllRoutes = () => {
         <Route index element={<AdminDashboard />} />
         <Route path="/admin/disputes" element={<Disputes />} />
         <Route path="/admin/employer" element={<Employer />} />
-        <Route path="/admin/records" element={<Records/>} />
+        <Route path="/admin/records" element={<Records/>} />``
         <Route path="/admin/monitoring" element={<Monitoring />} />
         <Route path="/admin/usermanagement" element={<UserManagement/>}/>
         <Route path="/admin/security-compliance" element={<SecurityCompliances />} />

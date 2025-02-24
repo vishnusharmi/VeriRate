@@ -25,7 +25,7 @@ const SidebarItems = () => {
     { name: "Employer", icon: <BadgeIcon />, path: "/admin/employer" },
     { name: "Disputes", icon: <Person />, path: "/admin/disputes" },
     {name: "Records", icon: <DescriptionIcon/>, path: "/admin/records"},
-    { name: "Monitoring", icon: <Settings />, path: "/admin/monitoring" }
+    { name: "Monitoring", icon: <Settings />, path: "/admin/monitoring" },
     { name: "Monitoring", icon: <Settings />, path: "/admin/monitoring" },
     {name:'User Management' , icon:<PeopleAlt/>, path:"/admin/usermanagement"},
     { name: "SecurityCompliance", icon: <Security />, path: "/admin/security-compliance" },
