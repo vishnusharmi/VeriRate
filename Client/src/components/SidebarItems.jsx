@@ -13,16 +13,18 @@ import {
 import DomainVerificationIcon from "@mui/icons-material/DomainVerification";
 import LogoutIcon from "@mui/icons-material/Logout";
 import BadgeIcon from "@mui/icons-material/Badge";
+import DescriptionIcon from '@mui/icons-material/Description';
 import { NavLink } from "react-router";
 import RateReviewIcon from "@mui/icons-material/RateReview";
 
 const SidebarItems = () => {
-  const role = "adminjgu";
+  const role = "admin/n";
 
   const adminMenuItems = [
     { name: "Dashboard", icon: <Dashboard />, path: "/admin" },
     { name: "Employer", icon: <BadgeIcon />, path: "/admin/employer" },
     { name: "Disputes", icon: <Person />, path: "/admin/disputes" },
+    {name: "Records", icon: <DescriptionIcon/>, path: "/admin/records"},
     { name: "Monitoring", icon: <Settings />, path: "/admin/monitoring" },
     {
       name: "User Management",
