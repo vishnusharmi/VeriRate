@@ -16,6 +16,7 @@ import Blacklist from "../pages/employerDashboard/pages/Blacklist/Blacklist.jsx"
 import EmployeeList from "../pages/employerDashboard/pages/EmployeeList/EmployeeList.jsx";
 import History from "../pages/employerDashboard/pages/History/History.jsx";
 import Reviews from "../pages/employerDashboard/pages/Reviews/Reviews.jsx";
+import EmployeerVerificationSearch from "../pages/employerDashboard/pages/EmployeerVerificationSearch/EmployeerVerificationSearch.jsx";
 
 const AllRoutes = () => {
   return (
@@ -35,6 +36,10 @@ const AllRoutes = () => {
         <Route path="/company/blacklist" element={<Blacklist />} />
         <Route path="/company/employee-list" element={<EmployeeList />} />
         <Route path="/company/history" element={<History />} />
+        <Route
+          path="/company/verification"
+          element={<EmployeerVerificationSearch />}
+        />
         <Route path="/company/reviews" element={<Reviews />} />
       </Route>
     </Routes>
