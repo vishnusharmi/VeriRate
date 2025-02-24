@@ -29,7 +29,7 @@ const getById = async(req,res)=>{
 
 const updateCompany = async(req,res)=>{
     try {
-        const company = await companiesService.updateCompany(req.params.id, req.body);
+        const company = await companiesService.updateCompany(req.params.id, req.body); 
         res.status(200).json({message: "Company updated successfully", data: company});
     } catch (error) {
         res.status(500).json({error: error.message});
@@ -38,13 +38,15 @@ const updateCompany = async(req,res)=>{
 
 const deleteCompany = async(req,res)=>{
     try {
-        const company = await companiesService.deleteCompany(req.params.id);
+        const company = await companiesService.deleteCompany(req.params.id); 
+        if (!company) return res.status(404).json({error:"company not found"})
         res.status(204).json({message: "Company deleted successfully", company});
     } catch (error) {
         res.status(500).json({error: error.message});
     }
 }
 
+    
 module.exports = {
     createCompany,
     getAll,

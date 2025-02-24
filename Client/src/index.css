@@ -1,0 +1,10 @@
+@import "tailwindcss" important;
+
+body {
+  overflow-y: hidden;
+  box-sizing: border-box;
+}
+
+@theme {
+  --breakpoint-cb1: 930px;
+}

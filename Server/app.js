@@ -11,8 +11,11 @@ const disputeRoutes = require('./Routes/disputes-route')
 const userRouters = require('./Routes/user-route');
 const loginRoutes = require('./Routes/userLoginRoute')
 require("dotenv").config();
+const allAssociations = require('./associations/associationsEXPL')
 
 const app = express();
+allAssociations();
+
 app.use(cors());
 // app.use(cors());
 app.use(express.json());

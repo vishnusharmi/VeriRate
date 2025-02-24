@@ -1,8 +1,8 @@
 const sequelize = require("../Config/DBconnection");
 const {DataTypes}=require("sequelize");
-// const User = require("./user");
+const User = require("./user");
 
-const allDocuments = sequelize.define("Doduments",{
+const allDocuments = sequelize.define("Documents",{
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -11,11 +11,11 @@ const allDocuments = sequelize.define("Doduments",{
     empId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      // references: {
-      //   model: User,
-      //   key: "id",
-      // },
-      // onDelete: "CASCADE",
+      references: {
+        model: User,
+        key: "id",
+      },
+      onDelete: "CASCADE",
     },
     documentType: {
       type: DataTypes.STRING,
