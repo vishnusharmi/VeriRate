@@ -13,6 +13,7 @@ import {
 import LogoutIcon from "@mui/icons-material/Logout";
 import BadgeIcon from "@mui/icons-material/Badge";
 import { NavLink } from "react-router";
+import RateReviewIcon from '@mui/icons-material/RateReview';
 
 const SidebarItems = () => {
   const role = "admin";
@@ -41,6 +42,7 @@ const SidebarItems = () => {
       icon: <History />,
       path: "/company/history",
     },
+    { name: "Ratings and Feedback", icon: <RateReviewIcon />, path: "/company/ratings-feedback" },
     { name: "SecurityCompliance", icon: <Security />, path: "/company/security-compliance" }
   ];
 
