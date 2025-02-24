@@ -7,6 +7,8 @@ import {
   Person,
   Reviews,
   Settings,
+  PeopleAlt,
+  Security
 } from "@mui/icons-material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import BadgeIcon from "@mui/icons-material/Badge";
@@ -14,13 +16,15 @@ import { NavLink } from "react-router";
 import RateReviewIcon from '@mui/icons-material/RateReview';
 
 const SidebarItems = () => {
-  const role = "admin//";
+  const role = "admin";
 
   const adminMenuItems = [
     { name: "Dashboard", icon: <Dashboard />, path: "/admin" },
     { name: "Employer", icon: <BadgeIcon />, path: "/admin/employer" },
     { name: "Disputes", icon: <Person />, path: "/admin/disputes" },
     { name: "Monitoring", icon: <Settings />, path: "/admin/monitoring" },
+    {name:'User Management' , icon:<PeopleAlt/>, path:"/admin/usermanagement"},
+    { name: "SecurityCompliance", icon: <Security />, path: "/admin/security-compliance" },
   ];
 
   const employeeMenuItems = [
@@ -39,6 +43,7 @@ const SidebarItems = () => {
       path: "/company/history",
     },
     { name: "Ratings and Feedback", icon: <RateReviewIcon />, path: "/company/ratings-feedback" },
+    { name: "SecurityCompliance", icon: <Security />, path: "/company/security-compliance" }
   ];
 
   let items = role === "admin" ? adminMenuItems : employeeMenuItems;
