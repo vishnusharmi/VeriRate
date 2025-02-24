@@ -1,0 +1,29 @@
+# Node.js .gitignore
+
+# Dependency directories
+node_modules/
+
+
+# Logs
+*.log
+
+# Environment files
+.env
+
+# npm-debug log files
+npm-debug.log*
+
+# Yarn v2 (Pnp)
+.yarn/
+
+# Mac system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+
+# VSCode directory
+.vscode/
+
+# Other files you may want to ignore
+*.env

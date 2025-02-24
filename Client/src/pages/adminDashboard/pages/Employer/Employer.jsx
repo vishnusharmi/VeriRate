@@ -87,7 +87,7 @@ const Employer = () => {
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="bg-gradient-to-r from-[#0a3469] to-[#1b5dad] text-white px-8 py-4 rounded-lg shadow-xl text-lg font-semibold tracking-wide hover:from-blue-600 hover:to-blue-500 transition-all duration-300"
+        className="bg-gradient-to-r from-[#0a3469] to-[#1b5dad] text-white px-8 py-4 rounded-lg shadow-xl text-lg font-semibold tracking-wide hover:from-blue-600 hover:to-blue-500 transition-all duration-300 cursor-pointer"
         onClick={() => showModal()}
       >
         + Add Employer
@@ -134,14 +134,14 @@ const Employer = () => {
         </div>
         <div className="flex justify-between mt-4 mb-4">
           <button
-            className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg shadow-md hover:bg-gray-400 transition-all duration-300"
+            className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg shadow-md hover:bg-gray-400 transition-all duration-300 cursor-pointer"
             onClick={prevPage}
             disabled={currentPage === 1}
           >
             Previous
           </button>
           <button
-            className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg shadow-md hover:bg-gray-400 transition-all duration-300"
+            className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg shadow-md hover:bg-gray-400 transition-all duration-300 cursor-pointer"
             onClick={nextPage}
             disabled={
               currentPage === Math.ceil(employers.length / employersPerPage)
