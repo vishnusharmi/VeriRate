@@ -1,5 +1,6 @@
-const { DataTypes, Sequelize, DATE } = require('sequelize');
+const { DataTypes } = require('sequelize');
 const sequelize = require('../Config/DBconnection');
+const Employees = require('../Models/EmployeeModel');
 
 const Ratings = sequelize.define("Ratings", {
     id :{
@@ -10,10 +11,10 @@ const Ratings = sequelize.define("Ratings", {
     employee_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        // references: {
-        //     model: "Employees",
-        //     key: "employee_id",
-        // },
+        references: {
+            model: Employees,
+            key: "employee_id",
+        },
     },
     rating: {
         type: DataTypes.INTEGER,

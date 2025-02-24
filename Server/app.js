@@ -14,11 +14,8 @@ require("dotenv").config();
 const allAssociations = require('./associations/associationsEXPL')
 
 const app = express();
-<<<<<<< HEAD
 allAssociations();
 
-=======
->>>>>>> 51ab89729155cd19a1ad6115fc138a9ad0c27ca0
 app.use(cors());
 // app.use(cors());
 app.use(express.json());
