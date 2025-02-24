@@ -16,5 +16,6 @@ const AuditLogs=sequelize.define("AuditLogs",{
             allowNull:false
         }
     }
+    
 )
 module.exports=AuditLogs;

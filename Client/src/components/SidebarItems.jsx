@@ -7,6 +7,7 @@ import {
   Person,
   Reviews,
   Settings,
+  PeopleAlt,
   Security
 } from "@mui/icons-material";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -21,6 +22,7 @@ const SidebarItems = () => {
     { name: "Employer", icon: <BadgeIcon />, path: "/admin/employer" },
     { name: "Disputes", icon: <Person />, path: "/admin/disputes" },
     { name: "Monitoring", icon: <Settings />, path: "/admin/monitoring" },
+    {name:'User Management' , icon:<PeopleAlt/>, path:"/admin/usermanagement"},
     { name: "SecurityCompliance", icon: <Security />, path: "/admin/security-compliance" },
   ];
 
