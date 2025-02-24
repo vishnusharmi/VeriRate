@@ -7,19 +7,21 @@ import {
   Person,
   Reviews,
   Settings,
+  PeopleAlt
 } from "@mui/icons-material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import BadgeIcon from "@mui/icons-material/Badge";
 import { NavLink } from "react-router";
 
 const SidebarItems = () => {
-  const role = "admin//";
+  const role = "admin";
 
   const adminMenuItems = [
     { name: "Dashboard", icon: <Dashboard />, path: "/admin" },
     { name: "Employer", icon: <BadgeIcon />, path: "/admin/employer" },
     { name: "Disputes", icon: <Person />, path: "/admin/disputes" },
     { name: "Monitoring", icon: <Settings />, path: "/admin/monitoring" },
+    {name:'User Management' , icon:<PeopleAlt/>, path:"/admin/usermanagement"}
   ];
 
   const employeeMenuItems = [

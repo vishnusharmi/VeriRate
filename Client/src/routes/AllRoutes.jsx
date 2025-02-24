@@ -16,6 +16,7 @@ import Blacklist from "../pages/employerDashboard/pages/Blacklist/Blacklist.jsx"
 import EmployeeList from "../pages/employerDashboard/pages/EmployeeList/EmployeeList.jsx";
 import History from "../pages/employerDashboard/pages/History/History.jsx";
 import Reviews from "../pages/employerDashboard/pages/Reviews/Reviews.jsx";
+import UserManagement from "../pages/adminDashboard/pages/UserManagement/UserManagement.jsx";
 
 const AllRoutes = () => {
   return (
@@ -27,6 +28,7 @@ const AllRoutes = () => {
         <Route path="/admin/disputes" element={<Disputes />} />
         <Route path="/admin/employer" element={<Employer />} />
         <Route path="/admin/monitoring" element={<Monitoring />} />
+        <Route path="/admin/usermanagement" element={<UserManagement/>}/>
       </Route>
 
       <Route path="/company" element={<Layout />}>
