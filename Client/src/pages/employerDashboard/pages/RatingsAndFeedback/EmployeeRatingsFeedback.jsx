@@ -279,7 +279,7 @@ const EmployeeRatingsFeedback = () => {
     
     return (
         //rating-history
-      <div className="mb-4 bg-gray-50 p-3 rounded-md">
+      <div className="mb-4 bg-gray-50 p-3 rounded-md shadow-md shadow-gray-400 rounded-lg">
         <button
           className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-700 focus:outline-none"
           onClick={() => setExpanded(!expanded)}
@@ -380,7 +380,7 @@ const EmployeeRatingsFeedback = () => {
               <th className="px-12 py-3 text-right text-xs font-medium text-white-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody>
             {filteredEmployees.map(employee => (
               <React.Fragment key={employee.id}>
                 <tr>
