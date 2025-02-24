@@ -7,7 +7,8 @@ import {
   Person,
   Reviews,
   Settings,
-  PeopleAlt
+  PeopleAlt,
+  Security
 } from "@mui/icons-material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import BadgeIcon from "@mui/icons-material/Badge";
@@ -21,7 +22,8 @@ const SidebarItems = () => {
     { name: "Employer", icon: <BadgeIcon />, path: "/admin/employer" },
     { name: "Disputes", icon: <Person />, path: "/admin/disputes" },
     { name: "Monitoring", icon: <Settings />, path: "/admin/monitoring" },
-    {name:'User Management' , icon:<PeopleAlt/>, path:"/admin/usermanagement"}
+    {name:'User Management' , icon:<PeopleAlt/>, path:"/admin/usermanagement"},
+    { name: "SecurityCompliance", icon: <Security />, path: "/admin/security-compliance" },
   ];
 
   const employeeMenuItems = [
@@ -39,6 +41,7 @@ const SidebarItems = () => {
       icon: <History />,
       path: "/company/history",
     },
+    { name: "SecurityCompliance", icon: <Security />, path: "/company/security-compliance" }
   ];
 
   let items = role === "admin" ? adminMenuItems : employeeMenuItems;

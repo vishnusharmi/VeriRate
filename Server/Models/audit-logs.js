@@ -18,4 +18,4 @@ const AuditLogs=sequelize.define("AuditLogs",{
     }
     
 )
-module.exports=AuditLogs
+module.exports=AuditLogs;
