@@ -1,9 +1,8 @@
-// import Header from "./header/header";
 import AllRoutes from "./routes/AllRoutes";
-// import Sidebar from "./sidebar/Sidebar";
 
 const App = () => {
   return (
+    
     // <div className="flex flex-col min-h-screen">
     //   <Header />
     //   <div className="md:grid grid-cols-12 flex-grow h-0 flex-1 flex">
@@ -15,7 +14,11 @@ const App = () => {
     //     </div>
     //   </div>
     // </div>
-    <AllRoutes />
+    <div>
+        <AllRoutes />
+    </div>
+
+    
   );
 };
 

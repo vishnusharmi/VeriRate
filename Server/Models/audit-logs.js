@@ -1,5 +1,5 @@
 const {DataTypes}=require("sequelize")
-const sequelize =require("../Config/DBconnection")
+const sequelize=require("../Config/DBconnection")
 
 const AuditLogs=sequelize.define("AuditLogs",{
         id:{
@@ -16,5 +16,6 @@ const AuditLogs=sequelize.define("AuditLogs",{
             allowNull:false
         }
     }
+    
 )
 module.exports=AuditLogs;
