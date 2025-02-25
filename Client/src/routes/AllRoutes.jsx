@@ -18,11 +18,13 @@ import EmployeeList from "../pages/employerDashboard/pages/EmployeeList/Employee
 import History from "../pages/employerDashboard/pages/History/History.jsx";
 import Reviews from "../pages/employerDashboard/pages/Reviews/Reviews.jsx";
 import SecurityCompliance from "../pages/employerDashboard/pages/SecurityCompliance/SecurityCompliance.jsx"
+import OTP from "../components/Auth/Login/otp.jsx";
 
 const AllRoutes = () => {
   return (
     <Routes>
       <Route index path="/" element={<Login />} />
+      <Route path="/otp" element={<OTP/>}/>
 
       <Route path="/admin" element={<Layout />}>
         <Route index element={<AdminDashboard />} />
