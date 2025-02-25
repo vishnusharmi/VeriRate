@@ -1,6 +1,4 @@
-// import Header from "./header/header";
 import AllRoutes from "./routes/AllRoutes";
-// import Sidebar from "./sidebar/Sidebar";
 
 const App = () => {
   return (
@@ -16,7 +14,10 @@ const App = () => {
     //     </div>
     //   </div>
     // </div>
-    <AllRoutes />
+    <div>
+        <AllRoutes />
+    </div>
+
     
   );
 };
