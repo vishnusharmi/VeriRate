@@ -5,8 +5,8 @@ const Company = require("../Models/companies");
 const BlackList = require("../Models/blackList-model");
 
 const  Associations =()=>{
-    userModel.hasOne(Documents, { foreignKey: 'empId' });
-Documents.belongsTo(userModel, { foreignKey: 'empId' });
+//     userModel.hasOne(Documents, { foreignKey: 'empId' });
+// Documents.belongsTo(userModel, { foreignKey: 'empId' });
 
 Employee.belongsTo(Company, {foreignKey: "company_id", onDelete: "CASCADE",});
   
@@ -32,6 +32,29 @@ Employee.belongsTo(Company, {foreignKey: "company_id", onDelete: "CASCADE",});
   Company.hasMany(BlackList, {
     foreignKey: "company_id",
   });
+
+  
+  userModel.hasOne(Employee, { foreignKey: "userId", as: "employee" });
+  Employee.belongsTo(userModel, { foreignKey: "userId", as: "user" });
+
+  userModel.hasOne(Company, { foreignKey: "userId", as: "company" });
+  Company.belongsTo(userModel, { foreignKey: "userId", as: "user" });
+
+  Company.hasMany(Employee, {
+    foreignKey: "company_id",
+    as: "employees",
+  });
+  Employee.belongsTo(Company, {
+    foreignKey: "company_id",
+    as: "company",
+  });
+
+  userModel.hasMany(Documents, { foreignKey: "empId", as: "documents" });
+  Documents.belongsTo(userModel, { foreignKey: "empId", as: "user" });
+
+
 }
+
+
 
 module.exports = Associations;
