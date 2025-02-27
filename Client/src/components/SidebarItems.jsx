@@ -18,7 +18,7 @@ import { NavLink } from "react-router";
 import RateReviewIcon from "@mui/icons-material/RateReview";
 
 const SidebarItems = () => {
-  const role = "admin/n";
+  const role = "admin";
 
   const adminMenuItems = [
     { name: "Dashboard", icon: <Dashboard />, path: "/admin" },
