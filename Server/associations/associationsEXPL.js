@@ -3,6 +3,8 @@ const Documents = require('../Models/documents');
 const Employee = require("../Models/EmployeeModel");
 const Company = require("../Models/companies");
 const BlackList = require("../Models/blackList-model");
+const Rating = require('../Models/ratingsModel');
+const Employee = require('../Models/EmployeeModel');
 
 const  Associations =()=>{
 //     userModel.hasOne(Documents, { foreignKey: 'empId' });
@@ -53,6 +55,9 @@ Employee.belongsTo(Company, {foreignKey: "company_id", onDelete: "CASCADE",});
   Documents.belongsTo(userModel, { foreignKey: "empId", as: "user" });
 
 
+//ratings
+Employee.hasMany(Rating, { foreignKey: 'employee_id' });
+Rating.belongsTo(Employee, { foreignKey: 'employee_id' });
 }
 
 
