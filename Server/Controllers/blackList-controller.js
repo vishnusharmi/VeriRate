@@ -12,6 +12,8 @@ const createBlackListUser = async (req, res) => {
 
 // get
 const readBlackListUser = async (req,res)=>{
+    console.log(req.params.id,'iiiididididi');
+    
     try {
         const user = await blackListServices.readBlackList(req.params.id);
         return res.status(200).json({message :"Data retrived successfully",user})
