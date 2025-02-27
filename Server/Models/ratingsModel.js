@@ -13,7 +13,7 @@ const Ratings = sequelize.define("Ratings", {
         allowNull: false,
         references: {
             model: Employees,
-            key: "employee_id",
+            key: "id",
         },
     },
     rating: {
@@ -36,6 +36,9 @@ const Ratings = sequelize.define("Ratings", {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
     },
+    name:{
+        type: DataTypes.STRING
+    }
 }, {
     timestamps: false,
 })

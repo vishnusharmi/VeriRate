@@ -1,4 +1,6 @@
+const Company = require("../Models/companies");
 const UserTable = require("../Models/EmployeeModel");
+const Ratings = require("../Models/ratingsModel");
 
 exports.createEmployee = async (data) => {
   try {
@@ -23,7 +25,7 @@ exports.updateEmployee = async (data, id) => {
 
 exports.getAllEmployees = async () => {
   try {
-    return await UserTable.findAll();
+    return await UserTable.findAll({ include: [Ratings]});
   } catch (error) {
     throw new Error(`Error fetching employees: ${error.message}`);
   }
