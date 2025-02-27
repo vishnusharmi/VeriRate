@@ -20,11 +20,8 @@
     "chart.js": "^4.4.8",
     "file-saver": "^2.0.5",
     "framer-motion": "^12.4.7",
-<<<<<<< HEAD
     "jspdf": "^3.0.0",
-=======
     "jwt-decode": "^4.0.0",
->>>>>>> 529a732522d661d6d8852e4ec9270bed1b44b5ad
     "lucide-react": "^0.475.0",
     "papaparse": "^5.5.2",
     "react": "^19.0.0",

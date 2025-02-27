@@ -7,7 +7,7 @@ import { AuthContext } from "../../Context/Contextapi";
 
 const Form = () => {
   const navigate = useNavigate();
-  const {login}=useContext(AuthContext)
+  const { login } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [loginData, setLoginData] = useState({
     email: "",
@@ -54,26 +54,25 @@ const Form = () => {
         email,
         password,
       });
-      if (res.status===200) {
-        const token=res.data.loginUser.jwtToken ;
-        if(token&&typeof token ==="string"){
+      if (res.status === 200) {
+        const token = res.data.loginUser.jwtToken;
+        if (token && typeof token === "string") {
           login(token);
           // Redirect after success
-         setTimeout(() => {
-        navigate("/otp",{ state: { email: loginData.email }});
-        }, 1500);
-        }else{
-          console.error("Invalid token received",token)
+          setTimeout(() => {
+            navigate("/otp", { state: { email: loginData.email } });
+          }, 1500);
+        } else {
+          console.error("Invalid token received", token);
         }
       }
       toast.success("OTP sent to your mail");
       console.log("Submitted:", res.data.loginUser.message);
       console.log(res);
-
     } catch (error) {
-     setTimeout(()=>{
-      setLoading(false); 
-     },1000)// Reset loading state if login fails
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000); // Reset loading state if login fails
 
       toast.error(error.response?.data?.message || "Login failed!");
       console.log("Error:", error);
@@ -81,18 +80,6 @@ const Form = () => {
   };
 
   return (
-<<<<<<< HEAD
-    <form
-      onSubmit={(e) => e.preventDefault()}
-      className="rounded-md shadow-[0_4px_10px_rgba(0,0,0,0.2)] flex flex-col gap-7 px-6 pt-7 pb-9 min-w-80 fb1:w-100"
-    >
-      <p className="text-3xl font-bold text-blue-500">
-        Login <span className="font-normal text-[1.3rem]">to Verirate</span>
-      </p>
-      {/* SECTION = EMAIL, PASSWORD */}
-      <section className="flex flex-col gap-3">
-        {/* EMAIL ADDRESS DIV */}
-=======
     <>
       <ToastContainer position="top-right" autoClose={3000} />
       <form
@@ -103,7 +90,6 @@ const Form = () => {
           Login <span className="font-normal text-[1.3rem]">to Verirate</span>
         </p>
 
->>>>>>> 529a732522d661d6d8852e4ec9270bed1b44b5ad
         <div className="flex flex-col gap-2">
           <label htmlFor="email" className="font-medium text-md">
             Email address:
