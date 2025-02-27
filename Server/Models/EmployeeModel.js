@@ -35,6 +35,13 @@ const Employee = database.define(
       type: DataTypes.JSON,
       allowNull: true,
     },
+
+    is_verified: {
+      // type: DataTypes.BOOLEAN,
+      // allowNull: true,
+      type: DataTypes.ENUM("Pending", "Verified"),
+      defaultValue: "Pending",
+    },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
