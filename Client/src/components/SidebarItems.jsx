@@ -26,10 +26,16 @@ const SidebarItems = () => {
     { name: "Disputes", icon: <Person />, path: "/admin/disputes" },
     {name: "Records", icon: <DescriptionIcon/>, path: "/admin/records"},
     { name: "Monitoring", icon: <Settings />, path: "/admin/monitoring" },
+    { name: "Monitoring", icon: <Settings />, path: "/admin/monitoring" },
     {
       name: "User Management",
       icon: <PeopleAlt />,
       path: "/admin/usermanagement",
+    },
+    {
+      name: "Company Management",
+      icon: <PeopleAlt/>,
+      path: "/admin/companymanagement",
     },
     {
       name: "SecurityCompliance",
