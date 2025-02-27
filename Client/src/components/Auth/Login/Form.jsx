@@ -2,7 +2,7 @@ const Form = () => {
   return (
     <form
       onSubmit={(e) => e.preventDefault()}
-      className="rounded-md shadow-[0_4px_10px_rgba(0,0,0,0.2)] flex flex-col gap-7 px-6 pt-7 pb-9 w-120"
+      className="rounded-md shadow-[0_4px_10px_rgba(0,0,0,0.2)] flex flex-col gap-7 px-6 pt-7 pb-9 min-w-80 fb1:w-100"
     >
       <p className="text-3xl font-bold text-blue-500">
         Login <span className="font-normal text-[1.3rem]">to Verirate</span>
