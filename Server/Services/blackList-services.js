@@ -1,4 +1,8 @@
+const { Model } = require("sequelize")
 const blackList = require("../Models/blackList-model")
+const employee = require("../Models/EmployeeModel");
+const company = require("../Models/companies")
+
 
 //create
 exports.createBlackList = async (data)=>{
@@ -13,7 +17,16 @@ exports.createBlackList = async (data)=>{
 //read
 exports.readBlackList = async (id)=>{
     try {
-        const user = await blackList.findByPk(id)
+        const user = await blackList.findByPk(id,{
+                  include: [
+                {
+                    model: employee, 
+                },
+                {
+                    model: company, 
+                }
+            ]
+        })
         if (!user){
             return 'Id not available'
         }
@@ -24,10 +37,14 @@ exports.readBlackList = async (id)=>{
     }
 }
 
+//get employees by id only name
+
+
+
 //read all
 exports.readAllBlackList = async ()=>{
     try {
-        const users = await blackList.findAll({})
+        const users = await blackList.findAll({raw:true})
         // if (!user){
         //     return 'Id not available'
         // }
