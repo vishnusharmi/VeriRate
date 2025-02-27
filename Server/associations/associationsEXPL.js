@@ -1,31 +1,60 @@
 const userModel = require('../Models/user');
 const Documents = require('../Models/documents');
-const employeeModel = require("../Models/EmployeeModel")
-const companyModel = require("../Models/companies");
+const Employee = require("../Models/EmployeeModel");
+const Company = require("../Models/companies");
+const BlackList = require("../Models/blackList-model");
 
 const  Associations =()=>{
 //     userModel.hasOne(Documents, { foreignKey: 'empId' });
 // Documents.belongsTo(userModel, { foreignKey: 'empId' });
 
+Employee.belongsTo(Company, {foreignKey: "company_id", onDelete: "CASCADE",});
+  
 
-    userModel.hasOne(employeeModel, { foreignKey: "userId", as: "employee" });
-    employeeModel.belongsTo(userModel, { foreignKey: "userId", as: "user" });
+  Company.hasMany(Employee, {
+    foreignKey: "company_id",
+  });
+  
+  BlackList.belongsTo(Employee, {
+    foreignKey: "employee_id",
+    onDelete: "CASCADE",
+  });
+  
+  BlackList.belongsTo(Company, {
+    foreignKey: "company_id",
+    onDelete: "CASCADE",
+  });
+  
+  Employee.hasMany(BlackList, {
+    foreignKey: "employee_id",
+  });
+  
+  Company.hasMany(BlackList, {
+    foreignKey: "company_id",
+  });
 
-    userModel.hasOne(companyModel, { foreignKey: "userId", as: "company" });
-    companyModel.belongsTo(userModel, { foreignKey: "userId", as: "user" });
+  
+  userModel.hasOne(Employee, { foreignKey: "userId", as: "employee" });
+  Employee.belongsTo(userModel, { foreignKey: "userId", as: "user" });
 
-    companyModel.hasMany(employeeModel, {
-      foreignKey: "company_id",
-      as: "employees",
-    });
-    employeeModel.belongsTo(companyModel, {
-      foreignKey: "company_id",
-      as: "company",
-    });
+  userModel.hasOne(Company, { foreignKey: "userId", as: "company" });
+  Company.belongsTo(userModel, { foreignKey: "userId", as: "user" });
 
-    userModel.hasMany(Documents, { foreignKey: "empId", as: "documents" });
-    Documents.belongsTo(userModel, { foreignKey: "empId", as: "user" });
+  Company.hasMany(Employee, {
+    foreignKey: "company_id",
+    as: "employees",
+  });
+  Employee.belongsTo(Company, {
+    foreignKey: "company_id",
+    as: "company",
+  });
+
+  userModel.hasMany(Documents, { foreignKey: "empId", as: "documents" });
+  Documents.belongsTo(userModel, { foreignKey: "empId", as: "user" });
+
 
 }
+
+
 
 module.exports = Associations;

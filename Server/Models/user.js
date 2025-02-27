@@ -21,24 +21,7 @@ const  User=  sequelize.define('User', {
         type: DataTypes.ENUM('employee', "admin", "super-admin"),
         allowNull: false,
     },
-    // company_id: {
-    //     type: DataTypes.INTEGER,
-    //     allowNull: true,
-    //     references: {
-    //         model: "company",
-    //         key: "id"
-    //     }
-    // },
-
-    confirmPassword :{
-        type: DataTypes.STRING,
-        allowNull: true
-    },
-    newPassword : {
-        type : DataTypes.STRING,
-        allowNull: true
-
-    },
+ 
  otp: {
         type: DataTypes.STRING,
         allowNull: true,
