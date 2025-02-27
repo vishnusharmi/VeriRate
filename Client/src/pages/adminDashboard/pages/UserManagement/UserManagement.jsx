@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-  Users, UserPlus, Search, Filter, Shield, 
-  CheckCircle, XCircle, Download, Upload, 
+  Users, UserPlus, Search, Filter, Shield,
+  CheckCircle, XCircle, Download, Upload,
   Edit, Trash2, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import {
@@ -43,7 +43,7 @@ const UserManagement = () => {
   // Filter and search logic
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchQuery.toLowerCase());
+      user.email.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesRole = roleFilter === 'All Roles' || user.role === roleFilter;
     const matchesStatus = statusFilter === 'Status' || user.status === statusFilter;
     return matchesSearch && matchesRole && matchesStatus;
@@ -66,64 +66,36 @@ const UserManagement = () => {
     setAddModalOpen(true);
   };
 
+  const handleEditClick = (user) => {
+    setSelectedUser(user);
+    setFormData({
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      status: user.status
+    });
+    setEditModalOpen(true);
+  };
+
+  const handleDeleteClick = (user) => {
+    setSelectedUser(user);
+    setDeleteModalOpen(true);
+  };
+
   const handleAddSubmit = () => {
     console.log('Adding new user:', formData);
     setAddModalOpen(false);
   };
 
-  // Add User Modal Component
-  const AddUserModal = () => (
-    <Dialog open={addModalOpen} onClose={() => setAddModalOpen(false)} maxWidth="sm" fullWidth>
-      <DialogTitle>Add New User</DialogTitle>
-      <DialogContent>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-          <TextField
-            label="Name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            fullWidth
-          />
-          <TextField
-            label="Email"
-            type="email"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            fullWidth
-          />
-          <FormControl fullWidth>
-            <InputLabel>Role</InputLabel>
-            <Select
-              value={formData.role}
-              label="Role"
-              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-            >
-              <MenuItem value="Super Admin">Super Admin</MenuItem>
-              <MenuItem value="Admin">Admin</MenuItem>
-              <MenuItem value="Manager">Manager</MenuItem>
-              <MenuItem value="User">User</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl fullWidth>
-            <InputLabel>Status</InputLabel>
-            <Select
-              value={formData.status}
-              label="Status"
-              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-            >
-              <MenuItem value="Active">Active</MenuItem>
-              <MenuItem value="Inactive">Inactive</MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => setAddModalOpen(false)}>Cancel</Button>
-        <Button onClick={handleAddSubmit} variant="contained" color="primary">
-          Add User
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
+  const handleEditSubmit = () => {
+    console.log('Editing user:', selectedUser.id, formData);
+    setEditModalOpen(false);
+  };
+
+  const handleDeleteConfirm = () => {
+    console.log('Deleting user:', selectedUser.id);
+    setDeleteModalOpen(false);
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-8">
@@ -142,7 +114,7 @@ const UserManagement = () => {
             <Download size={18} />
             <span className="hidden md:inline">Export</span>
           </button>
-          <button 
+          <button
             onClick={handleAddUser}
             className="bg-blue-600 text-white px-3 md:px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
           >
@@ -199,8 +171,8 @@ const UserManagement = () => {
       <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mb-8">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="Search users..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -210,7 +182,7 @@ const UserManagement = () => {
           </div>
 
           <div className="flex gap-4">
-            <select 
+            <select
               className="pl-4 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white"
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
@@ -222,7 +194,7 @@ const UserManagement = () => {
               <option>User</option>
             </select>
 
-            <select 
+            <select
               className="pl-4 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -260,7 +232,7 @@ const UserManagement = () => {
                 <td className="px-4 md:px-6 py-4 text-sm">
                   <span className={`px-2 py-1 rounded-full text-xs ${
                     user.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                  }`}>
+                    }`}>
                     {user.status}
                   </span>
                 </td>
@@ -281,7 +253,7 @@ const UserManagement = () => {
 
       {/* Pagination */}
       <div className="flex justify-center mt-6">
-        <Pagination 
+        <Pagination
           count={pageCount}
           page={currentPage}
           onChange={(e, page) => setCurrentPage(page)}
@@ -289,10 +261,109 @@ const UserManagement = () => {
         />
       </div>
 
-      {/* Modals */}
-      {/* <EditModal />
-      <DeleteModal />
-      <AddUserModal /> */}
+      {/* Add User Modal */}
+      <Dialog open={addModalOpen} onClose={() => setAddModalOpen(false)}>
+        <DialogTitle>Add New User</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Name"
+            fullWidth
+            margin="normal"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          />
+          <TextField
+            label="Email"
+            fullWidth
+            margin="normal"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          />
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Role</InputLabel>
+            <Select
+              value={formData.role}
+              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+            >
+              <MenuItem value="Admin">Admin</MenuItem>
+              <MenuItem value="Manager">Manager</MenuItem>
+              <MenuItem value="User">User</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Status</InputLabel>
+            <Select
+              value={formData.status}
+              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+            >
+              <MenuItem value="Active">Active</MenuItem>
+              <MenuItem value="Inactive">Inactive</MenuItem>
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAddModalOpen(false)}>Cancel</Button>
+          <Button onClick={handleAddSubmit} color="primary">Add User</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit User Modal */}
+      <Dialog open={editModalOpen} onClose={() => setEditModalOpen(false)}>
+        <DialogTitle>Edit User</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Name"
+            fullWidth
+            margin="normal"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          />
+          <TextField
+            label="Email"
+            fullWidth
+            margin="normal"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          />
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Role</InputLabel>
+            <Select
+              value={formData.role}
+              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+            >
+              <MenuItem value="Admin">Admin</MenuItem>
+              <MenuItem value="Manager">Manager</MenuItem>
+              <MenuItem value="User">User</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Status</InputLabel>
+            <Select
+              value={formData.status}
+              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+            >
+              <MenuItem value="Active">Active</MenuItem>
+              <MenuItem value="Inactive">Inactive</MenuItem>
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditModalOpen(false)}>Cancel</Button>
+          <Button onClick={handleEditSubmit} color="primary">Save Changes</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Delete User Modal */}
+      <Dialog open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
+        <DialogTitle>Delete User</DialogTitle>
+        <DialogContent>
+          <p>Are you sure you want to delete <strong>{selectedUser?.name}</strong>?</p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteModalOpen(false)}>Cancel</Button>
+          <Button onClick={handleDeleteConfirm} color="error">Delete</Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

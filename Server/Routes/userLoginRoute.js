@@ -4,5 +4,6 @@ const loginRouter = express.Router();
 
 
 loginRouter.post('/login' , loginController.login);
+loginRouter.post('/otp', loginController.otp);
 
 module.exports = loginRouter

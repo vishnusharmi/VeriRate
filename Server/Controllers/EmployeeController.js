@@ -1,5 +1,5 @@
 const employeeService = require("../Services/EmployeeServices");
-const UserTable = require("../Models/EmployeeModel");
+// const UserTable = require("../Models/EmployeeModel");
 
 const createEmployee = async (req, res) => {
   try {
