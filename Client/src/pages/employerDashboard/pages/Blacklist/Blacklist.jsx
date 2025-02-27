@@ -1,4 +1,3 @@
-
 // import React, { useEffect, useState } from "react";
 // import { FiEdit, FiTrash2, FiPlus } from "react-icons/fi";
 // import axios from "axios";
@@ -28,9 +27,6 @@
 //       setEmployees(data);
 //       console.log(data);
 
-
-
-
 //     } catch (err) {
 //       console.error("Error fetching data:", err);
 //     }
@@ -43,15 +39,14 @@
 //   const handleSave = async () => {
 //     console.log(formData, 'formData');
 
-
 //     try {
 //       const payload = {
 //         name: formData.name,
-//         // employee_id: formData.employee_id, 
-//         reason_code: formData.reason_code, 
+//         // employee_id: formData.employee_id,
+//         reason_code: formData.reason_code,
 //         status: formData.status,
 //         start_date: formData.start_date,
-//         end_date: formData.end_date, 
+//         end_date: formData.end_date,
 //       };
 //       console.log(payload, 'helllll');
 
@@ -62,14 +57,12 @@
 //         console.log(response, 'reeeee');
 //       }
 
-
 //       getData(); // Refresh data
 //       closeModal();
 //     } catch (err) {
 //       console.error("Error saving data:", err);
 //     }
 //   };
-
 
 //   // Handle Delete Employee
 //   const handleDelete = async (id) => {
@@ -240,7 +233,6 @@
 
 // export default BlacklistManagement;
 
-
 import React, { useEffect, useState } from "react";
 import { FiEdit, FiTrash2, FiPlus } from "react-icons/fi";
 import axios from "axios";
@@ -259,12 +251,12 @@ const BlacklistManagement = () => {
     status: "",
     start_date: "",
     end_date: "",
-    name:"",
-    company_id:""
+    name: "",
+    company_id: "",
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  console.log(formData, 'data');
+  console.log(formData, "data");
 
   // Fetch Blacklist Data
   const getData = async () => {
@@ -288,7 +280,6 @@ const BlacklistManagement = () => {
 
   console.log(employeeList);
 
-
   useEffect(() => {
     getData();
     fetchEmployees(); // Fetch employees when component loads
@@ -307,8 +298,8 @@ const BlacklistManagement = () => {
         status: formData.status,
         start_date: formData.start_date,
         end_date: formData.end_date,
-        name:formData.name,
-        company_id:formData.company_id
+        name: formData.name,
+        company_id: formData.company_id,
       };
 
       if (editEmployee) {
@@ -350,8 +341,8 @@ const BlacklistManagement = () => {
       status: "",
       start_date: "",
       end_date: "",
-      name:"",
-      company_id:""
+      name: "",
+      company_id: "",
     });
     setIsModalOpen(true);
   };
@@ -366,28 +357,27 @@ const BlacklistManagement = () => {
       status: "",
       start_date: "",
       end_date: "",
-      company_id:""
+      company_id: "",
     });
   };
 
   // Handle Input Change
   const handleChange = (e) => {
-
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  
   const handleChangeOption = (e) => {
-    const selectedEmployee = employeeList.find(emp => emp.id === parseInt(e.target.value, 10));
-    console.log(selectedEmployee,"data coming");
-    
-    
+    const selectedEmployee = employeeList.find(
+      (emp) => emp.id === parseInt(e.target.value, 10)
+    );
+    console.log(selectedEmployee, "data coming");
+
     if (selectedEmployee) {
       setFormData((prev) => ({
         ...prev,
         employee_id: selectedEmployee.id,
-        company_id:selectedEmployee.company_id,
-        name:`${selectedEmployee.first_name} ${selectedEmployee.last_name}`
+        company_id: selectedEmployee.company_id,
+        name: `${selectedEmployee.first_name} ${selectedEmployee.last_name}`,
       }));
     }
   };
@@ -395,10 +385,10 @@ const BlacklistManagement = () => {
   // Search Filter
   const filteredEmployees = searchTerm.trim()
     ? employees?.filter(
-      (emp) =>
-        emp?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        emp?.employeeId?.toLowerCase().includes(searchTerm.toLowerCase())
-    ) || []
+        (emp) =>
+          emp?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          emp?.employeeId?.toLowerCase().includes(searchTerm.toLowerCase())
+      ) || []
     : employees;
 
   return (
@@ -424,7 +414,7 @@ const BlacklistManagement = () => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
+        <div className="fixed inset-0 bg-[rgba(0,0,0,50%)] bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
             <h3 className="text-lg font-bold mb-4">
               {editEmployee ? "Edit Blacklist Entry" : "Add Blacklist Entry"}
@@ -443,7 +433,6 @@ const BlacklistManagement = () => {
                 </option>
               ))}
             </select>
-
 
             {["reason_code", "status"].map((field) => (
               <input
@@ -468,10 +457,16 @@ const BlacklistManagement = () => {
             ))}
 
             <div className="flex justify-end space-x-2">
-              <button className="bg-gray-400 text-white px-4 py-2 rounded-lg" onClick={closeModal}>
+              <button
+                className="bg-gray-400 text-white px-4 py-2 rounded-lg"
+                onClick={closeModal}
+              >
                 Cancel
               </button>
-              <button className="bg-blue-500 text-white px-4 py-2 rounded-lg" onClick={handleSave}>
+              <button
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+                onClick={handleSave}
+              >
                 {editEmployee ? "Update" : "Save"}
               </button>
             </div>
@@ -483,11 +478,19 @@ const BlacklistManagement = () => {
         <table className="w-full">
           <thead>
             <tr className="bg-black text-white text-center">
-              {["Employee", "ID", "Reason", "Status", "Start Date", "End Date", "Actions"].map(
-                (header) => (
-                  <th key={header} className="p-3">{header}</th>
-                )
-              )}
+              {[
+                "Employee",
+                "ID",
+                "Reason",
+                "Status",
+                "Start Date",
+                "End Date",
+                "Actions",
+              ].map((header) => (
+                <th key={header} className="p-3">
+                  {header}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -501,13 +504,23 @@ const BlacklistManagement = () => {
                   <td className="p-3">{employee.start_date || "N/A"}</td>
                   <td className="p-3">{employee.end_date || "N/A"}</td>
                   <td className="p-3 flex space-x-2">
-                    <FiEdit className="text-blue-500 cursor-pointer" onClick={() => handleEdit(employee)} />
-                    <FiTrash2 className="text-red-500 cursor-pointer" onClick={() => handleDelete(employee.id)} />
+                    <FiEdit
+                      className="text-blue-500 cursor-pointer"
+                      onClick={() => handleEdit(employee)}
+                    />
+                    <FiTrash2
+                      className="text-red-500 cursor-pointer"
+                      onClick={() => handleDelete(employee.id)}
+                    />
                   </td>
                 </tr>
               ))
             ) : (
-              <tr><td colSpan="7" className="p-4 text-center text-gray-500">No employees found.</td></tr>
+              <tr>
+                <td colSpan="7" className="p-4 text-center text-gray-500">
+                  No employees found.
+                </td>
+              </tr>
             )}
           </tbody>
         </table>

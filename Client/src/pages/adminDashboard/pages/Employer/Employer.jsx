@@ -21,7 +21,10 @@ const Employer = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentEmployer, setCurrentEmployer] = useState(null);
-  const [formData, setFormData] = useState({ name: "", email: "" });
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+  });
   const [deleteEmployerId, setDeleteEmployerId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const employersPerPage = 10;
@@ -31,7 +34,10 @@ const Employer = () => {
     setIsEditMode(!!employer);
     setFormData(
       employer
-        ? { name: employer.name, email: employer.email }
+        ? {
+            name: employer.name,
+            email: employer.email,
+          }
         : { name: "", email: "" }
     );
     setIsModalVisible(true);
@@ -187,6 +193,7 @@ const Employer = () => {
                 placeholder="Enter Email"
                 className="w-full px-4 py-2 border rounded-lg mb-4"
               />
+
               <div className="flex justify-center gap-4">
                 <motion.button
                   className="bg-green-500 text-white px-6 py-2 rounded-lg shadow-md hover:bg-green-600 transition-all duration-300 cursor-pointer"
