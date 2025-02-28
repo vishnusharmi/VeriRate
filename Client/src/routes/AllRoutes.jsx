@@ -41,7 +41,7 @@ const AllRoutes = () => {
         <Route path="/admin/employer" element={<Employer />} />
         <Route path="/admin/records" element={<Records />} />
         <Route path="/admin/monitoring" element={<Monitoring />} />
-        <Route path="/admin/usermanagement" element={<UserManagement />} />
+        <Route path="/admin/user-management" element={<UserManagement />} />
         <Route path="/admin/companymanagement" element={<CompanyManagement />} />
         <Route
           path="/admin/security-compliance"
