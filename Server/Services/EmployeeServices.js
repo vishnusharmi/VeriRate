@@ -4,6 +4,7 @@ const Ratings = require("../Models/ratingsModel");
 
 exports.createEmployee = async (data) => {
   try {
+    console.log(data);
     const employee = await UserTable.create(data);
     return employee;
   } catch (error) {

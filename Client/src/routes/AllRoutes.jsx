@@ -16,34 +16,38 @@ import Analytics from "../pages/employerDashboard/pages/Analytics/Analytics.jsx"
 import Blacklist from "../pages/employerDashboard/pages/Blacklist/Blacklist.jsx";
 import EmployeeList from "../pages/employerDashboard/pages/EmployeeList/EmployeeList.jsx";
 import History from "../pages/employerDashboard/pages/History/History.jsx";
-import Reviews from "../pages/employerDashboard/pages/Reviews/Reviews.jsx";
 import Records from "../pages/adminDashboard/pages/Records/Records.jsx";
 
-import EmployeerVerificationSearch from "../pages/employerDashboard/pages/EmployeerVerificationSearch/EmployeerVerificationSearch.jsx";
+import EmployerVerificationSearch from "../pages/employerDashboard/pages/EmployerVerificationSearch/EmployerVerificationSearch.jsx";
 import EmployeeRatingsFeedback from "../pages/employerDashboard/pages/RatingsAndFeedback/EmployeeRatingsFeedback.jsx";
 import UserManagement from "../pages/adminDashboard/pages/UserManagement/UserManagement.jsx";
 import SecurityCompliance from "../pages/employerDashboard/pages/SecurityCompliance/SecurityCompliance.jsx"
+import CompanyManagement from "../pages/adminDashboard/pages/CompanyManagement/companyManagement.jsx";
+import AdminSettings from "../pages/adminDashboard/pages/Settings/AdminSettings.jsx";
+import EmployeeAdminSettings from "../pages/employerDashboard/pages/Settings/EmployeeAdminSettings.jsx";
 import OTP from "../components/Auth/Login/Otp.jsx";
-
+// import SecurityCompliance from "../pages/employerDashboard/pages/SecurityCompliance/SecurityCompliance.jsx"
 
 
 const AllRoutes = () => {
   return (
     <Routes>
       <Route index path="/" element={<Login />} />
-      <Route path="/otp" element={<OTP/>}/>
+      <Route path="/otp" element={<OTP />} />
 
       <Route path="/admin" element={<Layout />}>
         <Route index element={<AdminDashboard />} />
         <Route path="/admin/disputes" element={<Disputes />} />
         <Route path="/admin/employer" element={<Employer />} />
-        <Route path="/admin/records" element={<Records/>} />
+        <Route path="/admin/records" element={<Records />} />
         <Route path="/admin/monitoring" element={<Monitoring />} />
-        <Route path="/admin/usermanagement" element={<UserManagement />} />
+        <Route path="/admin/user-management" element={<UserManagement />} />
+        <Route path="/admin/company-management" element={<CompanyManagement />} />
         <Route
           path="/admin/security-compliance"
           element={<SecurityCompliances />}
         />
+        <Route path="/admin/settings" element={<AdminSettings />} />
       </Route>
 
       <Route path="/company" element={<Layout />}>
@@ -54,9 +58,8 @@ const AllRoutes = () => {
         <Route path="/company/history" element={<History />} />
         <Route
           path="/company/verification"
-          element={<EmployeerVerificationSearch />}
+          element={<EmployerVerificationSearch />}
         />
-        <Route path="/company/reviews" element={<Reviews />} />
         <Route
           path="/company/ratings-feedback"
           element={<EmployeeRatingsFeedback />}
@@ -64,6 +67,10 @@ const AllRoutes = () => {
         <Route
           path="/company/security-compliance"
           element={<SecurityCompliance />}
+        />
+        <Route
+          path="/company/employee-settings"
+          element={<EmployeeAdminSettings />}
         />
       </Route>
     </Routes>

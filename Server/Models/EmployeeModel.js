@@ -41,6 +41,13 @@ const Employee = database.define(
       type: DataTypes.JSON,
       allowNull: true,
     },
+
+    is_verified: {
+      // type: DataTypes.BOOLEAN,
+      // allowNull: true,
+      type: DataTypes.ENUM("Pending", "Verified"),
+      defaultValue: "Pending",
+    },
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -59,7 +66,13 @@ const Employee = database.define(
       defaultValue: DataTypes.NOW,
       onUpdate: DataTypes.NOW,
     },
+    position:{
+      type: DataTypes.STRING(50),
+      allowNull: false,
+    },
+   
   },
+
   {
     tableName: "employees",
     timestamps: false,
