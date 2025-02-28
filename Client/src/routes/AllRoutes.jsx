@@ -23,12 +23,18 @@ import EmployeerVerificationSearch from "../pages/employerDashboard/pages/Employ
 import EmployeeRatingsFeedback from "../pages/employerDashboard/pages/RatingsAndFeedback/EmployeeRatingsFeedback.jsx";
 import UserManagement from "../pages/adminDashboard/pages/UserManagement/UserManagement.jsx";
 import SecurityCompliance from "../pages/employerDashboard/pages/SecurityCompliance/SecurityCompliance.jsx"
+import ForgetPassword from "../components/Auth/Login/ForgetPassword.jsx";
+import ResetPassword from "../components/Auth/Login/NewPassword.jsx";
+
 
 
 const AllRoutes = () => {
   return (
     <Routes>
       <Route index path="/" element={<Login />} />
+      <Route path="/forget-password" element={<ForgetPassword/>}></Route>
+      <Route path="/reset-password"  element={<ResetPassword />}></Route>
+    
       <Route path="/admin" element={<Layout />}>
         <Route index element={<AdminDashboard />} />
         <Route path="/admin/disputes" element={<Disputes />} />
