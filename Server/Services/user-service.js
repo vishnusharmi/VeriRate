@@ -141,10 +141,12 @@ exports.registerUser = async (data, files) => {
         department: data.department,
         phone_number: data.phone_number,
         employment_history: data.employment_history,
+
       });
     } else if (data.role === "admin" || "super-admin") {
       additionalData = await companyModel.create({
         userId: userData.id,
+        createdBy:data.createdBy,
         companyName: data.companyName,
         industry: data.industry,
         address: data.address,

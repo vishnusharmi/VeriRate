@@ -66,7 +66,13 @@ const Employee = database.define(
       defaultValue: DataTypes.NOW,
       onUpdate: DataTypes.NOW,
     },
+    position:{
+      type: DataTypes.STRING(50),
+      allowNull: false,
+    },
+   
   },
+
   {
     tableName: "employees",
     timestamps: false,
