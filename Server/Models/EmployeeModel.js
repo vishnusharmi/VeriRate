@@ -1,5 +1,7 @@
 const { DataTypes } = require("sequelize");
 const database = require("../Config/DBconnection");
+const Company = require("../Models/companies");
+const User = require("./user");
 
 const Employee = database.define(
   "Employee",
@@ -12,6 +14,10 @@ const Employee = database.define(
     company_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: Company,
+        key: "id",
+      },
       onDelete: "CASCADE",
     },
     first_name: {
@@ -22,11 +28,11 @@ const Employee = database.define(
       type: DataTypes.STRING(50),
       allowNull: false,
     },
-    email: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      unique: true,
-    },
+    // email: {
+    //   type: DataTypes.STRING(255),
+    //   allowNull: true,
+    //   unique: true,
+    // },
     phone_number: {
       type: DataTypes.STRING(20),
       allowNull: true,
@@ -34,6 +40,22 @@ const Employee = database.define(
     employment_history: {
       type: DataTypes.JSON,
       allowNull: true,
+    },
+
+    is_verified: {
+      // type: DataTypes.BOOLEAN,
+      // allowNull: true,
+      type: DataTypes.ENUM("Pending", "Verified"),
+      defaultValue: "Pending",
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: User,
+        key: "id",
+      },
+      onDelete: "CASCADE",
     },
     created_at: {
       type: DataTypes.DATE,
@@ -44,7 +66,13 @@ const Employee = database.define(
       defaultValue: DataTypes.NOW,
       onUpdate: DataTypes.NOW,
     },
+    position:{
+      type: DataTypes.STRING(50),
+      allowNull: false,
+    },
+   
   },
+
   {
     tableName: "employees",
     timestamps: false,

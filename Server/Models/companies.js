@@ -1,25 +1,63 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../Config/DBconnection");
+const User = require("./user");
 
 
 const Company = sequelize.define("Company", {
   id: {
     type: DataTypes.INTEGER,
-    autoIncrement: true, 
+    autoIncrement: true,
     primaryKey: true,
   },
-  name: {
+  companyName: {
     type: DataTypes.STRING(255),
+    allowNull: false,
+  },
+  email :{
+    type : DataTypes.STRING,
+    allowNull : false,
+    unique : true,
+  },
+  status: {
+    type: DataTypes.ENUM("Active", "Pending Approval", "Suspended"),
+    allowNull: false,
+  },
+  phonenumber:{
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  compliance: {
+    type: DataTypes.ENUM("Compliant", "Under Review", "Non-Compliant"),
     allowNull: false,
   },
   address: {
     type: DataTypes.STRING(255),
     allowNull: true,
   },
-
-  
- 
+  industry: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: User,
+      key: "id",
+    },
+    onDelete: "CASCADE",
+  },
+  createdBy:{
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: User,
+      key: "id",
+    },
+    onDelete: "CASCADE",
+  }
 });
+
 
 module.exports = Company;
 
