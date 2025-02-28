@@ -1,47 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Star, Check, Filter, ArrowDown, ArrowUp } from 'lucide-react';
+import axios from 'axios';
 
 const EmployeeRatingsFeedback = () => {
-  // Sample data - in a real app this would come from an API
-  const [employees, setEmployees] = useState([
-    { 
-      id: 1, 
-      name: 'Jane Smith', 
-      position: 'Senior Developer', 
-      department: 'Engineering',
-      ratings: [
-        { id: 101, rating: 4.5, feedback: 'Excellent problem-solving skills. Always delivers on time.', date: '2024-12-15', verified: true, reviewer: 'Michael Chen' },
-        { id: 102, rating: 5, feedback: 'Outstanding team player. Mentored junior developers effectively.', date: '2024-09-20', verified: true, reviewer: 'Sarah Johnson' }
-      ]
-    },
-    { 
-      id: 2, 
-      name: 'David Johnson', 
-      position: 'Marketing Manager', 
-      department: 'Marketing',
-      ratings: [
-        { id: 201, rating: 3.5, feedback: 'Good at campaign planning, but sometimes misses deadlines.', date: '2024-11-10', verified: false, reviewer: 'Lisa Williams' }
-      ]
-    },
-    { 
-      id: 3, 
-      name: 'Robert Chen', 
-      position: 'UX Designer', 
-      department: 'Product',
-      ratings: [
-        { id: 301, rating: 5, feedback: 'Exceptional design work. User testing results were outstanding.', date: '2025-01-05', verified: true, reviewer: 'James Wilson' },
-        { id: 302, rating: 4, feedback: 'Creative solutions to complex problems. Could improve documentation.', date: '2024-10-18', verified: true, reviewer: 'Emily Rodriguez' }
-      ]
-    }
-  ]);
-  
+  const [employees, setEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortField, setSortField] = useState('name');
   const [sortDirection, setSortDirection] = useState('asc');
   const [filterVerified, setFilterVerified] = useState(false);
-  
+  const [loading, setLoading] = useState(true);
+
   // Form state
   const [feedbackData, setFeedbackData] = useState({
     rating: 0,
@@ -49,35 +19,68 @@ const EmployeeRatingsFeedback = () => {
     verified: false,
     reviewer: ''
   });
-  
+
+  // Fetch employees from the API
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/get-employees');
+        // console.log(response.data.employees);
+        const formattedEmployees = response.data.employees.map(emp => ({
+          id: emp.id,
+          name: `${emp.first_name} ${emp.last_name}`,
+          position: emp.employment_history ? emp.employment_history : 'Not specified',
+          department: `Company ID: ${emp.company_id}`,
+          email: emp.email,
+          Ratings: emp.Ratings ? emp.Ratings.map(rating => ({
+            id: rating.id,
+            rating: rating.rating,
+            feedback: rating.feedback,
+            date: rating.created_at ? new Date(rating.created_at).toISOString().slice(0, 10) : '',
+            verified: rating.is_verified,
+            reviewer: rating.name || 'HR System'
+          })) : []
+        }));
+
+        setEmployees(formattedEmployees);
+        setLoading(false);
+      } catch (error) {
+        console.log("Error fetching employees:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchEmployees();
+  }, []);
+
   // Calculate average rating for an employee
-  const getAverageRating = (ratings) => {
-    if (!ratings || ratings.length === 0) return 0;
-    const sum = ratings.reduce((total, item) => total + item.rating, 0);
-    return (sum / ratings.length).toFixed(1);
+  const getAverageRating = (Ratings) => {
+    if (!Ratings || Ratings.length === 0) return 0;
+    const sum = Ratings.reduce((total, item) => total + item.rating, 0);
+    return (sum / Ratings.length).toFixed(1);
   };
-  
+
   // Sort employees based on field and direction
   const sortedEmployees = [...employees].sort((a, b) => {
     if (sortField === 'name') {
-      return sortDirection === 'asc' 
+      return sortDirection === 'asc'
         ? a.name.localeCompare(b.name)
         : b.name.localeCompare(a.name);
     } else if (sortField === 'rating') {
-      const aRating = parseFloat(getAverageRating(a.ratings));
-      const bRating = parseFloat(getAverageRating(b.ratings));
+      const aRating = parseFloat(getAverageRating(a.Ratings));
+      const bRating = parseFloat(getAverageRating(b.Ratings));
       return sortDirection === 'asc' ? aRating - bRating : bRating - aRating;
     }
     return 0;
   });
-  
+
   // Filter employees based on search query
-  const filteredEmployees = sortedEmployees.filter(emp => 
-    (emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-     emp.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
-     emp.department.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredEmployees = sortedEmployees.filter(emp =>
+  (emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    emp.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    emp.department.toLowerCase().includes(searchQuery.toLowerCase()))
   );
-  
+
   // Toggle sort direction and field
   const handleSort = (field) => {
     if (sortField === field) {
@@ -87,7 +90,7 @@ const EmployeeRatingsFeedback = () => {
       setSortDirection('asc');
     }
   };
-  
+
   // Open feedback form for an employee
   const handleAddFeedback = (employee) => {
     setSelectedEmployee(employee);
@@ -99,7 +102,7 @@ const EmployeeRatingsFeedback = () => {
     });
     setShowFeedbackForm(true);
   };
-  
+
   // Handle star rating click
   const handleStarClick = (rating) => {
     setFeedbackData({
@@ -107,7 +110,7 @@ const EmployeeRatingsFeedback = () => {
       rating
     });
   };
-  
+
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -116,37 +119,55 @@ const EmployeeRatingsFeedback = () => {
       [name]: type === 'checkbox' ? checked : value
     });
   };
-  
+
   // Save new feedback
-  const saveFeedback = () => {
+  const saveFeedback = async () => {
     if (feedbackData.rating === 0 || !feedbackData.feedback || !feedbackData.reviewer) {
       alert('Please complete all required fields');
       return;
     }
-    
-    const newFeedback = {
-      id: Date.now(),
-      rating: feedbackData.rating,
-      feedback: feedbackData.feedback,
-      date: new Date().toISOString().slice(0, 10),
-      verified: feedbackData.verified,
-      reviewer: feedbackData.reviewer
-    };
-    
-    const updatedEmployees = employees.map(emp => {
-      if (emp.id === selectedEmployee.id) {
-        return {
-          ...emp,
-          ratings: [...emp.ratings, newFeedback]
-        };
-      }
-      return emp;
-    });
-    
-    setEmployees(updatedEmployees);
-    setShowFeedbackForm(false);
+
+    try {
+      // Format data for the API request
+      const ratingData = {
+        employee_id: selectedEmployee.id,
+        rating: feedbackData.rating,
+        feedback: feedbackData.feedback,
+        is_verified: feedbackData.verified.toString(),
+        name: feedbackData.reviewer
+      };
+
+      // Send POST request to API
+      await axios.post('http://localhost:3000/api/ratings-post', ratingData);
+
+      // Fetch updated employee data after adding new rating
+      const response = await axios.get('http://localhost:3000/api/get-employees');
+
+      // Map the API response to match our component's data structure
+      const formattedEmployees = response.data.employees.map(emp => ({
+        id: emp.id,
+        name: `${emp.first_name} ${emp.last_name}`,
+        position: emp.employment_history ? emp.employment_history : 'Not specified',
+        department: `Company ID: ${emp.company_id}`,
+        email: emp.email,
+        Ratings: emp.Ratings ? emp.Ratings.map(rating => ({
+          id: rating.id,
+          rating: rating.rating,
+          feedback: rating.feedback,
+          date: rating.created_at ? new Date(rating.created_at).toISOString().slice(0, 10) : '',
+          verified: rating.is_verified,
+          reviewer: rating.reviewer || feedbackData.reviewer
+        })) : []
+      }));
+
+      setEmployees(formattedEmployees);
+      setShowFeedbackForm(false);
+    } catch (error) {
+      console.error("Error saving feedback:", error);
+      alert('Failed to save feedback. Please try again.');
+    }
   };
-  
+
   // Render star rating display
   const renderStarRating = (rating) => {
     return (
@@ -155,20 +176,19 @@ const EmployeeRatingsFeedback = () => {
           <Star
             key={star}
             size={16}
-            className={`${
-              star <= rating
+            className={`${star <= rating
                 ? 'text-yellow-400 fill-yellow-400'
                 : star - 0.5 <= rating
-                ? 'text-yellow-400 fill-yellow-400 opacity-50'
-                : 'text-gray-300'
-            }`}
+                  ? 'text-yellow-400 fill-yellow-400 opacity-50'
+                  : 'text-gray-300'
+              }`}
           />
         ))}
         <span className="ml-1 text-sm font-medium">{rating}</span>
       </div>
     );
   };
-  
+
   // Render interactive star rating input
   const renderStarRatingInput = () => {
     return (
@@ -191,12 +211,12 @@ const EmployeeRatingsFeedback = () => {
           </button>
         ))}
         <span className="ml-2 text-sm text-gray-600">
-          {feedbackData.rating > 0 ? `${feedbackData.rating} stars `: 'Select rating'}
+          {feedbackData.rating > 0 ? `${feedbackData.rating} stars ` : 'Select rating'}
         </span>
       </div>
     );
   };
-  
+
   // Feedback form modal
   const renderFeedbackForm = () => (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
@@ -267,19 +287,18 @@ const EmployeeRatingsFeedback = () => {
       </div>
     </div>
   );
-  
+
   // Detailed feedback expansion component
   const FeedbackDetails = ({ employee }) => {
     const [expanded, setExpanded] = useState(false);
-    
-    // Filter verified ratings if the filter is active
+
+    // Filter verified Ratings if the filter is active
     const displayRatings = filterVerified
-      ? employee.ratings.filter(r => r.verified)
-      : employee.ratings;
-    
+      ? employee.Ratings.filter(r => r.verified)
+      : employee.Ratings;
+
     return (
-        //rating-history
-      <div className="mb-4 bg-gray-50 p-3 rounded-md">
+      <div className="mb-4 bg-gray-50 p-3 rounded-md shadow-md shadow-gray-400 rounded-lg">
         <button
           className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-700 focus:outline-none"
           onClick={() => setExpanded(!expanded)}
@@ -287,7 +306,7 @@ const EmployeeRatingsFeedback = () => {
           <span>Rating History ({displayRatings.length})</span>
           {expanded ? <ArrowUp size={16} /> : <ArrowDown size={16} />}
         </button>
-        
+
         {expanded && (
           <div className="mt-3 space-y-3">
             {displayRatings.length > 0 ? (
@@ -311,17 +330,17 @@ const EmployeeRatingsFeedback = () => {
                 </div>
               ))
             ) : (
-              <p className="text-sm text-gray-500 italic">No ratings available with current filters</p>
+              <p className="text-sm text-gray-500 italic">No Ratings available with current filters</p>
             )}
           </div>
         )}
       </div>
     );
   };
-  
+
   return (
     <div className="bg-white rounded-lg shadow p-6">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6 sticky fixed top-5 z-50">
         <h2 className="text-xl font-semibold">Employee Ratings & Feedback</h2>
         <div className="flex items-center space-x-2">
           <div className="flex items-center">
@@ -350,93 +369,103 @@ const EmployeeRatingsFeedback = () => {
           </div>
         </div>
       </div>
-      
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white">
-          <thead className="shadow-[inset_0_-30px_36px_-28px_rgba(0,0,0,0.35),inset_0_20px_36px_-28px_rgba(0,0,0,0.35)] bg-white p-6 rounded-lg">
-            <tr>
-              <th 
-                className="px-10 py-3 text-left text-xs font-medium text-white-500 uppercase tracking-wider cursor-pointer"
-                onClick={() => handleSort('name')}
-              >
-                <div className="flex items-center">
-                  Employee
-                  {sortField === 'name' && (
-                    sortDirection === 'asc' ? <ArrowUp size={14} className="ml-1" /> : <ArrowDown size={14} className="ml-1" />
-                  )}
-                </div>
-              </th>
-              <th 
-                className="px-6 py-3 text-left text-xs font-medium text-white-500 uppercase tracking-wider cursor-pointer"
-                onClick={() => handleSort('rating')}
-              >
-                <div className="flex items-center">
-                  Average Rating
-                  {sortField === 'rating' && (
-                    sortDirection === 'asc' ? <ArrowUp size={14} className="ml-1" /> : <ArrowDown size={14} className="ml-1" />
-                  )}
-                </div>
-              </th>
-              <th className="px-12 py-3 text-right text-xs font-medium text-white-500 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {filteredEmployees.map(employee => (
-              <React.Fragment key={employee.id}>
+
+      {loading ? (
+        <div className="text-center py-10">
+          <p>Loading employee data...</p>
+        </div>
+      ) : (
+        <div className="relative max-w-7xl min-h-[75dvh] bg-white p-6 rounded-lg shadow-md z-10 content-scrollbar">
+          <div className="absolute inset-0 px-2 overflow-y-scroll">
+
+            <table className="min-w-full bg-white">
+              <thead className="shadow-[inset_0_-30px_36px_-28px_rgba(0,0,0,0.35),inset_0_20px_36px_-28px_rgba(0,0,0,0.35)] bg-white p-6 rounded-lg sticky top-0">
                 <tr>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <th
+                    className="px-10 py-3 text-left text-xs font-medium text-white-500 uppercase tracking-wider cursor-pointer"
+                    onClick={() => handleSort('name')}
+                  >
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
-                        <User className="text-gray-500" />
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{employee.name}</div>
-                        <div className="text-sm text-gray-500">{employee.position}</div>
-                        <div className="text-xs text-gray-400">{employee.department}</div>
-                      </div>
+                      Employee
+                      {sortField === 'name' && (
+                        sortDirection === 'asc' ? <ArrowUp size={14} className="ml-1" /> : <ArrowDown size={14} className="ml-1" />
+                      )}
                     </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {employee.ratings && employee.ratings.length > 0 ? (
-                      <div>
-                        {renderStarRating(getAverageRating(employee.ratings))}
-                        <div className="mt-1 text-xs text-gray-500">
-                          {employee.ratings.length} {employee.ratings.length === 1 ? 'rating' : 'ratings'}
-                          {' • '}
-                          {employee.ratings.filter(r => r.verified).length} verified
+                  </th>
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-white-500 uppercase tracking-wider cursor-pointer"
+                    onClick={() => handleSort('rating')}
+                  >
+                    <div className="flex items-center">
+                      Average Rating
+                      {sortField === 'rating' && (
+                        sortDirection === 'asc' ? <ArrowUp size={14} className="ml-1" /> : <ArrowDown size={14} className="ml-1" />
+                      )}
+                    </div>
+                  </th>
+                  <th className="px-12 py-3 text-right text-xs font-medium text-white-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {filteredEmployees.map(employee => (
+                  <React.Fragment key={employee.id}>
+                    <tr>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
+                            <User className="text-gray-500" />
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">{employee.name}</div>
+                            <div className="text-sm text-gray-500">{employee.position}</div>
+                            <div className="text-xs text-gray-400">{employee.department}</div>
+                          </div>
                         </div>
-                      </div>
-                    ) : (
-                      <span className="text-sm text-gray-500">No ratings yet</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => handleAddFeedback(employee)}
-                      className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded"
-                    >
-                      Rate Performance
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <td colSpan={3} className="px-6 py-2">
-                    <FeedbackDetails employee={employee} />
-                  </td>
-                </tr>
-              </React.Fragment>
-            ))}
-            {filteredEmployees.length === 0 && (
-              <tr>
-                <td colSpan={3} className="px-6 py-10 text-center text-gray-500">
-                  No employees found matching your search criteria.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-      
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {employee.Ratings.length > 0 ? (
+                          <div>
+                            {renderStarRating(getAverageRating(employee.Ratings))}
+                            <div className="mt-1 text-xs text-gray-500">
+                              {employee.Ratings.length} {employee.Ratings.length === 1 ? 'rating' : 'ratings'}
+                              {' • '}
+                              {employee.Ratings.filter(r => r.verified).length} verified
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-sm text-gray-500">No ratings yet</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button
+                          onClick={() => handleAddFeedback(employee)}
+                          className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded"
+                        >
+                          Rate Performance
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colSpan={3} className="px-6 py-2">
+                        <FeedbackDetails employee={employee} />
+                      </td>
+                    </tr>
+                  </React.Fragment>
+                ))}
+                {filteredEmployees.length === 0 && (
+                  <tr>
+                    <td colSpan={3} className="px-6 py-10 text-center text-gray-500">
+                      No employees found matching your search criteria.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {showFeedbackForm && renderFeedbackForm()}
     </div>
   );

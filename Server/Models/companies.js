@@ -13,6 +13,23 @@ const Company = sequelize.define("Company", {
     type: DataTypes.STRING(255),
     allowNull: false,
   },
+  email :{
+    type : DataTypes.STRING,
+    allowNull : false,
+    unique : true,
+  },
+  status: {
+    type: DataTypes.ENUM("Active", "Pending Approval", "Suspended"),
+    allowNull: false,
+  },
+  phonenumber:{
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  compliance: {
+    type: DataTypes.ENUM("Compliant", "Under Review", "Non-Compliant"),
+    allowNull: false,
+  },
   address: {
     type: DataTypes.STRING(255),
     allowNull: true,
@@ -40,6 +57,7 @@ const Company = sequelize.define("Company", {
     onDelete: "CASCADE",
   }
 });
+
 
 module.exports = Company;
 

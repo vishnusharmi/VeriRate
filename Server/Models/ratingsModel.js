@@ -1,5 +1,6 @@
-const { DataTypes, Sequelize, DATE } = require('sequelize');
+const { DataTypes } = require('sequelize');
 const sequelize = require('../Config/DBconnection');
+const Employees = require('../Models/EmployeeModel');
 
 const Ratings = sequelize.define("Ratings", {
     id :{
@@ -10,18 +11,10 @@ const Ratings = sequelize.define("Ratings", {
     employee_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        // references: {
-        //     model: "Employees",
-        //     key: "employee_id",
-        // },
-    },
-    company_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        // references: {
-        //     model: "Companies",
-        //     key: "company_id",
-        // },
+        references: {
+            model: Employees,
+            key: "id",
+        },
     },
     rating: {
         type: DataTypes.INTEGER,
@@ -43,6 +36,9 @@ const Ratings = sequelize.define("Ratings", {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
     },
+    name:{
+        type: DataTypes.STRING
+    }
 }, {
     timestamps: false,
 })
