@@ -233,7 +233,7 @@
 
 // export default BlacklistManagement;
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FiEdit, FiTrash2, FiPlus } from "react-icons/fi";
 import axios from "axios";
 
