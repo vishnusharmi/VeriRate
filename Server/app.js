@@ -33,7 +33,7 @@ app.use("/api", EmployeeRoutes);
 
 
 sequelize
-  .sync({force:false})
+  .sync({alter:true})
   .then(() => {
     app.listen(PORT, () => console.log(`running on http://localhost:${PORT}`));
   })
