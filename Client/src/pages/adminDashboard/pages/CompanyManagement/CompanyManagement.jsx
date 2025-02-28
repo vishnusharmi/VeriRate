@@ -137,9 +137,9 @@ const CompanyManagement = () => {
   const handleEdit = (company) => {
     setEditingCompany(company);
     setFormData({
-      name: company.name || "",
+      companyName: company.name || "",
       email: company.email || "",
-      phone: company.phone || "",
+      phonenumber: company.phone || "",
       status: company.status || "",
       address: company.address || "",
       employees: company.employees || "",
