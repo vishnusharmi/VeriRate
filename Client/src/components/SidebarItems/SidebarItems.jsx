@@ -55,7 +55,7 @@ const SidebarItems = ({ toggleMenu, handleToggle }) => {
     {
       name: "User Management",
       icon: <PeopleAlt className="w-5 h-5 cb1:w-6 cb1:h-6" />,
-      path: "/admin/user-management",
+      path: "/admin/usermanagement",
     },
     {
       name: "Security & Compliance",

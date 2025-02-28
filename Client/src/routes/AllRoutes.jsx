@@ -77,4 +77,5 @@ const AllRoutes = () => {
   );
 };
 
+
 export default AllRoutes;
