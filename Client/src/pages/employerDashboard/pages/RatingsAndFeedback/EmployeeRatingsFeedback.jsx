@@ -24,7 +24,7 @@ const EmployeeRatingsFeedback = () => {
     verified: false,
     reviewer: ''
   });
-  
+
   // Fetch employees from the API
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -46,7 +46,7 @@ const EmployeeRatingsFeedback = () => {
             reviewer: rating.name || 'HR System'
           })) : []
         }));
-        
+
         setEmployees(formattedEmployees);
         setLoading(false);
       } catch (error) {
@@ -54,21 +54,21 @@ const EmployeeRatingsFeedback = () => {
         setLoading(false);
       }
     };
-    
+
     fetchEmployees();
   }, []);
-  
+
   // Calculate average rating for an employee
   const getAverageRating = (Ratings) => {
     if (!Ratings || Ratings.length === 0) return 0;
     const sum = Ratings.reduce((total, item) => total + item.rating, 0);
     return (sum / Ratings.length).toFixed(1);
   };
-  
+
   // Sort employees based on field and direction
   const sortedEmployees = [...employees].sort((a, b) => {
     if (sortField === 'name') {
-      return sortDirection === 'asc' 
+      return sortDirection === 'asc'
         ? a.name.localeCompare(b.name)
         : b.name.localeCompare(a.name);
     } else if (sortField === 'rating') {
@@ -78,12 +78,12 @@ const EmployeeRatingsFeedback = () => {
     }
     return 0;
   });
-  
+
   // Filter employees based on search query
-  const filteredEmployees = sortedEmployees.filter(emp => 
-    (emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-     emp.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
-     emp.department.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredEmployees = sortedEmployees.filter(emp =>
+  (emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    emp.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    emp.department.toLowerCase().includes(searchQuery.toLowerCase()))
   );
   
   // Calculate total pages
@@ -130,7 +130,7 @@ const EmployeeRatingsFeedback = () => {
       setSortDirection('asc');
     }
   };
-  
+
   // Open feedback form for an employee
   const handleAddFeedback = (employee) => {
     setSelectedEmployee(employee);
@@ -142,7 +142,7 @@ const EmployeeRatingsFeedback = () => {
     });
     setShowFeedbackForm(true);
   };
-  
+
   // Handle star rating click
   const handleStarClick = (rating) => {
     setFeedbackData({
@@ -150,7 +150,7 @@ const EmployeeRatingsFeedback = () => {
       rating
     });
   };
-  
+
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -159,14 +159,14 @@ const EmployeeRatingsFeedback = () => {
       [name]: type === 'checkbox' ? checked : value
     });
   };
-  
+
   // Save new feedback
   const saveFeedback = async () => {
     if (feedbackData.rating === 0 || !feedbackData.feedback || !feedbackData.reviewer) {
       alert('Please complete all required fields');
       return;
     }
-    
+
     try {
       // Format data for the API request
       const ratingData = {
@@ -176,13 +176,13 @@ const EmployeeRatingsFeedback = () => {
         is_verified: feedbackData.verified.toString(),
         name: feedbackData.reviewer
       };
-      
+
       // Send POST request to API
       await axios.post('http://localhost:3000/api/ratings-post', ratingData);
-      
+
       // Fetch updated employee data after adding new rating
       const response = await axios.get('http://localhost:3000/api/get-employees');
-      
+
       // Map the API response to match our component's data structure
       const formattedEmployees = response.data.employees.map(emp => ({
         id: emp.id,
@@ -199,7 +199,7 @@ const EmployeeRatingsFeedback = () => {
           reviewer: rating.reviewer || feedbackData.reviewer
         })) : []
       }));
-      
+
       setEmployees(formattedEmployees);
       setShowFeedbackForm(false);
     } catch (error) {
@@ -207,7 +207,7 @@ const EmployeeRatingsFeedback = () => {
       alert('Failed to save feedback. Please try again.');
     }
   };
-  
+
   // Render star rating display
   const renderStarRating = (rating) => {
     return (
@@ -216,20 +216,19 @@ const EmployeeRatingsFeedback = () => {
           <Star
             key={star}
             size={16}
-            className={`${
-              star <= rating
+            className={`${star <= rating
                 ? 'text-yellow-400 fill-yellow-400'
                 : star - 0.5 <= rating
-                ? 'text-yellow-400 fill-yellow-400 opacity-50'
-                : 'text-gray-300'
-            }`}
+                  ? 'text-yellow-400 fill-yellow-400 opacity-50'
+                  : 'text-gray-300'
+              }`}
           />
         ))}
         <span className="ml-1 text-sm font-medium">{rating}</span>
       </div>
     );
   };
-  
+
   // Render interactive star rating input
   const renderStarRatingInput = () => {
     return (
@@ -252,12 +251,12 @@ const EmployeeRatingsFeedback = () => {
           </button>
         ))}
         <span className="ml-2 text-sm text-gray-600">
-          {feedbackData.rating > 0 ? `${feedbackData.rating} stars `: 'Select rating'}
+          {feedbackData.rating > 0 ? `${feedbackData.rating} stars ` : 'Select rating'}
         </span>
       </div>
     );
   };
-  
+
   // Feedback form modal
   const renderFeedbackForm = () => (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
@@ -328,16 +327,16 @@ const EmployeeRatingsFeedback = () => {
       </div>
     </div>
   );
-  
+
   // Detailed feedback expansion component
   const FeedbackDetails = ({ employee }) => {
     const [expanded, setExpanded] = useState(false);
-    
+
     // Filter verified Ratings if the filter is active
     const displayRatings = filterVerified
       ? employee.Ratings.filter(r => r.verified)
       : employee.Ratings;
-    
+
     return (
       <div className="mb-4 bg-gray-50 p-3 rounded-md shadow-md shadow-gray-400 rounded-lg">
         <button
@@ -347,7 +346,7 @@ const EmployeeRatingsFeedback = () => {
           <span>Rating History ({displayRatings.length})</span>
           {expanded ? <ArrowUp size={16} /> : <ArrowDown size={16} />}
         </button>
-        
+
         {expanded && (
           <div className="mt-3 space-y-3">
             {displayRatings.length > 0 ? (
@@ -541,7 +540,7 @@ const EmployeeRatingsFeedback = () => {
           </div>
         </div>
       </div>
-      
+
       {loading ? (
         <div className="text-center py-10">
           <p>Loading employee data...</p>
@@ -642,7 +641,7 @@ const EmployeeRatingsFeedback = () => {
           </div>
         </div>
       )}
-      
+
       {showFeedbackForm && renderFeedbackForm()}
     </div>
   );

@@ -12,7 +12,7 @@ const createCompany = async (req, res) => {
 const getAll = async(req,res)=>{
     try {
         const companies = await companiesService.getCompanies();
-        res.status(200).json({message: "All companies successfully", companies});
+        res.status(200).json({message: "All companies successfully", });
     } catch (error) {
         res.status(500).json({error: error.message});
     }
@@ -39,8 +39,8 @@ const updateCompany = async(req,res)=>{
 const deleteCompany = async(req,res)=>{
     try {
         const company = await companiesService.deleteCompany(req.params.id); 
-        if (!company) return res.status(404).json({error:"company not found"})
-        res.status(204).json({message: "Company deleted successfully", company});
+        // if (!company) return res.status(404).json({error:"company not found"})
+        res.status(200).json({message: "Company deleted successfully"});
     } catch (error) {
         res.status(500).json({error: error.message});
     }

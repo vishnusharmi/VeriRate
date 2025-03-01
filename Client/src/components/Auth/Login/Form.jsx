@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { AuthContext } from "../../Context/Contextapi";
 
 const Form = () => {
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [loginData, setLoginData] = useState({
     email: "",
@@ -48,22 +50,29 @@ const Form = () => {
     const { email, password } = loginData;
 
     try {
-      const res = await axios.post("http://localhost:3000/api/login", {
+      const res = await axios.post("http://localhost:3007/api/login", {
         email,
         password,
       });
-
+      if (res.status === 200) {
+        const token = res.data.loginUser.jwtToken;
+        if (token && typeof token === "string") {
+          login(token);
+          // Redirect after success
+          setTimeout(() => {
+            navigate("/otp", { state: { email: loginData.email } });
+          }, 1500);
+        } else {
+          console.error("Invalid token received", token);
+        }
+      }
       toast.success("OTP sent to your mail");
       console.log("Submitted:", res.data.loginUser.message);
-
-      // Redirect after success
-      // setTimeout(() => {
-      //   navigate("/otp");
-      // }, 1500);
+      console.log(res);
     } catch (error) {
-     setTimeout(()=>{
-      setLoading(false); 
-     },1000)// Reset loading state if login fails
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000); // Reset loading state if login fails
 
       toast.error(error.response?.data?.message || "Login failed!");
       console.log("Error:", error);
@@ -107,9 +116,11 @@ const Form = () => {
             className="outline-none border-2 border-gray-400 p-3 focus:border-gray-600 rounded-md"
             onChange={handleInputChange}
           />
+          <Link to={'/forget-password'}>
           <span className="text-blue-400 font-medium hover:underline cursor-pointer w-fit">
             Forgot password?
           </span>
+          </Link>
         </div>
 
         <button
