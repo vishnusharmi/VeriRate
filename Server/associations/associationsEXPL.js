@@ -54,6 +54,10 @@ Employee.belongsTo(Company, {foreignKey: "company_id", onDelete: "CASCADE",});
   userModel.hasMany(Documents, { foreignKey: "empId", as: "documents" });
   Documents.belongsTo(userModel, { foreignKey: "empId", as: "user" });
 
+  Employee.belongsTo(Company, { foreignKey: "company_id" });
+  Employee.belongsTo(userModel, { foreignKey: "userId" });
+  Company.hasMany(Employee, { foreignKey: "company_id" });
+  userModel.hasMany(Employee, { foreignKey: "userId" });
 
 //ratings
 Employee.hasMany(Rating, { foreignKey: 'employee_id' });
