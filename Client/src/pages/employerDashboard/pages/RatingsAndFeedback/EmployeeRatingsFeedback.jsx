@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Star, Check, Filter, ArrowDown, ArrowUp } from 'lucide-react';
+import { User, Star, Check, Filter, ArrowDown, ArrowUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import axios from 'axios';
 
 const EmployeeRatingsFeedback = () => {
@@ -11,6 +11,11 @@ const EmployeeRatingsFeedback = () => {
   const [sortDirection, setSortDirection] = useState('asc');
   const [filterVerified, setFilterVerified] = useState(false);
   const [loading, setLoading] = useState(true);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [totalPages, setTotalPages] = useState(1);
   
   // Form state
   const [feedbackData, setFeedbackData] = useState({
@@ -80,6 +85,41 @@ const EmployeeRatingsFeedback = () => {
      emp.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
      emp.department.toLowerCase().includes(searchQuery.toLowerCase()))
   );
+  
+  // Calculate total pages
+  useEffect(() => {
+    setTotalPages(Math.ceil(filteredEmployees.length / itemsPerPage));
+    // Reset to first page when filters change
+    setCurrentPage(1);
+  }, [filteredEmployees.length, itemsPerPage]);
+  
+  // Get current page items
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentEmployees = filteredEmployees.slice(indexOfFirstItem, indexOfLastItem);
+  
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  
+  // Previous page
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+  
+  // Next page
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+  
+  // Handle items per page change
+  const handleItemsPerPageChange = (e) => {
+    setItemsPerPage(Number(e.target.value));
+    setCurrentPage(1); // Reset to first page
+  };
   
   // Toggle sort direction and field
   const handleSort = (field) => {
@@ -339,6 +379,137 @@ const EmployeeRatingsFeedback = () => {
     );
   };
   
+  // Pagination component
+  const Pagination = () => {
+    // Generate page numbers
+    const pageNumbers = [];
+    const maxPageNumbersToShow = 5;
+    
+    // Logic to show limited page numbers with ellipsis
+    let startPage = Math.max(1, currentPage - Math.floor(maxPageNumbersToShow / 2));
+    let endPage = Math.min(totalPages, startPage + maxPageNumbersToShow - 1);
+    
+    // Adjust if we're near the end
+    if (endPage - startPage + 1 < maxPageNumbersToShow) {
+      startPage = Math.max(1, endPage - maxPageNumbersToShow + 1);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+    
+    return (
+      <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
+        <div className="flex items-center">
+          <label htmlFor="itemsPerPage" className="mr-2 text-sm text-gray-600">
+            Show:
+          </label>
+          <select
+            id="itemsPerPage"
+            value={itemsPerPage}
+            onChange={handleItemsPerPageChange}
+            className="border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+          </select>
+          <span className="ml-4 text-sm text-gray-500">
+            Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredEmployees.length)} of {filteredEmployees.length} employees
+          </span>
+        </div>
+        
+        <nav className="flex justify-center">
+          <ul className="flex items-center">
+            <li>
+              <button
+                onClick={goToPreviousPage}
+                disabled={currentPage === 1}
+                className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 text-sm font-medium ${
+                  currentPage === 1 
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                    : 'bg-white text-gray-500 hover:bg-gray-50'
+                }`}
+              >
+                <ChevronLeft size={16} />
+              </button>
+            </li>
+            
+            {startPage > 1 && (
+              <>
+                <li>
+                  <button
+                    onClick={() => paginate(1)}
+                    className={`relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50`}
+                  >
+                    1
+                  </button>
+                </li>
+                {startPage > 2 && (
+                  <li>
+                    <span className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                      ...
+                    </span>
+                  </li>
+                )}
+              </>
+            )}
+            
+            {pageNumbers.map(number => (
+              <li key={number}>
+                <button
+                  onClick={() => paginate(number)}
+                  className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium ${
+                    currentPage === number
+                      ? 'bg-blue-50 border-blue-500 text-blue-600'
+                      : 'bg-white text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  {number}
+                </button>
+              </li>
+            ))}
+            
+            {endPage < totalPages && (
+              <>
+                {endPage < totalPages - 1 && (
+                  <li>
+                    <span className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                      ...
+                    </span>
+                  </li>
+                )}
+                <li>
+                  <button
+                    onClick={() => paginate(totalPages)}
+                    className={`relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50`}
+                  >
+                    {totalPages}
+                  </button>
+                </li>
+              </>
+            )}
+            
+            <li>
+              <button
+                onClick={goToNextPage}
+                disabled={currentPage === totalPages}
+                className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 text-sm font-medium ${
+                  currentPage === totalPages || totalPages === 0
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                    : 'bg-white text-gray-500 hover:bg-gray-50'
+                }`}
+              >
+                <ChevronRight size={16} />
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    );
+  };
+  
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <div className="flex justify-between items-center mb-6 sticky fixed top-5 z-50">
@@ -377,92 +548,97 @@ const EmployeeRatingsFeedback = () => {
         </div>
       ) : (
         <div className="relative max-w-7xl min-h-[75dvh] bg-white p-6 rounded-lg shadow-md z-10 content-scrollbar">
-        <div className="absolute inset-0 px-2 overflow-y-scroll">
-          
-          <table className="min-w-full bg-white">
-            <thead className="shadow-[inset_0_-30px_36px_-28px_rgba(0,0,0,0.35),inset_0_20px_36px_-28px_rgba(0,0,0,0.35)] bg-white p-6 rounded-lg sticky top-0">
-              <tr>
-                <th 
-                  className="px-10 py-3 text-left text-xs font-medium text-white-500 uppercase tracking-wider cursor-pointer"
-                  onClick={() => handleSort('name')}
-                >
-                  <div className="flex items-center">
-                    Employee
-                    {sortField === 'name' && (
-                      sortDirection === 'asc' ? <ArrowUp size={14} className="ml-1" /> : <ArrowDown size={14} className="ml-1" />
-                    )}
-                  </div>
-                </th>
-                <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-white-500 uppercase tracking-wider cursor-pointer"
-                  onClick={() => handleSort('rating')}
-                >
-                  <div className="flex items-center">
-                    Average Rating
-                    {sortField === 'rating' && (
-                      sortDirection === 'asc' ? <ArrowUp size={14} className="ml-1" /> : <ArrowDown size={14} className="ml-1" />
-                    )}
-                  </div>
-                </th>
-                <th className="px-12 py-3 text-right text-xs font-medium text-white-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
+          <div className="absolute inset-0 px-2 overflow-y-auto">
             
-            <tbody>
-              {filteredEmployees.map(employee => (
-                <React.Fragment key={employee.id}>
-                  <tr>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
-                          <User className="text-gray-500" />
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{employee.name}</div>
-                          <div className="text-sm text-gray-500">{employee.position}</div>
-                          <div className="text-xs text-gray-400">{employee.department}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {employee.Ratings.length > 0 ? (
-                        <div>
-                          {renderStarRating(getAverageRating(employee.Ratings))}
-                          <div className="mt-1 text-xs text-gray-500">
-                            {employee.Ratings.length} {employee.Ratings.length === 1 ? 'rating' : 'ratings'}
-                            {' • '}
-                            {employee.Ratings.filter(r => r.verified).length} verified
+            <table className="min-w-full bg-white">
+              <thead className="shadow-[inset_0_-30px_36px_-28px_rgba(0,0,0,0.35),inset_0_20px_36px_-28px_rgba(0,0,0,0.35)] bg-white p-6 rounded-lg sticky top-0">
+                <tr>
+                  <th 
+                    className="px-10 py-3 text-left text-xs font-medium text-white-500 uppercase tracking-wider cursor-pointer"
+                    onClick={() => handleSort('name')}
+                  >
+                    <div className="flex items-center">
+                      Employee
+                      {sortField === 'name' && (
+                        sortDirection === 'asc' ? <ArrowUp size={14} className="ml-1" /> : <ArrowDown size={14} className="ml-1" />
+                      )}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-white-500 uppercase tracking-wider cursor-pointer"
+                    onClick={() => handleSort('rating')}
+                  >
+                    <div className="flex items-center">
+                      Average Rating
+                      {sortField === 'rating' && (
+                        sortDirection === 'asc' ? <ArrowUp size={14} className="ml-1" /> : <ArrowDown size={14} className="ml-1" />
+                      )}
+                    </div>
+                  </th>
+                  <th className="px-12 py-3 text-right text-xs font-medium text-white-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              
+              <tbody>
+                {currentEmployees.map(employee => (
+                  <React.Fragment key={employee.id}>
+                    <tr>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
+                            <User className="text-gray-500" />
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">{employee.name}</div>
+                            <div className="text-sm text-gray-500">{employee.position}</div>
+                            <div className="text-xs text-gray-400">{employee.department}</div>
                           </div>
                         </div>
-                      ) : (
-                        <span className="text-sm text-gray-500">No ratings yet</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button
-                        onClick={() => handleAddFeedback(employee)}
-                        className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded"
-                      >
-                        Rate Performance
-                      </button>
-                    </td>
-                  </tr>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {employee.Ratings.length > 0 ? (
+                          <div>
+                            {renderStarRating(getAverageRating(employee.Ratings))}
+                            <div className="mt-1 text-xs text-gray-500">
+                              {employee.Ratings.length} {employee.Ratings.length === 1 ? 'rating' : 'ratings'}
+                              {' • '}
+                              {employee.Ratings.filter(r => r.verified).length} verified
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-sm text-gray-500">No ratings yet</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button
+                          onClick={() => handleAddFeedback(employee)}
+                          className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded"
+                        >
+                          Rate Performance
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colSpan={3} className="px-6 py-2">
+                        <FeedbackDetails employee={employee} />
+                      </td>
+                    </tr>
+                  </React.Fragment>
+                ))}
+                {currentEmployees.length === 0 && (
                   <tr>
-                    <td colSpan={3} className="px-6 py-2">
-                      <FeedbackDetails employee={employee} />
+                    <td colSpan={3} className="px-6 py-10 text-center text-gray-500">
+                      No employees found matching your search criteria.
                     </td>
                   </tr>
-                </React.Fragment>
-              ))}
-              {filteredEmployees.length === 0 && (
-                <tr>
-                  <td colSpan={3} className="px-6 py-10 text-center text-gray-500">
-                    No employees found matching your search criteria.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
+            
+            {/* Add pagination component */}
+            {filteredEmployees.length > 0 && (
+              <Pagination />
+            )}
           </div>
         </div>
       )}
