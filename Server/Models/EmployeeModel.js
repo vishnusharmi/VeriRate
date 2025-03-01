@@ -28,18 +28,63 @@ const Employee = database.define(
       type: DataTypes.STRING(50),
       allowNull: false,
     },
-    // email: {
-    //   type: DataTypes.STRING(255),
-    //   allowNull: true,
-    //   unique: true,
-    // },
+    salary: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    dateOfBirth: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    role:{
+      type:DataTypes.STRING,
+      allowNull:false
+    },
+    email: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+      unique: true,
+    },
+    password: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
+    dateOfJoin: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
+    },
     phone_number: {
       type: DataTypes.STRING(20),
       allowNull: true,
     },
-    employment_history: {
-      type: DataTypes.JSON,
+    qualification: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    address:{
+      type:DataTypes.TEXT,
+      allowNull:false
+    },
+    panCard: {
+      type: DataTypes.STRING,
       allowNull: true,
+    },
+    aadharCard: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    bankAccount: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    bankName: {
+      type: DataTypes.STRING,
+      allowNull: false, 
+    },
+    IFSCcode: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
 
     is_verified: {
@@ -47,6 +92,10 @@ const Employee = database.define(
       // allowNull: true,
       type: DataTypes.ENUM("Pending", "Verified"),
       defaultValue: "Pending",
+    },
+    position:{
+      type: DataTypes.STRING(50),
+      allowNull: false,
     },
     userId: {
       type: DataTypes.INTEGER,
@@ -66,10 +115,6 @@ const Employee = database.define(
       defaultValue: DataTypes.NOW,
       onUpdate: DataTypes.NOW,
     },
-    position:{
-      type: DataTypes.STRING(50),
-      allowNull: false,
-    },
    
   },
 
@@ -78,5 +123,6 @@ const Employee = database.define(
     timestamps: false,
   }
 );
+
 
 module.exports = Employee;

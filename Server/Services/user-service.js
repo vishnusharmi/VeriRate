@@ -8,175 +8,127 @@ const bcrypt=require("bcryptjs");
 const { accessSync } = require("fs");
 
 
-
-
-
-
-// exports.registerUser = async(data,files)=>{
-//     const {email,password,role}=data;
-//    console.log(data,'emememem');
-   
-//    try {
-//         const existingUser = await userModel.findOne({ where: { email } });
-//         console.log(existingUser);
-
-//         if (existingUser) {
-//           return { message: "user alrady exists" };
-//         }
-
-//         const hasshedpassword = await bcrypt.hash(password, 10);
-
-//         const userData = await userModel.create({
-//           email,
-//           password: hasshedpassword,
-//           role,
-//         });
-//         // console.log(userData)
-
-//         const result = await cloudinaryUpload.uploader.upload(files.path, {
-//           resource_type: "auto",
-//           folder: "user_uploads",
-//         });
-
-//         const obj = {
-//           empId: userData.id,
-//           documentType: files.mimetype,
-//           file_path: result.url,
-//         };
-
-//         console.log(result, "resul");
-//         console.log(obj, "obobob");
-//         if (userData) {
-//           const response = await Documents.create(obj);
-//           return {
-//             message: "user created successfully",
-//             data: { userData, response },
-//           };
-//         }
-//    } catch (error) {
-//     console.log(error)
-//    }
-    
-        
-   
-// }
-
-// exports.registerUser = async (data, files) => {
-//   try {
-//     if (!data.email || !data.password || !data.role) {
-//       return { message: "Missing required fields (email, password, role)" };
-//     }
-
-//     const existingUser = await userModel.findOne({
-//       where: { email: data.email },
-//     });
-//     if (existingUser) {
-//       return { message: "User already exists" };
-//     }
-
-//     const hashedPassword = await bcrypt.hash(data.password, 10);
-
-//     const userData = await userModel.create({
-//       email: data.email,
-//       password: hashedPassword,
-//       role: data.role,
-//     });
-
-//     let response = null;
-//     if (files && files.path) {
-//       const uploadResult = await cloudinaryUpload.uploader.upload(files.path, {
-//         resource_type: "auto",
-//         folder: "user_uploads",
-//       });
-
-//       const documentData = {
-//         empId: userData.id,
-//         documentType: files.mimetype,
-//         file_path: uploadResult.url,
-//       };
-//       response = await Documents.create(documentData);
-//     }
-
-//     return {
-//       message: "User created successfully",
-//       data: { userData, document: response },
-//     };
-//   } catch (error) {
-//     console.error("Error in registerUser:", error);
-//     return { message: "Something went wrong", error: error.message };
-//   }
-// };
-
 exports.registerUser = async (data, files) => {
-  try {
+  const transaction = await userModel.sequelize.transaction(); // Start transaction
 
+  try {
+    // Validate required fields
     if (!data.email || !data.password || !data.role) {
       return { message: "Missing required fields (email, password, role)" };
     }
 
-    const existingUser = await userModel.findOne({
-      where: { email: data.email },
-    });
+    // Check if user already exists
+    const existingUser = await userModel.findOne({ where: { email: data.email } });
     if (existingUser) {
       return { message: "User already exists" };
     }
 
+    // Hash password
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
-    const userData = await userModel.create({
-      email: data.email,
-      password: hashedPassword,
-      role: data.role,
-    });
+    // Create user inside transaction
+    const userData = await userModel.create(
+      {
+        email: data.email,
+        password: hashedPassword,
+        role: data.role,
+        username : data.role === 'employee' ? `${data.first_name} ${data.last_name} `: data.username
+      },
+      { transaction }
+    );
 
     let additionalData = null;
 
     if (data.role === "employee") {
-      additionalData = await employeeModel.create({
-        userId: userData.id,
+      // Create employee entry inside transaction
+      additionalData = await employeeModel.create(
+        {
+          userId: userData.id,
         company_id: data.company_id,
         first_name: data.first_name,
         last_name: data.last_name,
+        salary: data.salary,
+        dateOfBirth: data.dateOfBirth,
+        email: data.email,
+        password: data.password,
+        dateOfJoin: data.dateOfJoin,
+        phone_number: data.phone_number,
+        qualification: data.qualification,
+        address: data.address,
+        panCard: data.panCard,
+        aadharCard: data.aadharCard,
+        bankAccount: data.bankAccount,
+        bankName: data.bankName,
+        IFSCcode: data.IFSCcode,
         position: data.position,
+        role: data.role,
         department: data.department,
         phone_number: data.phone_number,
-        employment_history: data.employment_history,
+        employment_history: data.employment_history
+        },
+        { transaction }
+      );
+    } else if (data.role === "admin" || data.role === "super-admin") {
+      // Create company entry inside transaction
+      additionalData = await companyModel.create(
+        {
+          userId: userData.id,
+          createdBy: data.createdBy,
+          companyName: data.companyName,
+          industry: data.industry,
+          address: data.address,
+          phonenumber:data.phonenumber,
+          country:data.country,
+          state:data.state,
+          registerNum:data.registerNum,
+          founderYear:data.founderYear,
+          companyWebsite:data.companyWebsite,
+          email:data.email
 
-      });
-    } else if (data.role === "admin" || "super-admin") {
-      additionalData = await companyModel.create({
-        userId: userData.id,
-        createdBy:data.createdBy,
-        companyName: data.companyName,
-        industry: data.industry,
-        address: data.address,
-      });
+        },
+        { transaction }
+      );
     }
 
     let documentResponse = null;
 
     if (files && files.path) {
+      // Upload document
       const uploadResult = await cloudinaryUpload.uploader.upload(files.path, {
         resource_type: "auto",
         folder: "user_uploads",
       });
 
-      documentResponse = await Documents.create({
-        empId: userData.id, 
-        documentType: files.mimetype,
-        file_path: uploadResult.url,
-      });
+      // Create document entry inside transaction
+      documentResponse = await Documents.create(
+        {
+          empId: userData.id,
+          documentType: files.mimetype,
+          file_path: uploadResult.url,
+        },
+        { transaction }
+      );
     }
+
+    // If everything succeeds, commit the transaction
+    await transaction.commit();
 
     return {
       message: "User created successfully",
-      data: { user: userData, additionalData, document: documentResponse },
+      data: {
+        user: userData,
+        additionalData,
+        document: documentResponse,
+      },
     };
   } catch (error) {
+    // Rollback transaction if any error occurs
+    await transaction.rollback();
     console.error("Error in registerUser:", error);
     return { message: "Something went wrong", error: error.message };
   }
 };
+
 
 
 

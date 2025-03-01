@@ -12,7 +12,7 @@ const createCompany = async (req, res) => {
 const getAll = async(req,res)=>{
     try {
         const companies = await companiesService.getCompanies();
-        res.status(200).json({message: "All companies successfully", companies});
+        res.status(200).json({message: "All companies successfully", });
     } catch (error) {
         res.status(500).json({error: error.message});
     }

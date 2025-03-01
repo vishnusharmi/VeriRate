@@ -1,6 +1,5 @@
 const userModel = require('../Models/user');
 const Documents = require('../Models/documents');
-const Employee = require("../Models/EmployeeModel");
 const Company = require("../Models/companies");
 const BlackList = require("../Models/blackList-model");
 const Rating = require('../Models/ratingsModel');
@@ -54,6 +53,10 @@ Employee.belongsTo(Company, {foreignKey: "company_id", onDelete: "CASCADE",});
   userModel.hasMany(Documents, { foreignKey: "empId", as: "documents" });
   Documents.belongsTo(userModel, { foreignKey: "empId", as: "user" });
 
+  Employee.belongsTo(Company, { foreignKey: "company_id" });
+  Employee.belongsTo(userModel, { foreignKey: "userId" });
+  Company.hasMany(Employee, { foreignKey: "company_id" });
+  userModel.hasMany(Employee, { foreignKey: "userId" });
 
 //ratings
 Employee.hasMany(Rating, { foreignKey: 'employee_id' });

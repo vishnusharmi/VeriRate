@@ -32,7 +32,7 @@ app.use("/api", disputeRoutes);
 app.use("/api", EmployeeRoutes);
 
 sequelize
-  .sync({alter:true})
+  .sync()
   .then(() => {
     app.listen(PORT, () => console.log(`running on http://localhost:${PORT}`));
   })

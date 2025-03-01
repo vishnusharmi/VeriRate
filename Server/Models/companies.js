@@ -12,24 +12,24 @@ const Company = sequelize.define("Company", {
   companyName: {
     type: DataTypes.STRING(255),
     allowNull: false,
-  },
+   },
   email :{
     type : DataTypes.STRING,
     allowNull : false,
     unique : true,
   },
-  status: {
-    type: DataTypes.ENUM("Active", "Pending Approval", "Suspended"),
-    allowNull: false,
-  },
+  // status: {
+  //   type: DataTypes.ENUM("Active", "Pending Approval", "Suspended"),
+  //   allowNull: true,
+  // },
   phonenumber:{
-    type: DataTypes.INTEGER,
+    type: DataTypes.BIGINT,
     allowNull: true,
   },
-  compliance: {
-    type: DataTypes.ENUM("Compliant", "Under Review", "Non-Compliant"),
-    allowNull: false,
-  },
+  // compliance: {
+  //   type: DataTypes.ENUM("Compliant", "Under Review", "Non-Compliant"),
+  //   allowNull: true,
+  // },
   address: {
     type: DataTypes.STRING(255),
     allowNull: true,
@@ -55,7 +55,29 @@ const Company = sequelize.define("Company", {
       key: "id",
     },
     onDelete: "CASCADE",
-  }
+  },
+  country:{
+    type: DataTypes.STRING,
+    allowNull:false
+  },
+  state:{
+    type: DataTypes.STRING,
+    allowNull:false
+  },
+  registerNum :{
+    type: DataTypes.STRING,
+    allowNull:false
+  },
+  founderYear:{
+    type:DataTypes.STRING,
+    allowNull:false
+  },
+  companyWebsite:{
+    type:DataTypes.STRING,
+    allowNull:false
+  },
+ 
+
 });
 
 
