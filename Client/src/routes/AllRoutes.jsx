@@ -35,7 +35,7 @@ const AllRoutes = () => {
       <Route index path="/" element={<Login />} />
       <Route path="/otp" element={<OTP />} />
 
-      <Route path="/admin" element={<Layout />}>
+      <Route path="/admin//" element={<Layout />}>
         <Route index element={<AdminDashboard />} />
         <Route path="/admin/disputes" element={<Disputes />} />
         <Route path="/admin/employer" element={<Employer />} />
