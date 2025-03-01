@@ -47,14 +47,15 @@ const Company = sequelize.define("Company", {
     },
     onDelete: "CASCADE",
   },
-  created_at: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
-  updated_at: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
+  createdBy:{
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: User,
+      key: "id",
+    },
+    onDelete: "CASCADE",
+  }
 });
 
 
