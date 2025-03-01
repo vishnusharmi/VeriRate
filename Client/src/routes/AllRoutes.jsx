@@ -29,8 +29,9 @@ import ResetPassword from "../components/Auth/Login/NewPassword.jsx";
 import CompanyManagement from "../pages/adminDashboard/pages/CompanyManagement/companyManagement.jsx";
 import AdminSettings from "../pages/adminDashboard/pages/Settings/AdminSettings.jsx";
 import EmployeeAdminSettings from "../pages/employerDashboard/pages/Settings/EmployeeAdminSettings.jsx";
+import OTP from "../components/Auth/Login/Otp.jsx";
 // import SecurityCompliance from "../pages/employerDashboard/pages/SecurityCompliance/SecurityCompliance.jsx"
-import OTP from "../components/Auth/Login/otp.jsx";
+
 
 const AllRoutes = () => {
   return (
