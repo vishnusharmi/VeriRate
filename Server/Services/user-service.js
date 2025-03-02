@@ -39,36 +39,36 @@ exports.registerUser = async (data, files) => {
 
     let additionalData = null;
 
-    if (data.role === "employee") {
+    if (data.role === "Employee") {
       // Create employee entry inside transaction
       additionalData = await employeeModel.create(
         {
           userId: userData.id,
-        company_id: data.company_id,
-        first_name: data.first_name,
-        last_name: data.last_name,
-        salary: data.salary,
-        dateOfBirth: data.dateOfBirth,
-        email: data.email,
-        password: data.password,
-        dateOfJoin: data.dateOfJoin,
-        phone_number: data.phone_number,
-        qualification: data.qualification,
-        address: data.address,
-        panCard: data.panCard,
-        aadharCard: data.aadharCard,
-        bankAccount: data.bankAccount,
-        bankName: data.bankName,
-        IFSCcode: data.IFSCcode,
-        position: data.position,
-        role: data.role,
-        department: data.department,
-        phone_number: data.phone_number,
-        employment_history: data.employment_history
+          company_id: data.company_id,
+          first_name: data.first_name,
+          last_name: data.last_name,
+          salary: data.salary,
+          dateOfBirth: data.dateOfBirth,
+          email: data.email,
+          password: data.password,
+          dateOfJoin: data.dateOfJoin,
+          phone_number: data.phone_number,
+          qualification: data.qualification,
+          address: data.address,
+          panCard: data.panCard,
+          aadharCard: data.aadharCard,
+          bankAccount: data.bankAccount,
+          bankName: data.bankName,
+          IFSCcode: data.IFSCcode,
+          position: data.position,
+          role: data.role,
+          department: data.department,
+          phone_number: data.phone_number,
+          employment_history: data.employment_history,
         },
         { transaction }
       );
-    } else if (data.role === "admin" || data.role === "super-admin") {
+    } else if (data.role === "Employee Admin" || data.role === "Super Admin") {
       // Create company entry inside transaction
       additionalData = await companyModel.create(
         {
@@ -77,14 +77,13 @@ exports.registerUser = async (data, files) => {
           companyName: data.companyName,
           industry: data.industry,
           address: data.address,
-          phonenumber:data.phonenumber,
-          country:data.country,
-          state:data.state,
-          registerNum:data.registerNum,
-          founderYear:data.founderYear,
-          companyWebsite:data.companyWebsite,
-          email:data.email
-
+          phonenumber: data.phonenumber,
+          country: data.country,
+          state: data.state,
+          registerNum: data.registerNum,
+          founderYear: data.founderYear,
+          companyWebsite: data.companyWebsite,
+          email: data.email,
         },
         { transaction }
       );

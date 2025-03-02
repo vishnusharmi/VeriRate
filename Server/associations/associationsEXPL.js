@@ -3,18 +3,56 @@ const Documents = require('../Models/documents');
 const Company = require("../Models/companies");
 const BlackList = require("../Models/blackList-model");
 const Rating = require('../Models/ratingsModel');
-// const Employee = require('../Models/EmployeeModel');
+const Employee = require('../Models/EmployeeModel');
 
 const  Associations =()=>{
 //     userModel.hasOne(Documents, { foreignKey: 'empId' });
 // Documents.belongsTo(userModel, { foreignKey: 'empId' });
 
-Employee.belongsTo(Company, {foreignKey: "company_id", onDelete: "CASCADE",});
-  
+// user to employee relation 
+userModel.hasOne(Employee, {
+  foreignKey: "userId",
+  onDelete: "CASCADE",
+  as: "employee",
+});
+Employee.belongsTo(userModel, {
+  foreignKey: "userId",
+  onDelete: "CASCADE",
+  as: "user",
+});
 
-  Company.hasMany(Employee, {
+userModel.hasMany(Employee, {
+  foreignKey: "createdBy",
+  onDelete: "CASCADE",
+  as: "employee",
+});
+Employee.belongsTo(userModel, {
+  foreignKey: "createdBy",
+  onDelete: "CASCADE",
+  as: "user",
+});
+
+// user to documents relation
+userModel.hasMany(Documents, {
+  foreignKey: "empId",
+  onDelete: "CASCADE",
+  as: "documents",
+});
+Documents.belongsTo(userModel, {
+  foreignKey: "empId",
+  onDelete: "CASCADE",
+   as: "user",
+});
+
+
+// company to employee relation
+  Company.hasMany(Employee, { foreignKey: "company_id", onDelete: "CASCADE" });
+  Employee.belongsTo(Company, {
     foreignKey: "company_id",
+    onDelete: "CASCADE",
   });
+
+
   
   BlackList.belongsTo(Employee, {
     foreignKey: "employee_id",
@@ -34,9 +72,6 @@ Employee.belongsTo(Company, {foreignKey: "company_id", onDelete: "CASCADE",});
     foreignKey: "company_id",
   });
 
-  
-  userModel.hasOne(Employee, { foreignKey: "userId", as: "employee" });
-  Employee.belongsTo(userModel, { foreignKey: "userId", as: "user" });
 
   userModel.hasOne(Company, { foreignKey: "userId", as: "company" });
   Company.belongsTo(userModel, { foreignKey: "userId", as: "user" });
@@ -50,8 +85,7 @@ Employee.belongsTo(Company, {foreignKey: "company_id", onDelete: "CASCADE",});
     as: "company",
   });
 
-  userModel.hasMany(Documents, { foreignKey: "empId", as: "documents" });
-  Documents.belongsTo(userModel, { foreignKey: "empId", as: "user" });
+
 
   Employee.belongsTo(Company, { foreignKey: "company_id" });
   Employee.belongsTo(userModel, { foreignKey: "userId" });
