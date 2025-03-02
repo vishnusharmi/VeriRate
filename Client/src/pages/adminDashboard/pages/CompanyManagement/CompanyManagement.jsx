@@ -1,40 +1,49 @@
 import React, { useState, useEffect } from "react";
-import {
-  Search,
-  UserPlus,
-  Upload,
-  Download,
-  X,
-  Edit,
-  Trash2,
-} from "lucide-react";
-import axios from "axios";
+import { Search, UserPlus, Edit, Trash2 } from "lucide-react";
+import { Country, State } from "country-state-city";
+import Select from "react-select";
 import { toast, ToastContainer } from "react-toastify";
 
 const CompanyManagement = () => {
   const [companies, setCompanies] = useState([]);
-  const [isUpdated, setIsUpdated] = useState(false)
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredCompanies, setFilteredCompanies] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingCompany, setEditingCompany] = useState(null);
+ 
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    status: "",
+    companyName: "",
+    industry: "",
+    founderYear: "",
+    registerNum: "",
     address: "",
-
-    employees: "",
-    compliance: "",
+    country: "",
+    state: "",
+    phonenumber: "",
+    companyWebsite: "", 
+    email: "",
+    username: "",
+    role:"admin",
+    password: "",
+    document: null,
   });
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleCountryChange = (selectedCountry) => {
+    setFormData({
+      ...formData,
+      country: selectedCountry ? selectedCountry.name : "",
+      state: "", // Reset state when country changes
+    });
   };
 
-// searchbar filter 
+  const handleStateChange = (selectedState) => {
+    setFormData({
+      ...formData,
+      state: selectedState ? selectedState.name : "",
+    });
+  };
+
+  // searchbar filter
   useEffect(() => {
     setFilteredCompanies(
       companies.filter((company) =>
@@ -42,97 +51,6 @@ const CompanyManagement = () => {
       )
     );
   }, [searchTerm, companies]);
-  
-
-  //get request to get all companies
-  useEffect(() => {
-    const fetchCompanies = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:3007/api/get-companies"
-        );
-        console.log("get done ", response.data);
-        setCompanies(
-          Array.isArray(response.data.companies) ? response.data.companies : []
-        );
-      } catch (err) {
-        console.log("Error fetching company:", err);
-      }
-    };
-    fetchCompanies();
-
-  }, [isUpdated]);
-
- 
-
-  //post request to add a company
-  const submitData = async (e) => {
-    e.preventDefault();
-    try {
-      const { name, email, phone, status, compliance, address } = formData;
-      const response = await axios.post(
-        "http://localhost:3007/api/create-company/",
-        {
-          name,
-          email,
-          phone,
-          status,
-          compliance,
-          address,
-        }
-      );
-      setShowAddModal(false);
-      console.log("Company added:", response.data);
-      toast.success("Company added successfully!")
-      setIsUpdated(!isUpdated);
-    } catch (error) {
-      console.error("Error adding company:", error);
-      toast.error("Something went wrong , try again...")
-    }
-  };
-
-  //delete company
-  const deleteCompany = async (id) => {
-    if (confirm("Are you sure you want to delete this company?")) {
-      try {
-        const response = await axios.delete(
-          `http://localhost:3007/api/delete-company/${id}`
-        );
-        console.log("company deleted successfully", response.data);
-        setIsUpdated(!isUpdated);
-        toast.success("Company deleted successfully")
-      } catch (error) {
-        console.log("Error occured while deleting company :", error);
-        toast.error("Error! Something went wrong ");
-
-      }
-    }
-  };
-
-  // edit company
-  const editCompany = async (id) => {
-    try {
-      const response = await axios.put(
-        `http://localhost:3007/api/update-company/${id}`,
-        formData
-      );
-      console.log("Company details edited successfully:", response.data);
-      toast.success("Company edited successfully.");
-
-      setCompanies((prevCompanies) =>
-        prevCompanies.map((company) =>
-          company.id === id ? { ...company, ...formData } : company
-        )
-      );
-
-      setShowAddModal(false);
-      setEditingCompany(null);
-    } catch (error) {
-      console.log("Failed to edit company:", error);
-      toast.error("Error! Something went wrong.");
-
-    }
-  };
 
   const handleEdit = (company) => {
     setEditingCompany(company);
@@ -147,19 +65,72 @@ const CompanyManagement = () => {
     });
     setShowAddModal(true);
   };
+  const handleCancel = () => {
+    setShowAddModal(false);
+  };
 
-  const handleSubmit = async (e) => {
+  const [activeCard, setActiveCard] = useState(1);
+  const totalCards = 4;
+
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [id]: value,
+    }));
+  };
+
+  const handleFileChange = (e) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      document: e.target.files[0],
+    }));
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if (editingCompany) {
-      await editCompany(editingCompany.id);
-    } else {
-      await submitData(e);
+    console.log("Form submitted:", formData);
+  };
+
+  const nextCard = () => {
+    if (activeCard < totalCards) {
+      setActiveCard(activeCard + 1);
     }
+  };
+
+  const prevCard = () => {
+    if (activeCard > 1) {
+      setActiveCard(activeCard - 1);
+    }
+  };
+
+  const isNextDisabled = () => {
+    if (activeCard === 1) {
+      return !formData.email || !formData.password || !formData.username;
+    }
+    if (activeCard === 2) {
+      return (
+        !formData.companyName ||
+        !formData.industry ||
+        !formData.founderYear ||
+        !formData.registerNum
+      );
+    }
+    if (activeCard === 3) {
+      return (
+        !formData.address ||
+        !formData.country ||
+        !formData.state ||
+        !formData.phonenumber ||
+        !formData.companyWebsite 
+      );
+    }
+    return false;
   };
 
   return (
     <div className="w-full p-5 bg-gray-100 overflow-auto">
-       <ToastContainer />
+      <ToastContainer />
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-4">
@@ -185,7 +156,8 @@ const CompanyManagement = () => {
           </div>
           <div className="flex gap-3">
             <label className="flex items-center font-bold text-gray-700 bg-gray-50 px-3 border rounded-lg hover:bg-gray-200 cursor-pointer">
-              Total Companies : &nbsp;<h3 className="font-bold text-red-600">{companies.length}</h3>
+              Total Companies : &nbsp;
+              <h3 className="font-bold text-red-600">{companies.length}</h3>
               <input type="file" className="hidden" />
             </label>
             {/* <label className="flex items-center px-4 bg-gray-50 border rounded-lg hover:bg-gray-100 cursor-pointer">
@@ -222,7 +194,10 @@ const CompanyManagement = () => {
                 <th className="px-4 md:px-6 py-4 text-left">STATUS</th>
                 <th className="px-4 md:px-6 py-4 text-left">EMPLOYEES</th>
                 <th className="px-4 md:px-6 py-4 text-left">COMPLIANCE</th>
-                <th className="hidden md:table-cell px-6 py-4 text-left"> LAST AUDIT</th>
+                <th className="hidden md:table-cell px-6 py-4 text-left">
+                  {" "}
+                  LAST AUDIT
+                </th>
                 <th className="px-4 md:px-6 py-4 text-left">ACTIONS</th>
               </tr>
             </thead>
@@ -290,119 +265,417 @@ const CompanyManagement = () => {
       {/* Add or Edit Company form */}
       {showAddModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500/50">
-          <div className="bg-white rounded-lg shadow-lg p-5 w-full max-w-lg relative">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">
-                {editingCompany ? "Edit Company" : "Add New Company"}
-              </h2>
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="text-gray-600 hover:text-gray-800"
-              >
-                <X className="h-5 w-5" />
-              </button>
+          <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-lg relative">
+            <h1 className="text-2xl font-bold text-center text-gray-800 mb-8">
+              Business Registration
+            </h1>
+
+            {/* Progress Bar */}
+            <div className="w-full bg-gray-200 rounded-full h-2.5 mb-8">
+              <div
+                className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                style={{ width: `${(activeCard / totalCards) * 100}%` }}
+              ></div>
             </div>
 
-            <form className="space-y-2" onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <div className="flex flex-col">
-                  <label className="text-sm font-medium mb-1">
-                    Company Name :
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full p-2 border rounded-lg"
-                  />
+            <form onSubmit={handleSubmit}>
+              {/* Card 1: Founder Information */}
+              <div
+                className={`bg-white rounded-lg shadow-lg transition-all duration-300 ${
+                  activeCard === 1 ? "block" : "hidden"
+                }`}
+              >
+                <div className="bg-blue-600 rounded-t-lg px-6 py-4">
+                  <h2 className="text-lg font-semibold text-white">
+                    Founder Information
+                  </h2>
                 </div>
+                <div className="p-6 space-y-4">
+                  <div>
+                    <label
+                      htmlFor="username"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Username
+                    </label>
+                    <input
+                      type="text"
+                      id="username"
+                      value={formData.username}
+                      onChange={handleChange}
+                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="email"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+                    />
+                  </div>
 
-                <div className="flex flex-col">
-                  <label className="text-sm font-medium mb-1">
-                    Company Email :
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full p-2 border rounded-lg"
-                  />
+                  <div>
+                    <label
+                      htmlFor="password"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Password
+                    </label>
+                    <input
+                      type="password"
+                      id="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+                    />
+                  </div>
+
+                  <div className="pt-4 flex justify-between">
+                    <button
+                      type="button"
+                      onClick={handleCancel}
+                      className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={nextCard}
+                      disabled={isNextDisabled()}
+                      className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md 
+    ${
+      isNextDisabled()
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-blue-600 hover:bg-blue-700 text-white"
+    }`}
+                    >
+                      Next
+                    </button>
+                  </div>
                 </div>
-
-                <div className="flex flex-col">
-                  <label className="text-sm font-medium mb-1">
-                    Phone Number :
-                  </label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded-lg"
-                  />
+              </div>
+              {/* Card 2: Company Information */}
+              <div
+                className={`bg-white rounded-lg shadow-lg transition-all duration-300 ${
+                  activeCard === 2 ? "block" : "hidden"
+                }`}
+              >
+                <div className="bg-blue-600 rounded-t-lg px-6 py-4">
+                  <h2 className="text-lg font-semibold text-white">
+                    Company Information
+                  </h2>
                 </div>
+                <div className="p-6 space-y-4">
+                  <div>
+                    <label
+                      htmlFor="companyName"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Company Name
+                    </label>
+                    <input
+                      type="text"
+                      id="companyName"
+                      value={formData.companyName}
+                      onChange={handleChange}
+                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+                    />
+                  </div>
 
-                <div className="flex flex-col">
-                  <label className="text-sm font-medium mb-1">Status :</label>
-                  <select
-                    name="status"
-                    value={formData.status}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full p-2 border rounded-lg"
-                  >
-                    <option value="">Select Status</option>
-                    <option value="Active">Active</option>
-                    <option value="Pending Approval">Pending Approval</option>
-                    <option value="Suspended">Suspended</option>
-                  </select>
-                </div>
+                  <div>
+                    <label
+                      htmlFor="industry"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Industry Type
+                    </label>
+                    <input
+                      type="text"
+                      id="industry"
+                      value={formData.industry}
+                      onChange={handleChange}
+                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+                    />
+                  </div>
 
-                <div className="flex flex-col">
-                  <label className="text-sm font-medium mb-1">Compliance :</label>
-                  <select
-                    name="compliance"
-                    value={formData.compliance}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full p-2 border rounded-lg"
-                  >
-                    <option value="">Select Compliance</option>
-                    <option value="Compliant">Compliant</option>
-                    <option value="Under Review">Under Review</option>
-                    <option value="Non-Compliant">Non-Compliant</option>
-                  </select>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label
+                        htmlFor="founderYear"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Year Founded
+                      </label>
+                      <input
+                        type="date"
+                        id="founderYear"
+                        value={formData.founderYear}
+                        onChange={handleChange}
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="registerNum"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Registration Number
+                      </label>
+                      <input
+                        type="text"
+                        id="registerNum"
+                        value={formData.registerNum}
+                        onChange={handleChange}
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-4 flex justify-between">
+                    <button
+                      type="button"
+                      onClick={prevCard}
+                      className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                      Back
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={nextCard}
+                      disabled={isNextDisabled()}
+                      className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md 
+    ${
+      isNextDisabled()
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-blue-600 hover:bg-blue-700 text-white"
+    }`}
+                    >
+                      Next
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex flex-col">
-                <label className="text-sm font-medium mb-1">Address :</label>
-                <textarea
-                  name="address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border rounded-lg"
-                ></textarea>
+              {/* Card 3: Contact Information */}
+              <div
+                className={`bg-white rounded-lg shadow-lg transition-all duration-300 ${
+                  activeCard === 3 ? "block" : "hidden"
+                }`}
+              >
+                <div className="bg-blue-600 rounded-t-lg px-6 py-4">
+                  <h2 className="text-lg font-semibold text-white">
+                    Contact Information
+                  </h2>
+                </div>
+                <div className="p-6 space-y-4">
+                  <div>
+                    <label
+                      htmlFor="address"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Address
+                    </label>
+                    <textarea
+                      id="address"
+                      rows="3"
+                      value={formData.address}
+                      onChange={handleChange}
+                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+                    ></textarea>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Country
+                      </label>
+                      <Select
+                        options={Country.getAllCountries().map((country) => ({
+                          value: country.isoCode,
+                          label: country.name,
+                          name: country.name,
+                        }))}
+                        onChange={handleCountryChange}
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2X"
+                        placeholder="Select Country"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        State/Province
+                      </label>
+                      <Select
+                        options={
+                          formData.country
+                            ? State.getStatesOfCountry(
+                                Country.getAllCountries().find(
+                                  (c) => c.name === formData.country
+                                )?.isoCode
+                              ).map((state) => ({
+                                value: state.isoCode,
+                                label: state.name,
+                                name: state.name,
+                              }))
+                            : []
+                        }
+                        onChange={handleStateChange}
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500  "
+                        placeholder="Select State"
+                        isDisabled={!formData.country}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label
+                        htmlFor="phonenumber"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Phone Number
+                      </label>
+                      <input
+                        type="tel"
+                        id="phonenumber"
+                        max={10}
+                        min={10}
+                        value={formData.phonenumber}
+                        onChange={handleChange}
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="companyWebsite "
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Company Website 
+                      </label>
+                      <input
+  type="url"
+  id="companyWebsite" // Remove the space here
+  value={formData.companyWebsite}
+  onChange={handleChange}
+  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+/>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 flex justify-between">
+                    <button
+                      type="button"
+                      onClick={prevCard}
+                      className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                      Back
+                    </button>
+                    <button
+                      type="button"
+                      onClick={nextCard}
+                      disabled={isNextDisabled()}
+                      className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md 
+    ${
+      isNextDisabled()
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-blue-600 hover:bg-blue-700 text-white"
+    }`}
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              <div className="flex justify-end gap-2 mt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 border rounded-lg"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                >
-                  {editingCompany ? "Update Company" : "Add Company"}
-                </button>
+              {/* Card 4: Company document */}
+              <div
+                className={`bg-white rounded-lg shadow-lg transition-all duration-300 ${
+                  activeCard === 4 ? "block" : "hidden"
+                }`}
+              >
+                <div className="bg-blue-600 rounded-t-lg px-6 py-4">
+                  <h2 className="text-lg font-semibold text-white">
+                    Company document
+                  </h2>
+                </div>
+                <div className="p-6 space-y-4">
+                  <div className="mt-2">
+                    <div className="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                      <div className="space-y-1 text-center">
+                        <svg
+                          className="mx-auto h-12 w-12 text-gray-400"
+                          stroke="currentColor"
+                          fill="none"
+                          viewBox="0 0 48 48"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4h-12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        <div className="flex text-sm text-gray-600">
+                          <label
+                            htmlFor="document"
+                            className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
+                          >
+                            <span>Upload a file</span>
+                            <input
+                              id="document"
+                              name="document"
+                              type="file"
+                              onChange={handleFileChange}
+                              className="sr-only"
+                            />
+                          </label>
+                          <p className="pl-1">or drag and drop</p>
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          {formData.document
+                            ? formData.document.name
+                            : "PNG, JPG, GIF up to 10MB"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-6 flex justify-between">
+                    <button
+                      type="button"
+                      onClick={prevCard}
+                      className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                      Back
+                    </button>
+
+                    <button
+                      onClick={nextCard}
+                      disabled={isNextDisabled()}
+                      type="submit"
+                      className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md 
+                    ${
+                      isNextDisabled()
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-blue-600 hover:bg-blue-700 text-white"
+                    }`}
+                    >
+                      Submit Registration
+                    </button>
+                  </div>
+                </div>
               </div>
             </form>
           </div>

@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../../Context/Contextapi";
@@ -116,9 +116,11 @@ const Form = () => {
             className="outline-none border-2 border-gray-400 p-3 focus:border-gray-600 rounded-md"
             onChange={handleInputChange}
           />
+          <Link to={'/forget-password'}>
           <span className="text-blue-400 font-medium hover:underline cursor-pointer w-fit">
             Forgot password?
           </span>
+          </Link>
         </div>
 
         <button
