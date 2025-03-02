@@ -6,7 +6,6 @@ import Login from "../components/Auth/Login/Login.jsx";
 // ADMIN DASHBOARD IMPORTS
 import AdminDashboard from "../pages/adminDashboard/AdminDashboard";
 import Disputes from "../pages/adminDashboard/pages/Disputes/Disputes.jsx";
-import Employer from "../pages/adminDashboard/pages/Employer/Employer.jsx";
 import Monitoring from "../pages/adminDashboard/pages/Monitoring/Monitoring.jsx";
 import SecurityCompliances from "../pages/adminDashboard/pages/SecurityCompliance/SecurityCompliance.jsx";
 
@@ -38,10 +37,9 @@ const AllRoutes = () => {
       <Route path="/admin" element={<Layout />}>
         <Route index element={<AdminDashboard />} />
         <Route path="/admin/disputes" element={<Disputes />} />
-        <Route path="/admin/employer" element={<Employer />} />
         <Route path="/admin/records" element={<Records />} />
         <Route path="/admin/monitoring" element={<Monitoring />} />
-        <Route path="/admin/user-management" element={<UserManagement />} />
+        <Route path="/admin/usermanagement" element={<UserManagement />} />
         <Route path="/admin/company-management" element={<CompanyManagement />} />
         <Route
           path="/admin/security-compliance"

@@ -3,7 +3,7 @@ const Documents = require('../Models/documents');
 const Company = require("../Models/companies");
 const BlackList = require("../Models/blackList-model");
 const Rating = require('../Models/ratingsModel');
-// const Employee = require('../Models/EmployeeModel');
+const Employee = require('../Models/EmployeeModel');
 
 const  Associations =()=>{
 //     userModel.hasOne(Documents, { foreignKey: 'empId' });
