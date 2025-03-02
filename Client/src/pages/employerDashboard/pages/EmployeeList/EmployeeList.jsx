@@ -24,7 +24,7 @@ const EmployeeManagement = () => {
     { id: 1, name: "passport_copy.pdf", type: "ID Proof", employee: "John Doe" },
     { id: 2, name: "certification_java.pdf", type: "Certification", employee: "John Doe" },
   ]);
-  const [employees, setEmployees] = useState([]);
+  const [employees,  ] = useState([]);
   const [employmentHistory, setEmploymentHistory] = useState([
     {
       company: "ABC Corp",
@@ -285,7 +285,7 @@ const EmployeeManagement = () => {
       {activeTab === "employees" && (
         <div className="mt-6 bg-white p-4 rounded-lg shadow-lg w-[90%] mx-auto">
           {console.log(employees)}
-          {employees.employees.length === 0 ? (
+          {employees?.employees?.length === 0 ? (
             <p className="text-center py-4">No employees found. Add your first employee!</p>
           ) : (
             employees.employees.map((employee) => (
