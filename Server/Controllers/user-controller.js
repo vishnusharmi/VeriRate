@@ -5,38 +5,57 @@ const { captureRejectionSymbol } = require("events");
 require("dotenv").config();
 
 const register = async (req, res) => {
-  const data = req.body;
-  const files = req.file;
-  console.log(files, "controller");
+    const data = req.body;
+    const files = req.file;
+    console.log(data,files, "controller");
 
-  try {
-    const respose = await registerServices.registerUser(data, files);
-    //  console.log(data)
-    res.status(201).json(respose);
-  } catch (error) {
-    res.status(500).json({ message: error });
-  }
-};
+    try {
+        const respose = await registerServices.registerUser(data, files);
+        //  console.log(data)
+        res.status(respose.statusCode).json({message:respose.message});
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+    }
+}
+
+
+
+// get all registered users
+
+//  const getAllusers = async (req,res)=>{
+//     try{
+//         const getUsers = await registerServices.getAllusers();
+//         res.status(200).json({message : 'users fetched successfully', getUsers});
+//     }
+//     catch(error){
+//         res.status(500).json({message : 'failed to fecth users'})
+//     }
+// }
+
+
+
 
 const getAllUsers = async (req, res) => {
-  try {
-    const users = await registerServices.getAllusers();
-    console.log(users);
+    try {
+        const users = await registerServices.getAllusers();
+        console.log(users);
 
-    return res.status(200).json({
-      success: true,
-      message: "Users retrieved successfully",
-      data: users,
-    });
-  } catch (error) {
-    console.error("Error fetching users:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to retrieve users",
-      error: error.message,
-    });
-  }
+        return res.status(200).json({
+            success: true,
+            message: 'Users retrieved successfully',
+            data: users,
+        });
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to retrieve users',
+            error: error.message,
+        });
+    }
 };
+
+
 
 //get user by id
 const getUserByIdController = async (req, res) => {

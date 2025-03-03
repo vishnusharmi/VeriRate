@@ -1,4 +1,4 @@
-const { DataTypes } = require("sequelize");
+const { DataTypes, JSONB } = require("sequelize");
 const database = require("../Config/DBconnection");
 const Company = require("../Models/companies");
 const User = require("./user");
@@ -34,19 +34,6 @@ const Employee = database.define(
     },
     dateOfBirth: {
       type: DataTypes.DATE,
-      allowNull: false,
-    },
-    role:{
-      type:DataTypes.STRING,
-      allowNull:false
-    },
-    email: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      unique: true,
-    },
-    password: {
-      type: DataTypes.STRING(255),
       allowNull: false,
     },
     dateOfJoin: {
@@ -106,6 +93,11 @@ const Employee = database.define(
       },
       onDelete: "CASCADE",
     },
+    employment_history:{
+      type: DataTypes.JSONB,
+      allowNull:false
+    },
+
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
