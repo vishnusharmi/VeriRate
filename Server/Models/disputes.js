@@ -9,15 +9,6 @@ const Disputes = sequelize.define('Disputes', {
         primaryKey: true,
         autoIncrement: true,
     },
-    // employee_id: {
-    //     type: DataTypes.INTEGER,
-    //     allowNull: false,
-    //     references: {
-    //         model: Employees,
-    //         key: "id",
-    //     },
-    //     onDelete: "CASCADE"
-    // },
     dispute_type: {
         type: DataTypes.ENUM("blacklist", "rating", "other"),
         allowNull: false,

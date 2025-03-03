@@ -4,8 +4,6 @@ const { accessSync } = require('fs');
 const { captureRejectionSymbol } = require('events');
 require('dotenv').config();
 
-
-
 const register = async (req, res) => {
     const data = req.body;
     const files = req.file;
@@ -19,23 +17,6 @@ const register = async (req, res) => {
         res.status(500).json({ message: error })
     }
 }
-
-
-
-// get all registered users
-
-//  const getAllusers = async (req,res)=>{
-//     try{
-//         const getUsers = await registerServices.getAllusers();
-//         res.status(200).json({message : 'users fetched successfully', getUsers});
-//     }
-//     catch(error){
-//         res.status(500).json({message : 'failed to fecth users'})
-//     }
-// }
-
-
-
 
 const getAllUsers = async (req, res) => {
     try {
