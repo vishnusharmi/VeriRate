@@ -3,14 +3,19 @@ import { Search, UserPlus, Edit, Trash2 } from "lucide-react";
 import { Country, State } from "country-state-city";
 import Select from "react-select";
 import { toast, ToastContainer } from "react-toastify";
+import axios from "axios";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 
 const CompanyManagement = () => {
   const [companies, setCompanies] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredCompanies, setFilteredCompanies] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [editingCompany, setEditingCompany] = useState(null);
- 
+  const [isEdit, setIsEdit] = useState(false);
+  const [isModalOpenPopup, setIsModalOpenPopup] = useState(false);
+  const [selectedCompanyId, setSelectedCompanyId] = useState("");
+  const [loading, setLoading] = useState(true);
+
   const [formData, setFormData] = useState({
     companyName: "",
     industry: "",
@@ -20,51 +25,35 @@ const CompanyManagement = () => {
     country: "",
     state: "",
     phonenumber: "",
-    companyWebsite: "", 
+    companyWebsite: "",
     email: "",
     username: "",
-    role:"admin",
+    role: "admin",
     password: "",
     document: null,
   });
-
-  const handleCountryChange = (selectedCountry) => {
+  useEffect(() => {
+    if (showAddModal) {
+      setActiveCard(1);
+    }
+  }, [showAddModal]);
+  
+  const handleCountryChange = (selected) => {
     setFormData({
       ...formData,
-      country: selectedCountry ? selectedCountry.name : "",
+      country: selected.label, // Store country name
       state: "", // Reset state when country changes
     });
   };
-
-  const handleStateChange = (selectedState) => {
+  
+  const handleStateChange = (selected) => {
     setFormData({
       ...formData,
-      state: selectedState ? selectedState.name : "",
+      state: selected.label, // Store state name
     });
   };
+  
 
-  // searchbar filter
-  useEffect(() => {
-    setFilteredCompanies(
-      companies.filter((company) =>
-        company.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    );
-  }, [searchTerm, companies]);
-
-  const handleEdit = (company) => {
-    setEditingCompany(company);
-    setFormData({
-      companyName: company.name || "",
-      email: company.email || "",
-      phonenumber: company.phone || "",
-      status: company.status || "",
-      address: company.address || "",
-      employees: company.employees || "",
-      compliance: company.compliance || "",
-    });
-    setShowAddModal(true);
-  };
   const handleCancel = () => {
     setShowAddModal(false);
   };
@@ -74,10 +63,11 @@ const CompanyManagement = () => {
 
   const handleChange = (e) => {
     const { id, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
+    setFormData((prev) => ({
+      ...prev,
       [id]: value,
     }));
+    
   };
 
   const handleFileChange = (e) => {
@@ -87,12 +77,65 @@ const CompanyManagement = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const filteredCompanies = companies.filter((company) =>
+    company.companyName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+    try {
+      let res;
+      if (isEdit && selectedCompanyId) {
+        res = await axios.put(`http://localhost:3000/api/update-company/${selectedCompanyId}`, formData);
+        toast.success(res.data.message);
+        setShowAddModal(false);
+      } else {
+        res = await axios.post("http://localhost:3000/api/register", {formData});
+        toast.success(res.data.message);
+        setShowAddModal(false);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Operation failed!");
+      console.log("Error:", error);
+    }
+  };
+
+  const validateForm = () => {
+    const { email, password, companyWebsite, phonenumber } = formData;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const urlRegex = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/.*)?$/;
+    const phoneRegex = /^[0-9]{10,15}$/; // Allows only digits, 10 to 15 characters long
+    if (activeCard === 1) {
+      // Validate email and password
+      if (!emailRegex.test(email)) {
+        toast.error("Invalid email format!");
+        return false;
+      }
+      if (password.length < 6) {
+        toast.error("Password must be at least 6 characters long!");
+        return false;
+      }
+    }
+
+    if (activeCard === 3) {
+      // Validate company website and phone number
+      if (!urlRegex.test(companyWebsite)) {
+        toast.error("Invalid website URL format!");
+        return false;
+      }
+      if (!phoneRegex.test(phonenumber)) {
+        toast.error(
+          "Invalid phone number! It must contain only digits and be 10-15 digits long."
+        );
+        return false;
+      }
+    }
+
+    return true;
   };
 
   const nextCard = () => {
+    if (!validateForm()) return;
     if (activeCard < totalCards) {
       setActiveCard(activeCard + 1);
     }
@@ -122,10 +165,79 @@ const CompanyManagement = () => {
         !formData.country ||
         !formData.state ||
         !formData.phonenumber ||
-        !formData.companyWebsite 
+        !formData.companyWebsite
       );
     }
     return false;
+  };
+
+  useEffect(() => {
+    fetchCompanies();
+  }, []);
+
+  const fetchCompanies = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:3000/api/get-companies"
+      ); // Your API endpoint
+      setCompanies(response.data.companies || []);
+    } catch (error) {
+      console.error("Error fetching companies:", error);
+      setCompanies([]); // Ensure it's an array even on error
+    }
+  };
+
+  const editCompany = async (company) => {
+    setSelectedCompanyId(company.id)
+    const selectedCountry = Country.getAllCountries().find(
+      (c) => c.name === company.country
+    );
+  
+    const selectedState = selectedCountry
+      ? State.getStatesOfCountry(selectedCountry.isoCode).find(
+          (s) => s.name === company.state
+        )
+      : null;
+    setFormData({
+      companyName: company.companyName || "",
+      industry: company.industry || "",
+      founderYear: company.founderYear || "",
+      registerNum: company.registerNum || "",
+      address: company.address || "",
+      country: company.country || "",
+      state: company.state || "",
+      phonenumber: company.phonenumber || "",
+      companyWebsite: company.companyWebsite || "",
+      email: company.email || "",
+      username: company.username || "",
+      role: company.role || "admin",
+      password: company.password || "",
+      document: company.document || null,
+    });
+    setShowAddModal(true);
+    setIsEdit(true); 
+  };
+  
+  const handleDeleteClick = (id) => {
+    setSelectedCompanyId(id);
+    setIsModalOpenPopup(true);
+  };
+
+  const deleteCompany = async () => {
+    try {
+      await axios.delete(
+        `http://localhost:3000/api/delete-company/${selectedCompanyId}`
+      ); // Replace with your API URL
+      toast.success("Company deleted successfully!");
+      setCompanies((prevCompanies) =>
+        prevCompanies.filter((c) => c.id !== selectedCompanyId)
+      );
+    } catch (error) {
+      console.error("Error deleting company:", error);
+      toast.error("Failed to delete company!");
+    } finally {
+      setIsModalOpenPopup(false);
+    }
   };
 
   return (
@@ -160,23 +272,23 @@ const CompanyManagement = () => {
               <h3 className="font-bold text-red-600">{companies.length}</h3>
               <input type="file" className="hidden" />
             </label>
-            {/* <label className="flex items-center px-4 bg-gray-50 border rounded-lg hover:bg-gray-100 cursor-pointer">
-              <Download className="h-5 w-5 mr-2" /> Export
-              <input type="file" className="hidden" />
-            </label> */}
             <button
               onClick={() => {
                 setShowAddModal(true);
-                setEditingCompany(null);
-                setFormData({
-                  name: "",
-                  email: "",
-                  phone: "",
-                  status: "",
+                setFormData({ companyName: "",
+                  industry: "",
+                  founderYear: "",
+                  registerNum: "",
                   address: "",
-                  employees: "",
-                  compliance: "",
-                });
+                  country: "",
+                  state: "",
+                  phonenumber: "",
+                  companyWebsite: "",
+                  email: "",
+                  username: "",
+                  role: "admin",
+                  password: "",
+                  document: null,})
               }}
               className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
@@ -189,83 +301,104 @@ const CompanyManagement = () => {
         <div className="bg-white rounded-lg shadow-sm overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-200">
-              <tr className="text-sm font-medium text-gray-700">
-                <th className="px-4 md:px-6 py-4 text-left">COMPANY DETAILS</th>
-                <th className="px-4 md:px-6 py-4 text-left">STATUS</th>
-                <th className="px-4 md:px-6 py-4 text-left">EMPLOYEES</th>
-                <th className="px-4 md:px-6 py-4 text-left">COMPLIANCE</th>
-                <th className="hidden md:table-cell px-6 py-4 text-left">
-                  {" "}
-                  LAST AUDIT
-                </th>
-                <th className="px-4 md:px-6 py-4 text-left">ACTIONS</th>
+              <tr className="text-sm font-medium text-gray-700 text-center">
+                <th className="px-4 md:px-6 py-4 ">COMPANY NAME</th>
+                <th className="px-4 md:px-6 py-4 ">EMAIL</th>
+                <th className="px-4 md:px-6 py-4">PHONE NUMBER</th>
+                <th className="px-4 md:px-6 py-4">REGISTRATION NUMBER</th>
+                <th className="px-4 md:px-6 py-4 ">YEAR</th>
+                <th className="px-4 md:px-6 py-4 ">ACTION</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredCompanies.map((company) => (
-                <tr
-                  key={company.id}
-                  className="hover:bg-gray-50 text-sm text-gray-800"
-                >
-                  <td className="px-4 md:px-6 py-4">
-                    <div className="font-medium">{company.name}</div>
-                    <div className="text-gray-500 text-xs">{company.email}</div>
-                  </td>
-                  <td className="px-4 md:px-6 py-4">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        company.status === "Active"
-                          ? "bg-green-100 text-green-800"
-                          : company.status === "Pending Approval"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
+            {filteredCompanies.length > 0 ? (
+              filteredCompanies.map((company, index) => (
+                <tr key={index} className="text-left">
+                  <td className="border px-4 py-2">{company.companyName}</td>
+                  <td className="border px-4 py-2">{company.email}</td>
+                  <td className="border px-4 py-2">{company.phonenumber}</td>
+                  <td className="border px-4 py-2">{company.registerNum}</td>
+                  <td className="border px-4 py-2">{company.founderYear}</td>
+                  <td className="py-4 px-6 flex gap-3 border">
+                    <div
+                      whileHover={{ scale: 1.1 }}
+                      className="text-yellow-500 hover:text-gray-600"
+                      onClick={() => editCompany(company)}
                     >
-                      {company.status}
-                    </span>
-                  </td>
-                  <td className="px-4 md:px-6 py-4">{companies.length}</td>
-                  <td className="px-4 md:px-6 py-4">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        company.compliance === "Compliant"
-                          ? "bg-green-100 text-green-800"
-                          : company.compliance === "Under Review"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
+                      <EditOutlinedIcon />
+                    </div>
+                    <div
+                      whileHover={{ scale: 1.1 }}
+                      className="text-red-500 hover:text-gray-600"
+                      onClick={() => handleDeleteClick(company.id)} // Pass company ID
                     >
-                      {company.compliance}
-                    </span>
-                  </td>
-                  <td className="hidden md:table-cell px-6 py-4 ">
-                    {new Date(company.updatedAt).toISOString().split("T")[0]}
-                  </td>
-                  <td className="px-4 md:px-6 py-4 flex gap-3">
-                    <button
-                      onClick={() => handleEdit(company)}
-                      className="text-blue-600 hover:text-blue-800"
-                    >
-                      <Edit className="h-5 w-5" />
-                    </button>
-                    <button
-                      onClick={() => deleteCompany(company.id)}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </button>
+                      <DeleteOutlineOutlinedIcon />
+                    </div>
                   </td>
                 </tr>
-              ))}
+              ))  ) : (
+                <tr>
+                  <td colSpan="6" className="text-center py-4 text-gray-500">
+                    No results found
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
+        {/* popup for delete */}
+        {isModalOpenPopup && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500/50">
+            <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-lg relative">
+              <h2 className="text-lg font-semibold">Confirm Deletion</h2>
+              <p className="text-gray-600 mt-2">
+                Are you sure you want to delete this company?
+              </p>
+              <div className="flex justify-end gap-4 mt-4">
+                <button
+                  className="px-4 py-2 bg-gray-300 rounded-lg"
+                  onClick={() => setIsModalOpenPopup(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg"
+                  onClick={deleteCompany}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Add or Edit Company form */}
       {showAddModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500/50">
           <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-lg relative">
+            {/* Close/Cross Icon Button */}
+            <button
+              onClick={handleCancel}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 focus:outline-none"
+              aria-label="Close"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
             <h1 className="text-2xl font-bold text-center text-gray-800 mb-8">
               Business Registration
             </h1>
@@ -317,6 +450,7 @@ const CompanyManagement = () => {
                       type="email"
                       id="email"
                       value={formData.email}
+                      required
                       onChange={handleChange}
                       className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
                     />
@@ -495,46 +629,67 @@ const CompanyManagement = () => {
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Country
-                      </label>
-                      <Select
-                        options={Country.getAllCountries().map((country) => ({
-                          value: country.isoCode,
-                          label: country.name,
-                          name: country.name,
-                        }))}
-                        onChange={handleCountryChange}
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2X"
-                        placeholder="Select Country"
-                      />
-                    </div>
+                  <div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Country
+  </label>
+  <Select
+    options={Country.getAllCountries().map((country) => ({
+      value: country.isoCode,
+      label: country.name,
+    }))}
+    value={
+      formData.country
+        ? {
+            value: Country.getAllCountries().find(
+              (c) => c.name === formData.country
+            )?.isoCode,
+            label: formData.country,
+          }
+        : null
+    }
+    onChange={handleCountryChange}
+    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+    placeholder="Select Country"
+  />
+</div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        State/Province
-                      </label>
-                      <Select
-                        options={
-                          formData.country
-                            ? State.getStatesOfCountry(
-                                Country.getAllCountries().find(
-                                  (c) => c.name === formData.country
-                                )?.isoCode
-                              ).map((state) => ({
-                                value: state.isoCode,
-                                label: state.name,
-                                name: state.name,
-                              }))
-                            : []
-                        }
-                        onChange={handleStateChange}
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500  "
-                        placeholder="Select State"
-                        isDisabled={!formData.country}
-                      />
-                    </div>
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    State/Province
+  </label>
+  <Select
+    options={
+      formData.country
+        ? State.getStatesOfCountry(
+            Country.getAllCountries().find(
+              (c) => c.name === formData.country
+            )?.isoCode
+          ).map((state) => ({
+            value: state.isoCode,
+            label: state.name,
+          }))
+        : []
+    }
+    value={
+      formData.state
+        ? {
+            value: State.getStatesOfCountry(
+              Country.getAllCountries().find(
+                (c) => c.name === formData.country
+              )?.isoCode
+            ).find((s) => s.name === formData.state)?.isoCode,
+            label: formData.state,
+          }
+        : null
+    }
+    onChange={handleStateChange}
+    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+    placeholder="Select State"
+    isDisabled={!formData.country}
+  />
+</div>
+
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -558,18 +713,18 @@ const CompanyManagement = () => {
 
                     <div>
                       <label
-                        htmlFor="companyWebsite "
+                        htmlFor="companyWebsite"
                         className="block text-sm font-medium text-gray-700 mb-1"
                       >
-                        Company Website 
+                        Company Website
                       </label>
                       <input
-  type="url"
-  id="companyWebsite" // Remove the space here
-  value={formData.companyWebsite}
-  onChange={handleChange}
-  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
-/>
+                        type="url"
+                        id="companyWebsite"
+                        value={formData.companyWebsite}
+                        onChange={handleChange}
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+                      />
                     </div>
                   </div>
 
