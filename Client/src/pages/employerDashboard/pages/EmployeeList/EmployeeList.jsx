@@ -37,7 +37,7 @@ const EmployeeManagement = () => {
       employee: "John Doe",
     },
   ]);
-  const [employees, setEmployees] = useState([]);
+  const [employees,  ] = useState([]);
   const [employmentHistory, setEmploymentHistory] = useState([
     { company: "ABC Corp", role: "Junior Developer", tenure: "2018 - 2020" },
     { company: "XYZ Ltd", role: "Senior Developer", tenure: "2020 - 2023" },
@@ -48,6 +48,7 @@ const EmployeeManagement = () => {
   const [step, setStep] = useState(1);
   const [imagePreview, setImagePreview] = useState(null);
 
+  // Single declaration of employeeData
   const [employeeData, setEmployeeData] = useState({
     emp_name: editableEmployee?.emp_name || "",
     employee_id: editableEmployee?.employee_id || "",
@@ -66,7 +67,41 @@ const EmployeeManagement = () => {
     bank_name: editableEmployee?.bank_name || "",
     ifsc_code: editableEmployee?.ifsc_code || "",
     profile_image: editableEmployee?.profile_image || null,
+    experience: editableEmployee?.experience || [], // Add experience field here
+    document:null
   });
+
+  // Add Experience Function
+const addExperience = () => {
+  setEmployeeData((prevData) => ({
+    ...prevData,
+    experience: [...prevData.experience, { company: "", jobTitle: "", startDate: "", endDate: "", description: "" }]
+  }));
+};
+
+  const removeExperience = (index) => {
+    const updatedExperience = employeeData.experience.filter((_, i) => i !== index);
+    setEmployeeData({ ...employeeData, experience: updatedExperience });
+  };
+
+  const handleExperienceChange = (e, index, fieldName) => {
+    const { value } = e.target;
+    setEmployeeData((prevData) => {
+      const updatedExperience = [...prevData.experience];
+      updatedExperience[index][fieldName] = value; // Only update the specific field
+      return { ...prevData, experience: updatedExperience };
+    });
+  };
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      console.log("Selected file:", file.name);
+      // You can store the file in state or upload it to a server
+    }
+  };
+  
+  
 
   const handleNext = (e) => {
     e.preventDefault();
@@ -82,7 +117,8 @@ const EmployeeManagement = () => {
   };
 
   const handleChange = (e) => {
-    setEmployeeData({ ...employeeData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setEmployeeData({ ...employeeData, [name]: value });
   };
 
   const handleFileChange = (e) => {
@@ -105,9 +141,7 @@ const EmployeeManagement = () => {
   const fetchEmployees = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(
-        "http://localhost:3007/api/get-employees"
-      );
+      const response = await axios.get("http://localhost:3007/api/get-employees");
       console.log("API Response:", response.data); // Log the response
       setEmployees(response.data.employees); // Access the `employees` array
       setError(null);
@@ -124,7 +158,7 @@ const EmployeeManagement = () => {
     setEditableEmployee(employee);
     if (employee) {
       setEmployeeData({
-        emp_name: employee.first_name || "",
+        emp_name: employee.emp_name || "",
         employee_id: employee.employee_id || "",
         salary: employee.salary || "",
         date_of_birth: employee.date_of_birth || "",
@@ -141,6 +175,7 @@ const EmployeeManagement = () => {
         bank_name: employee.bank_name || "",
         ifsc_code: employee.ifsc_code || "",
         profile_image: employee.profile_image || null,
+        experience: employee.experience || [],
       });
       setImagePreview(employee.profile_image_url || null);
     } else {
@@ -162,6 +197,7 @@ const EmployeeManagement = () => {
         bank_name: "",
         ifsc_code: "",
         profile_image: null,
+        experience: [],
       });
       setImagePreview(null);
     }
@@ -446,7 +482,7 @@ const EmployeeManagement = () => {
               {step === 1 && (
                 <>
                   <div className="flex justify-center mb-6">
-                    <div className="relative">
+                    {/* <div className="relative -z-10">
                       {imagePreview ? (
                         <img
                           src={imagePreview}
@@ -468,7 +504,7 @@ const EmployeeManagement = () => {
                           className="hidden"
                         />
                       </label>
-                    </div>
+                    </div> */}
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -557,6 +593,18 @@ const EmployeeManagement = () => {
                     </div>
                     <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Company Name
+                      </label>
+                      <select className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                        <option>Select Company</option>
+                        <option>ABC Corp</option>
+                        <option>XYZ Ltd</option>
+                        <option>123 Inc</option>
+                        <option>Busitron pvt</option>
+                      </select>
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
                         Address
                       </label>
                       <textarea
@@ -572,144 +620,247 @@ const EmployeeManagement = () => {
                 </>
               )}
 
-              {step === 2 && (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Role*
-                      </label>
-                      <input
-                        type="text"
-                        name="role"
-                        value={employeeData.role}
-                        onChange={handleChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                        required
-                        placeholder="e.g., Software Engineer"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Date of Joining*
-                      </label>
-                      <input
-                        type="date"
-                        name="date_of_joining"
-                        value={employeeData.date_of_joining}
-                        onChange={handleChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Salary*
-                      </label>
-                      <input
-                        type="number"
-                        name="salary"
-                        value={employeeData.salary}
-                        onChange={handleChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                        required
-                        placeholder="e.g., 50000"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Qualification*
-                      </label>
-                      <input
-                        type="text"
-                        name="qualification"
-                        value={employeeData.qualification}
-                        onChange={handleChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                        required
-                        placeholder="e.g., B.Tech in Computer Science"
-                      />
-                    </div>
-                  </div>
-                </>
-              )}
+{step === 2 && (
+  <>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label className="block text-sm font-medium text-black-700 mb-1">
+          Role*
+        </label>
+        <input
+          type="text"
+          name="role"
+          value={employeeData.role}
+          onChange={handleChange}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+          required
+          placeholder="e.g., Software Engineer"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Date of Joining*
+        </label>
+        <input
+          type="date"
+          name="date_of_joining"
+          value={employeeData.date_of_joining}
+          onChange={handleChange}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+          required
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Salary*
+        </label>
+        <input
+          type="number"
+          name="salary"
+          value={employeeData.salary}
+          onChange={handleChange}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+          required
+          placeholder="e.g., 50000"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Qualification*
+        </label>
+        <input
+          type="text"
+          name="qualification"
+          value={employeeData.qualification}
+          onChange={handleChange}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+          required
+          placeholder="e.g., B.Tech in Computer Science"
+        />
+      </div>
+    </div>
 
-              {step === 3 && (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        PAN Card*
-                      </label>
-                      <input
-                        type="text"
-                        name="pan_card"
-                        value={employeeData.pan_card}
-                        onChange={handleChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                        required
-                        placeholder="ABCDE1234F"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Aadhar Card*
-                      </label>
-                      <input
-                        type="text"
-                        name="aadhar_card"
-                        value={employeeData.aadhar_card}
-                        onChange={handleChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                        required
-                        placeholder="1234 5678 9012"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Bank Account Number*
-                      </label>
-                      <input
-                        type="text"
-                        name="bank_account"
-                        value={employeeData.bank_account}
-                        onChange={handleChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                        required
-                        placeholder="1234567890"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Bank Name*
-                      </label>
-                      <input
-                        type="text"
-                        name="bank_name"
-                        value={employeeData.bank_name}
-                        onChange={handleChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                        required
-                        placeholder="e.g., State Bank of India"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        IFSC Code*
-                      </label>
-                      <input
-                        type="text"
-                        name="ifsc_code"
-                        value={employeeData.ifsc_code}
-                        onChange={handleChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                        required
-                        placeholder="SBIN0001234"
-                      />
-                    </div>
-                  </div>
-                </>
-              )}
+    {/* Experience Section */}
+    <div className="mt-6">
+      <h3 className="text-lg font-semibold text-gray-800 mb-2">Experience</h3>
+      {employeeData.experience.map((exp, index) => (
+        <div key={index} className="border p-4 rounded-lg  mb-4">
+          <div className="mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Company Name*
+            </label>
+            <input
+              type="text"
+              name={`company_${index}`}
+              value={exp.company}
+              onChange={(e) => handleExperienceChange(e, index, "company")}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              placeholder="Previous Company Name"
+            />
+          </div>
+          <div className="mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Job Title*
+            </label>
+            <input
+              type="text"
+              name={`jobTitle_${index}`}
+              value={exp.jobTitle}
+              onChange={(e) => handleExperienceChange(e, index, "jobTitle")}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              placeholder="e.g., Senior Developer"
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Start Date*
+              </label>
+              <input
+                type="date"
+                name={`startDate_${index}`}
+                value={exp.startDate}
+                onChange={(e) => handleExperienceChange(e, index, "startDate")}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                End Date*
+              </label>
+              <input
+                type="date"
+                name={`endDate_${index}`}
+                value={exp.endDate}
+                onChange={(e) => handleExperienceChange(e, index, "endDate")}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              />
+            </div>
+          </div>
+          <div className="mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Description
+            </label>
+            <textarea
+              name={`description_${index}`}
+              value={exp.description}
+              onChange={(e) => handleExperienceChange(e, index, "description")}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              placeholder="Briefly describe your responsibilities and achievements"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => removeExperience(index)}
+            className="text-red-500 font-medium"
+          >
+            ❌ Remove
+          </button>
+        </div>
+      ))}
+
+      <button
+        type="button"
+        onClick={addExperience}
+        className="flex items-center gap-2 text-blue-600 font-medium hover:underline"
+      >
+        ➕ Add Experience
+      </button>
+    </div>
+  </>
+)}
+
+
+{step === 3 && (
+  <>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          PAN Card*
+        </label>
+        <input
+          type="text"
+          name="pan_card"
+          value={employeeData.pan_card}
+          onChange={handleChange}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+          required
+          placeholder="ABCDE1234F"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Aadhar Card*
+        </label>
+        <input
+          type="text"
+          name="aadhar_card"
+          value={employeeData.aadhar_card}
+          onChange={handleChange}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+          required
+          placeholder="1234 5678 9012"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Bank Account Number*
+        </label>
+        <input
+          type="text"
+          name="bank_account"
+          value={employeeData.bank_account}
+          onChange={handleChange}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+          required
+          placeholder="1234567890"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Bank Name*
+        </label>
+        <input
+          type="text"
+          name="bank_name"
+          value={employeeData.bank_name}
+          onChange={handleChange}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+          required
+          placeholder="e.g., State Bank of India"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          IFSC Code*
+        </label>
+        <input
+          type="text"
+          name="ifsc_code"
+          value={employeeData.ifsc_code}
+          onChange={handleChange}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+          required
+          placeholder="SBIN0001234"
+        />
+      </div>
+      {/* Document Upload */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Upload Document*
+        </label>
+        <input
+          type="file"
+          name="document"
+          onChange={handleFileUpload}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+          required
+        />
+      </div>
+    </div>
+  </>
+)}
+
 
               <div className="flex justify-between mt-8">
                 {step > 1 && (

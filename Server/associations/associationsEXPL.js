@@ -1,63 +1,124 @@
 const userModel = require("../Models/user");
 const Documents = require("../Models/documents");
-const Employee = require("../Models/EmployeeModel");
 const Company = require("../Models/companies");
 const BlackList = require("../Models/blackList-model");
+const Rating = require('../Models/ratingsModel');
+const Employee = require('../Models/EmployeeModel');
 const Rating = require("../Models/ratingsModel");
-// const Employee = require('../Models/EmployeeModel');
+const Employee = require("../Models/EmployeeModel");
+const Disputes = require("../Models/disputes");
+const blackList = require("../Models/blackList-model");
 
 const Associations = () => {
-  //     userModel.hasOne(Documents, { foreignKey: 'empId' });
-  // Documents.belongsTo(userModel, { foreignKey: 'empId' });
-
-  // Employee.belongsTo(Company, {
-  //   foreignKey: "company_id",
-  //   onDelete: "CASCADE",
-  // });
-
-  Company.hasMany(Employee, {
-    foreignKey: "company_id",
+  // user to employee relation
+  userModel.hasOne(Employee, {
+    foreignKey: "userId",
+    onDelete: "CASCADE",
   });
-
-  BlackList.belongsTo(Employee, {
-    foreignKey: "employee_id",
+  Employee.belongsTo(userModel, {
+    foreignKey: "userId",
     onDelete: "CASCADE",
   });
 
-  BlackList.belongsTo(Company, {
-    foreignKey: "company_id",
+  userModel.hasMany(Employee, {
+    foreignKey: "createdBy",
+    onDelete: "CASCADE",
+  });
+  Employee.belongsTo(userModel, {
+    foreignKey: "createdBy",
     onDelete: "CASCADE",
   });
 
-  Employee.hasMany(BlackList, {
-    foreignKey: "employee_id",
+  // user to documents relation
+  Employee.hasMany(Documents, {
+    foreignKey: "empId",
+    onDelete: "CASCADE",
+  });
+  Documents.belongsTo(Employee, {
+    foreignKey: "empId",
+    onDelete: "CASCADE",
   });
 
-  Company.hasMany(BlackList, {
-    foreignKey: "company_id",
-  });
-
-  userModel.hasOne(Employee, { foreignKey: "userId", as: "employee" });
-  Employee.belongsTo(userModel, { foreignKey: "userId", as: "user" });
-
-  userModel.hasOne(Company, { foreignKey: "userId", as: "company" });
-  Company.belongsTo(userModel, { foreignKey: "userId", as: "user" });
-
-  Company.hasMany(Employee, {
-    foreignKey: "company_id",
-    as: "employees",
-  });
+  // company to employee relation
+  Company.hasMany(Employee, { foreignKey: "company_id", onDelete: "CASCADE" });
   Employee.belongsTo(Company, {
     foreignKey: "company_id",
-    as: "company",
+    onDelete: "CASCADE",
   });
 
-  userModel.hasMany(Documents, { foreignKey: "empId", as: "documents" });
-  Documents.belongsTo(userModel, { foreignKey: "empId", as: "user" });
+  // employee to disputes relation
+  // Employee has many disputes
+  Employee.hasMany(Disputes, {
+    foreignKey: "employee_id",
+    onDelete: "CASCADE",
+  });
+
+  Disputes.belongsTo(Employee, {
+    foreignKey: "employee_id",
+    onDelete: "CASCADE",
+  });
+
+  // User (Admin) can create multiple disputes
+  userModel.hasMany(Disputes, {
+    foreignKey: "created_by",
+    onDelete: "CASCADE",
+  });
+
+  Disputes.belongsTo(userModel, {
+    foreignKey: "created_by",
+    onDelete: "CASCADE",
+  });
+
+  // Employee-Blacklist Relationship
+
+  Employee.hasMany(blackList, {
+    foreignKey: "employee_id",
+    onDelete: "CASCADE",
+  });
+
+  blackList.belongsTo(Employee, {
+    foreignKey: "employee_id",
+    onDelete: "CASCADE",
+  });
+  Company.hasMany(blackList, {
+    foreignKey: "company_id",
+    onDelete: "CASCADE",
+  });
+
+  blackList.belongsTo(Company, {
+    foreignKey: "company_id",
+    onDelete: "CASCADE",
+  });
+
+  // One Admin (User) can create multiple Blacklist entries
+  userModel.hasMany(BlackList, {
+    foreignKey: "created_by",
+    onDelete: "CASCADE",
+  });
+  BlackList.belongsTo(userModel, {
+    foreignKey: "created_by",
+    onDelete: "CASCADE",
+  });
 
   //ratings
   Employee.hasMany(Rating, { foreignKey: "employee_id" });
   Rating.belongsTo(Employee, { foreignKey: "employee_id" });
+
+  //ratings
+  Employee.hasMany(Rating, { foreignKey: "employee_id", onDelete: "CASCADE" });
+  Rating.belongsTo(Employee, {
+    foreignKey: "employee_id",
+    onDelete: "CASCADE",
+  });
+
+  userModel.hasMany(Rating, {
+    foreignKey: "created_by",
+    onDelete: "CASCADE",
+  });
+  Rating.belongsTo(userModel, {
+    foreignKey: "created_by",
+    onDelete: "CASCADE",
+  });
 };
 
 module.exports = Associations;

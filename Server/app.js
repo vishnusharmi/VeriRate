@@ -11,7 +11,7 @@ const disputeRoutes = require("./Routes/disputes-route.js");
 const userRouters = require("./Routes/user-route.js");
 const loginRoutes = require("./Routes/userLoginRoute.js");
 const activityModel = require("./Models/activityModel.js");
-activityRoutes = require("./Routes/activityRoutes.js");
+const activityRoutes = require("./Routes/activityRoutes.js");
 require("dotenv").config();
 const allAssociations = require("./associations/associationsEXPL");
 

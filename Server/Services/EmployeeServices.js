@@ -109,16 +109,7 @@ exports.updateEmployee = async (data, id) => {
 
 exports.getAllEmployees = async () => {
   try {
-    return await UserTable.findAll({
-      include: [
-        // {
-        //   model: UserTable,
-        // },
-        {
-          model: Ratings,
-        },
-      ],
-    });
+    return await UserTable.findAll({ include: [Ratings] });
   } catch (error) {
     throw new Error(`Error fetching employees: ${error.message}`);
   }
