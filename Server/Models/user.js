@@ -2,7 +2,7 @@
 const sequelize = require("../Config/DBconnection");
 const { DataTypes } = require("sequelize")
 
-const  User=  sequelize.define('User', {
+const User = sequelize.define('User', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -25,8 +25,7 @@ const  User=  sequelize.define('User', {
         type: DataTypes.ENUM('Employee', "Employee Admin", "Super Admin"),
         allowNull: false,
     },
- 
- otp: {
+    otp: {
         type: DataTypes.STRING,
         allowNull: true,
     },
@@ -45,4 +44,4 @@ const  User=  sequelize.define('User', {
     });
 
 
-    module.exports=User;
+module.exports = User;
