@@ -4,10 +4,8 @@ const Company = require("../Models/companies");
 const BlackList = require("../Models/blackList-model");
 const Rating = require('../Models/ratingsModel');
 const Employee = require('../Models/EmployeeModel');
-const Rating = require("../Models/ratingsModel");
-const Employee = require("../Models/EmployeeModel");
 const Disputes = require("../Models/disputes");
-const blackList = require("../Models/blackList-model");
+
 
 const Associations = () => {
   // user to employee relation
@@ -71,21 +69,21 @@ const Associations = () => {
 
   // Employee-Blacklist Relationship
 
-  Employee.hasMany(blackList, {
+  Employee.hasMany(BlackList, {
     foreignKey: "employee_id",
     onDelete: "CASCADE",
   });
 
-  blackList.belongsTo(Employee, {
+  BlackList.belongsTo(Employee, {
     foreignKey: "employee_id",
     onDelete: "CASCADE",
   });
-  Company.hasMany(blackList, {
+  Company.hasMany(BlackList, {
     foreignKey: "company_id",
     onDelete: "CASCADE",
   });
 
-  blackList.belongsTo(Company, {
+  BlackList.belongsTo(Company, {
     foreignKey: "company_id",
     onDelete: "CASCADE",
   });
