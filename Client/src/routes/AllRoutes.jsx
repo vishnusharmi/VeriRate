@@ -41,10 +41,6 @@ const AllRoutes = () => {
       <Route path="/admin//" element={<Layout />}>
         <Route index element={<AdminDashboard />} />
         <Route path="/admin/disputes" element={<Disputes />} />
-<<<<<<< HEAD
-=======
-     
->>>>>>> 78333a64213a254952901d0bd839a0f5e98e16ab
         <Route path="/admin/records" element={<Records />} />
         <Route path="/admin/monitoring" element={<Monitoring />} />
         <Route path="/admin/usermanagement" element={<UserManagement />} />
