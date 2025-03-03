@@ -19,8 +19,8 @@ exports.createCompany = async (company) => {
 //get all compamies
 exports.getCompanies = async () => {
     try {
-        const companies = await Company.findAll();
-        return companies;
+        const companies = await Company.findAll({});
+        return companies
     } catch (error) {
         console.error("error:", error)
     }

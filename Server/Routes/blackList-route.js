@@ -4,6 +4,7 @@ const express = require("express");
 
 const blackListRoute = express.Router()
 
+// api/blacklists
 blackListRoute.post("/blacklists", createBlackListUser)
 blackListRoute.get("/blacklists/:id", readBlackListUser)
 blackListRoute.get("/blacklists", readAllBlackListUser)
