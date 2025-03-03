@@ -10,11 +10,10 @@ const { accessSync } = require("fs");
 
 exports.registerUser = async (data, files) => {
   const transaction = await userModel.sequelize.transaction(); // Start transaction
-
   try {
     // Validate required fields
     if (!data.email || !data.password || !data.role) {
-      return { message: "Missing required fields (email, password, role)" };
+      return { message: "Missing required fields" };
     }
 
     // Check if user already exists

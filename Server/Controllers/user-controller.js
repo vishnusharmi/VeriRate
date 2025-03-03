@@ -7,9 +7,9 @@ require('dotenv').config();
 
 
 const register = async (req, res) => {
-    const data = req.body;
+    const data = req.body.formData;
     const files = req.file;
-    console.log(files, "controller");
+  //  console.log(data,files, "controller");
 
     try {
         const respose = await registerServices.registerUser(data, files);
