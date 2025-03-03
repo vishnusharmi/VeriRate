@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const database = require("../Config/DBconnection");
-const employeeTable = require('./EmployeeModel')
-const companyTable = require('./companies')
+const employeeTable = require("./EmployeeModel");
+const companyTable = require("./companies");
 
 const blackList = database.define(
   "BlackList",
@@ -11,25 +11,25 @@ const blackList = database.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    name:{
-      type:DataTypes.STRING,
-      allowNull:false,
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     employee_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-        references: {
-          model: employeeTable,    // foreign key - employee table
-          key: 'id',
-        },
+      references: {
+        model: employeeTable, // foreign key - employee table
+        key: "id",
+      },
     },
     company_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-        references: {
-          model: companyTable,      // foreign key - company table
-          key: 'id',
-        },
+      references: {
+        model: companyTable, // foreign key - company table
+        key: "id",
+      },
     },
     reason_code: {
       type: DataTypes.STRING,

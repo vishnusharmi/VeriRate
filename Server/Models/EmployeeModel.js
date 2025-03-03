@@ -55,7 +55,6 @@ const Employee = database.define(
         model: User,
         key: "id",
       },
-      onDelete: "CASCADE",
     },
     created_at: {
       type: DataTypes.DATE,
