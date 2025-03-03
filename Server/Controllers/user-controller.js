@@ -5,7 +5,7 @@ const { captureRejectionSymbol } = require("events");
 require("dotenv").config();
 
 const register = async (req, res) => {
-    const data = req.body;
+    const data = req.body.formData;
     const files = req.file;
     console.log(data,files, "controller");
 

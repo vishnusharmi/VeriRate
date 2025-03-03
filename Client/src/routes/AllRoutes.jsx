@@ -25,7 +25,7 @@ import ForgetPassword from "../components/Auth/Login/ForgetPassword.jsx";
 import ResetPassword from "../components/Auth/Login/NewPassword.jsx";
 
 
-import CompanyManagement from "../pages/adminDashboard/pages/CompanyManagement/companyManagement.jsx";
+import CompanyManagement from "../pages/adminDashboard/pages/CompanyManagement/CompanyManagement.jsx";
 import AdminSettings from "../pages/adminDashboard/pages/Settings/AdminSettings.jsx";
 import EmployeeAdminSettings from "../pages/employerDashboard/pages/Settings/EmployeeAdminSettings.jsx";
 import OTP from "../components/Auth/Login/Otp.jsx";
@@ -41,6 +41,10 @@ const AllRoutes = () => {
       <Route path="/admin//" element={<Layout />}>
         <Route index element={<AdminDashboard />} />
         <Route path="/admin/disputes" element={<Disputes />} />
+<<<<<<< HEAD
+=======
+     
+>>>>>>> 78333a64213a254952901d0bd839a0f5e98e16ab
         <Route path="/admin/records" element={<Records />} />
         <Route path="/admin/monitoring" element={<Monitoring />} />
         <Route path="/admin/usermanagement" element={<UserManagement />} />
