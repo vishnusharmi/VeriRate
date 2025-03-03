@@ -6,7 +6,6 @@ import Login from "../components/Auth/Login/Login.jsx";
 // ADMIN DASHBOARD IMPORTS
 import AdminDashboard from "../pages/adminDashboard/AdminDashboard";
 import Disputes from "../pages/adminDashboard/pages/Disputes/Disputes.jsx";
-import Employer from "../pages/adminDashboard/pages/Employer/Employer.jsx";
 import Monitoring from "../pages/adminDashboard/pages/Monitoring/Monitoring.jsx";
 import SecurityCompliances from "../pages/adminDashboard/pages/SecurityCompliance/SecurityCompliance.jsx";
 
@@ -26,7 +25,7 @@ import ForgetPassword from "../components/Auth/Login/ForgetPassword.jsx";
 import ResetPassword from "../components/Auth/Login/NewPassword.jsx";
 
 
-import CompanyManagement from "../pages/adminDashboard/pages/CompanyManagement/companyManagement.jsx";
+import CompanyManagement from "../pages/adminDashboard/pages/CompanyManagement/CompanyManagement.jsx";
 import AdminSettings from "../pages/adminDashboard/pages/Settings/AdminSettings.jsx";
 import EmployeeAdminSettings from "../pages/employerDashboard/pages/Settings/EmployeeAdminSettings.jsx";
 import OTP from "../components/Auth/Login/Otp.jsx";
@@ -42,10 +41,10 @@ const AllRoutes = () => {
       <Route path="/admin//" element={<Layout />}>
         <Route index element={<AdminDashboard />} />
         <Route path="/admin/disputes" element={<Disputes />} />
-        <Route path="/admin/employer" element={<Employer />} />
+     
         <Route path="/admin/records" element={<Records />} />
         <Route path="/admin/monitoring" element={<Monitoring />} />
-        <Route path="/admin/user-management" element={<UserManagement />} />
+        <Route path="/admin/usermanagement" element={<UserManagement />} />
         <Route path="/admin/company-management" element={<CompanyManagement />} />
         <Route
           path="/admin/security-compliance"

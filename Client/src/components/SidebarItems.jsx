@@ -22,7 +22,6 @@ const SidebarItems = () => {
 
   const adminMenuItems = [
     { name: "Dashboard", icon: <Dashboard />, path: "/admin" },
-    { name: "Employer", icon: <BadgeIcon />, path: "/admin/employer" },
     { name: "Disputes", icon: <Person />, path: "/admin/disputes" },
     { name: "Records", icon: <DescriptionIcon />, path: "/admin/records" },
     { name: "Monitoring", icon: <Settings />, path: "/admin/monitoring" },
