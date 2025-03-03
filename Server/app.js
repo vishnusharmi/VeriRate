@@ -7,9 +7,9 @@ const auditLogsRouter = require("./Routes/audit-logs-route");
 const sequelize = require("./Config/DBconnection");
 const ratingRoutes = require("./Routes/ratingRoutes");
 const EmployeeRoutes = require("./Routes/EmployeeRoutes");
-const disputeRoutes = require('./Routes/disputes-route')
-const userRouters = require('./Routes/user-route');
-const loginRoutes = require('./Routes/userLoginRoute')
+const disputeRoutes = require("./Routes/disputes-route");
+const userRouters = require("./Routes/user-route");
+const loginRoutes = require("./Routes/userLoginRoute");
 require("dotenv").config();
 const allAssociations = require("./associations/associationsEXPL");
 
@@ -21,7 +21,6 @@ app.use(cors());
 app.use(express.json());
 const PORT = process.env.PORT || 3000;
 
-
 app.use("/api", blackListRoute);
 app.use("/api", loginRoutes);
 app.use("/api", auditLogsRouter);
@@ -32,7 +31,7 @@ app.use("/api", disputeRoutes);
 app.use("/api", EmployeeRoutes);
 
 sequelize
-  .sync()
+  .sync({ force: false })
   .then(() => {
     app.listen(PORT, () => console.log(`running on http://localhost:${PORT}`));
   })
