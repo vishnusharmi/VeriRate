@@ -38,15 +38,15 @@ const Company = sequelize.define("Company", {
     type: DataTypes.STRING,
     allowNull: true,
   },
-  userId: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: "id",
-    },
-    onDelete: "CASCADE",
-  },
+  // userId: {
+  //   type: DataTypes.INTEGER,
+  //   allowNull: true,
+  //   references: {
+  //     model: User,
+  //     key: "id", 
+  //   },
+  //   onDelete: "CASCADE",
+  // },
   createdBy:{
     type: DataTypes.INTEGER,
     allowNull: true,

@@ -1,4 +1,4 @@
-const {DataTypes} = require('sequelize')
+const { DataTypes } = require('sequelize')
 const sequelize = require('../Config/DBconnection')
 const Employees = require('./EmployeeModel')
 const User = require("./user");
@@ -46,11 +46,11 @@ const Disputes = sequelize.define('Disputes', {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
-          model: User, // Reference to Admins table
+          model: User, 
           key: "id",
         }, 
     },
-    
+
 });
 
 module.exports = Disputes;
