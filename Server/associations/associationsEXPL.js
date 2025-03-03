@@ -3,7 +3,7 @@ const Documents = require('../Models/documents');
 const Company = require("../Models/companies");
 const BlackList = require("../Models/blackList-model");
 const Rating = require('../Models/ratingsModel');
-// const Employee = require('../Models/EmployeeModel');
+const Employee = require('../Models/EmployeeModel');
 
 const  Associations =()=>{
 //     userModel.hasOne(Documents, { foreignKey: 'empId' });
@@ -35,11 +35,11 @@ Employee.belongsTo(Company, {foreignKey: "company_id", onDelete: "CASCADE",});
   });
 
   
-  userModel.hasOne(Employee, { foreignKey: "userId", as: "employee" });
-  Employee.belongsTo(userModel, { foreignKey: "userId", as: "user" });
+  userModel.hasOne(Employee, { foreignKey: "userId", as: "employee", });
+  Employee.belongsTo(userModel, { foreignKey: "userId", as: "user", onDelete: "CASCADE" });
 
   userModel.hasOne(Company, { foreignKey: "userId", as: "company" });
-  Company.belongsTo(userModel, { foreignKey: "userId", as: "user" });
+  Company.belongsTo(userModel, { foreignKey: "userId", as: "user" , onDelete: "CASCADE" });
 
   Company.hasMany(Employee, {
     foreignKey: "company_id",
@@ -48,6 +48,7 @@ Employee.belongsTo(Company, {foreignKey: "company_id", onDelete: "CASCADE",});
   Employee.belongsTo(Company, {
     foreignKey: "company_id",
     as: "company",
+     onDelete: "CASCADE"
   });
 
   userModel.hasMany(Documents, { foreignKey: "empId", as: "documents" });

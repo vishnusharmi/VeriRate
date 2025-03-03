@@ -10,17 +10,17 @@ const { accessSync } = require("fs");
 
 exports.registerUser = async (data, files) => {
   const transaction = await userModel.sequelize.transaction(); // Start transaction
-
+console.log("employment_history",data.employment_history)
   try {
     // Validate required fields
     if (!data.email || !data.password || !data.role) {
-      return { message: "Missing required fields (email, password, role)" };
+      return { statusCode:404, message: "Missing required fields" };
     }
 
     // Check if user already exists
     const existingUser = await userModel.findOne({ where: { email: data.email } });
     if (existingUser) {
-      return { message: "User already exists" };
+      return { statusCode:400, message: "User already exists" };
     }
 
     // Hash password
@@ -40,6 +40,19 @@ exports.registerUser = async (data, files) => {
     let additionalData = null;
 
     if (data.role === "employee") {
+
+      if (data.employment_history) {
+        try {
+          if (Array.isArray(data.employment_history)) {
+            employmentHistory = data.employment_history.map(item => JSON.parse(item));
+          } else if (typeof data.employment_history === "string") {
+            employmentHistory = JSON.parse(data.employment_history);
+          }
+        } catch (error) {
+          console.error("Error parsing employment_history:", error);
+        }
+      } 
+
       // Create employee entry inside transaction
       additionalData = await employeeModel.create(
         {
@@ -49,10 +62,7 @@ exports.registerUser = async (data, files) => {
         last_name: data.last_name,
         salary: data.salary,
         dateOfBirth: data.dateOfBirth,
-        email: data.email,
-        password: data.password,
         dateOfJoin: data.dateOfJoin,
-        phone_number: data.phone_number,
         qualification: data.qualification,
         address: data.address,
         panCard: data.panCard,
@@ -61,10 +71,9 @@ exports.registerUser = async (data, files) => {
         bankName: data.bankName,
         IFSCcode: data.IFSCcode,
         position: data.position,
-        role: data.role,
         department: data.department,
         phone_number: data.phone_number,
-        employment_history: data.employment_history
+        employment_history: employmentHistory.length ? employmentHistory : [],
         },
         { transaction }
       );
@@ -92,7 +101,7 @@ exports.registerUser = async (data, files) => {
 
     let documentResponse = null;
 
-    if (files && files.path) {
+    if (files && files?.path) {
       // Upload document
       const uploadResult = await cloudinaryUpload.uploader.upload(files.path, {
         resource_type: "auto",
@@ -114,6 +123,7 @@ exports.registerUser = async (data, files) => {
     await transaction.commit();
 
     return {
+      statusCode:201,
       message: "User created successfully",
       data: {
         user: userData,
@@ -121,11 +131,12 @@ exports.registerUser = async (data, files) => {
         document: documentResponse,
       },
     };
+
   } catch (error) {
     // Rollback transaction if any error occurs
     await transaction.rollback();
     console.error("Error in registerUser:", error);
-    return { message: "Something went wrong", error: error.message };
+    return { statusCode: 500, message: error.message, error: error.message };
   }
 };
 

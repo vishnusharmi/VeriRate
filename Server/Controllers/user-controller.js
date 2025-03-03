@@ -9,14 +9,14 @@ require('dotenv').config();
 const register = async (req, res) => {
     const data = req.body;
     const files = req.file;
-    console.log(files, "controller");
+    console.log(data,files, "controller");
 
     try {
         const respose = await registerServices.registerUser(data, files);
         //  console.log(data)
-        res.status(201).json(respose)
+        res.status(respose.statusCode).json({message:respose.message});
     } catch (error) {
-        res.status(500).json({ message: error })
+        res.status(500).json({ message: error.message })
     }
 }
 

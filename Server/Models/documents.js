@@ -17,15 +17,15 @@ const allDocuments = sequelize.define("Documents",{
       },
       onDelete: "CASCADE",
     },
-    compId:{
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: User,
-          key: "id",
-        },
-      onDelete: "CASCADE",
-    },
+    // compId:{
+    //     type: DataTypes.INTEGER,
+    //     allowNull: false,
+    //     references: {
+    //       model: User,
+    //       key: "id",
+    //     },
+    //   onDelete: "CASCADE",
+    // },
     documentType: {
       type: DataTypes.STRING,
       allowNull: true,
