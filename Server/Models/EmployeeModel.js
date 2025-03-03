@@ -91,7 +91,6 @@ const Employee = database.define(
         model: User,
         key: "id",
       },
-      onDelete: "CASCADE",
     },
     employment_history:{
       type: DataTypes.JSONB,

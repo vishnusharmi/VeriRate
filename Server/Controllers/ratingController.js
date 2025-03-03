@@ -67,8 +67,7 @@ exports.updateRating = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Rating updated successfully",
-      data:
-      rating,
+      data: rating,
     });
   } catch (error) {
     res.status(500).json({

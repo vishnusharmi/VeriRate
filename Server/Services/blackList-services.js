@@ -1,54 +1,103 @@
-const { AuditLogs } = require("../Models/audit-logs");
-
-// Create Audit Log
-exports.createAuditLog = async (data) => {
-    try {
-        const log = await AuditLogs.create(data);
-        return log;
-    } catch (error) {
-        console.error("Error occurred", error.message);
-    }
+const { Model } = require("sequelize");
+const blackList = require("../Models/blackList-model");
+const employee = require("../Models/EmployeeModel");
+const company = require("../Models/companies");
+const logActivity = require("../Activity/activityFunction.js");
+//create
+exports.createBlackList = async (data) => {
+  try {
+    const user = await blackList.create(data);
+    await logActivity(
+      user.id,
+      " BlackList Added ",
+      "Temporary blacklist for 90 days - Code: Misconduct",
+      `${user.name}`,
+      "Blacklist Changes "
+    );
+    console.log(user);
+    return user;
+  } catch (error) {
+    console.error("Error occured", error.message);
+  }
 };
 
-// Read Audit Log by ID
-exports.readAuditLog = async (id) => {
-    try {
-        const log = await AuditLogs.findByPk(id);
-        if (!log) {
-            return 'Log not available';
-        }
-        return log;
-    } catch (error) {
-        console.error("Error occurred", error.message);
+//read
+exports.readBlackList = async (id) => {
+  try {
+    const user = await blackList.findByPk(id, {
+      include: [
+        {
+          model: employee,
+        },
+        {
+          model: company,
+        },
+      ],
+    });
+    if (!user) {
+      return "Id not available";
     }
+    return user;
+  } catch (error) {
+    console.error("Error occured", error.message);
+  }
 };
 
-// Read All Audit Logs
-exports.readAllAuditLogs = async () => {
-    try {
-        const logs = await AuditLogs.findAll({ raw: true });
-        return logs;
-    } catch (error) {
-        console.error("Error occurred", error.message);
-    }
+//get employees by id only name
+
+//read all
+exports.readAllBlackList = async () => {
+  try {
+    const users = await blackList.findAll({ raw: true });
+    // if (!user){
+    //     return 'Id not available'
+    // }
+    return users;
+  } catch (error) {
+    console.error("Error occured", error.message);
+  }
 };
 
-// Update Audit Log
-exports.updateAuditLog = async (id, data) => {
-    try {
-        const updatedLog = await AuditLogs.update(data, { where: { id } });
-        return updatedLog;
-    } catch (error) {
-        console.error("Error occurred", error.message);
+//update
+exports.updateBlackList = async (id, data) => {
+  try {
+    const user = await blackList.findByPk(id);
+    if (!user) {
+      return "User id not available";
     }
+
+    const updateUser = await blackList.update(data, { where: { id } });
+    await logActivity(
+      user.id,
+      " BlackList User Updated ",
+      "Temporary blacklist for 90 days - Code: Misconduct",
+      `${user.name}`,
+      "Blacklist Changes "
+    );
+    return updateUser;
+  } catch (error) {
+    console.error("Error occured", error.message);
+  }
 };
 
-// Delete Audit Log
-exports.deleteAuditLog = async (id) => {
-    try {
-        const deletedLog = await AuditLogs.destroy({ where: { id } });
-        return deletedLog;
-    } catch (error) {
-        console.error("Error occurred", error.message);
+//delete
+exports.deleteBlackList = async (id) => {
+  try {
+    const user = await blackList.findByPk(id);
+    if (!user) {
+      return new Promise((_, reject) => reject({ message: "User not found!" }));
     }
+
+    const deletedUser = await blackList.destroy({ where: { id } });
+    await logActivity(
+      user.id,
+      " BlackList User Deleted",
+      "Temporary blacklist for 90 days - Code: Misconduct",
+      `${user.name}`,
+      "Blacklist Changes "
+    );
+    return deletedUser;
+  } catch (error) {
+    console.error("Error occured", error.message);
+  }
 };
