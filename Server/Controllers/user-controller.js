@@ -18,18 +18,6 @@ const register = async (req, res) => {
   }
 };
 
-// get all registered users
-
-//  const getAllusers = async (req,res)=>{
-//     try{
-//         const getUsers = await registerServices.getAllusers();
-//         res.status(200).json({message : 'users fetched successfully', getUsers});
-//     }
-//     catch(error){
-//         res.status(500).json({message : 'failed to fecth users'})
-//     }
-// }
-
 const getAllUsers = async (req, res) => {
   try {
     const users = await registerServices.getAllusers();

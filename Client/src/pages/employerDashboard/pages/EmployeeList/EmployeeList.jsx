@@ -37,7 +37,7 @@ const EmployeeManagement = () => {
       employee: "John Doe",
     },
   ]);
-  const [employees, setEmployees] = useState([]);
+  const [employees,  ] = useState([]);
   const [employmentHistory, setEmploymentHistory] = useState([
     { company: "ABC Corp", role: "Junior Developer", tenure: "2018 - 2020" },
     { company: "XYZ Ltd", role: "Senior Developer", tenure: "2020 - 2023" },

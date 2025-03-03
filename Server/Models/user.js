@@ -18,11 +18,14 @@ const User = sequelize.define(
       allowNull: false,
       unique: true,
     },
-    role: {
-      type: DataTypes.ENUM("employee", "admin", "super-admin"),
+    username: {
+      type: DataTypes.STRING(255),
       allowNull: false,
     },
-
+    role: {
+      type: DataTypes.ENUM("Employee", "Employee Admin", "Super Admin"),
+      allowNull: false,
+    },
     otp: {
       type: DataTypes.STRING,
       allowNull: true,
