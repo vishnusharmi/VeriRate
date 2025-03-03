@@ -6,7 +6,7 @@ const User = require("./user");
 const Employee = database.define(
   "Employee",
   {
-    id: {
+    id: { 
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
