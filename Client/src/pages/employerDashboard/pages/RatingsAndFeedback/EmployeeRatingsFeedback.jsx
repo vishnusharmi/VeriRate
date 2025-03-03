@@ -34,7 +34,7 @@ const EmployeeRatingsFeedback = () => {
         const formattedEmployees = response.data.employees.map(emp => ({
           id: emp.id,
           name: `${emp.first_name} ${emp.last_name}`,
-          position: emp.employment_history ? emp.employment_history : 'Not specified',
+          position: emp.position ? emp.position : 'Not specified',
           department: `Company ID: ${emp.company_id}`,
           email: emp.email,
           Ratings: emp.Ratings ? emp.Ratings.map(rating => ({
@@ -187,7 +187,7 @@ const EmployeeRatingsFeedback = () => {
       const formattedEmployees = response.data.employees.map(emp => ({
         id: emp.id,
         name: `${emp.first_name} ${emp.last_name}`,
-        position: emp.employment_history ? emp.employment_history : 'Not specified',
+        position: emp.position ? emp.position : 'Not specified',
         department: `Company ID: ${emp.company_id}`,
         email: emp.email,
         Ratings: emp.Ratings ? emp.Ratings.map(rating => ({
@@ -589,6 +589,7 @@ const EmployeeRatingsFeedback = () => {
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">{employee.name}</div>
+                            <div className="text-sm text-gray-500">{employee.email}</div>
                             <div className="text-sm text-gray-500">{employee.position}</div>
                             <div className="text-xs text-gray-400">{employee.department}</div>
                           </div>
@@ -611,7 +612,7 @@ const EmployeeRatingsFeedback = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button
                           onClick={() => handleAddFeedback(employee)}
-                          className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded"
+                          className="text-indigo-600 hover:text-indigo-900 bg-indigo-100 hover:bg-indigo-200 px-3 py-2 rounded"
                         >
                           Rate Performance
                         </button>
