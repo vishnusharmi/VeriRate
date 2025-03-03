@@ -2,6 +2,7 @@ const { DataTypes } = require("sequelize");
 const database = require("../Config/DBconnection");
 const employeeTable = require('./EmployeeModel')
 const companyTable = require('./companies')
+const userTable = require("./user");
 
 const blackList = database.define(
   "BlackList",
@@ -11,53 +12,53 @@ const blackList = database.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    fullname:{
-      type:DataTypes.STRING,
-      allowNull:false,
-    },
-    email:{
+    fullname: {
       type: DataTypes.STRING,
-      allowNull:false
+      allowNull: false,
     },
-    contact_number:{
+    email: {
       type: DataTypes.STRING,
-      allowNull:true
+      allowNull: false,
     },
-    position:{
-      type:DataTypes.STRING,
-      allowNull:true
-    },
-    reason_for_blacklist:{
-      type:DataTypes.STRING,
-      allowNull:true 
-    },
-    blackList_date:{
-      type:DataTypes.STRING,
-      allowNull:true 
-    },
-    report_by:{
+    contact_number: {
       type: DataTypes.STRING,
-        allowNull:true
+      allowNull: true,
+    },
+    position: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    reason_for_blacklist: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    blackList_date: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    report_by: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     employee_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-        references: {
-          model: employeeTable,    // foreign key - employee table
-          key: 'id',
-        },
+      references: {
+        model: employeeTable,
+        key: "id",
+      },
     },
     company_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-        references: {
-          model: companyTable,      // foreign key - company table
-          key: 'id',
-        },
+      references: {
+        model: companyTable,
+        key: "id",
+      },
     },
-    company_name:{
-      type:DataTypes.STRING,
-      allowNull:true
+    company_name: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     reason_code: {
       type: DataTypes.STRING,
@@ -70,6 +71,14 @@ const blackList = database.define(
     start_date: {
       type: DataTypes.DATEONLY,
       defaultValue: DataTypes.NOW,
+    },
+    created_by: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: userTable,
+        key: "id",
+      },
     },
     end_date: {
       type: DataTypes.DATEONLY,

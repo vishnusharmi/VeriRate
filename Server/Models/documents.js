@@ -1,8 +1,10 @@
 const sequelize = require("../Config/DBconnection");
 const {DataTypes}=require("sequelize");
-const User = require("./user");
+const Employee = require("./EmployeeModel");
 
-const allDocuments = sequelize.define("Documents",{
+const allDocuments = sequelize.define(
+  "Documents",
+  {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -12,7 +14,7 @@ const allDocuments = sequelize.define("Documents",{
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: User,
+        model: Employee,
         key: "id",
       },
       onDelete: "CASCADE",

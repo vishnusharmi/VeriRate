@@ -1,12 +1,11 @@
 const cloudinaryUpload = require("../MiddleWares/Cloudinary");
-const userModel  =require('../Models/user');
+const userModel = require("../Models/user");
 const Documents = require("../Models/documents");
 const employeeModel = require("../Models/EmployeeModel");
 const companyModel = require("../Models/companies");
 
-const bcrypt=require("bcryptjs");
+const bcrypt = require("bcryptjs");
 const { accessSync } = require("fs");
-
 
 exports.registerUser = async (data, files) => {
   const transaction = await userModel.sequelize.transaction(); // Start transaction
@@ -18,7 +17,9 @@ console.log("employment_history",data.employment_history)
     }
 
     // Check if user already exists
-    const existingUser = await userModel.findOne({ where: { email: data.email } });
+    const existingUser = await userModel.findOne({
+      where: { email: data.email },
+    });
     if (existingUser) {
       return { statusCode:400, message: "User already exists" };
     }
@@ -32,52 +33,46 @@ console.log("employment_history",data.employment_history)
         email: data.email,
         password: hashedPassword,
         role: data.role,
-        username : data.role === 'employee' ? `${data.first_name} ${data.last_name} `: data.username
+        username:
+          data.role === "employee"
+            ? `${data.first_name} ${data.last_name} `
+            : data.username,
       },
       { transaction }
     );
 
     let additionalData = null;
 
-    if (data.role === "employee") {
-
-      if (data.employment_history) {
-        try {
-          if (Array.isArray(data.employment_history)) {
-            employmentHistory = data.employment_history.map(item => JSON.parse(item));
-          } else if (typeof data.employment_history === "string") {
-            employmentHistory = JSON.parse(data.employment_history);
-          }
-        } catch (error) {
-          console.error("Error parsing employment_history:", error);
-        }
-      } 
-
+    if (data.role === "Employee") {
       // Create employee entry inside transaction
       additionalData = await employeeModel.create(
         {
           userId: userData.id,
-        company_id: data.company_id,
-        first_name: data.first_name,
-        last_name: data.last_name,
-        salary: data.salary,
-        dateOfBirth: data.dateOfBirth,
-        dateOfJoin: data.dateOfJoin,
-        qualification: data.qualification,
-        address: data.address,
-        panCard: data.panCard,
-        aadharCard: data.aadharCard,
-        bankAccount: data.bankAccount,
-        bankName: data.bankName,
-        IFSCcode: data.IFSCcode,
-        position: data.position,
-        department: data.department,
-        phone_number: data.phone_number,
-        employment_history: employmentHistory.length ? employmentHistory : [],
+          company_id: data.company_id,
+          first_name: data.first_name,
+          last_name: data.last_name,
+          salary: data.salary,
+          dateOfBirth: data.dateOfBirth,
+          email: data.email,
+          password: data.password,
+          dateOfJoin: data.dateOfJoin,
+          phone_number: data.phone_number,
+          qualification: data.qualification,
+          address: data.address,
+          panCard: data.panCard,
+          aadharCard: data.aadharCard,
+          bankAccount: data.bankAccount,
+          bankName: data.bankName,
+          IFSCcode: data.IFSCcode,
+          position: data.position,
+          role: data.role,
+          department: data.department,
+          phone_number: data.phone_number,
+          employment_history: data.employment_history,
         },
         { transaction }
       );
-    } else if (data.role === "admin" || data.role === "super-admin") {
+    } else if (data.role === "Employee Admin" || data.role === "Super Admin") {
       // Create company entry inside transaction
       additionalData = await companyModel.create(
         {
@@ -86,14 +81,13 @@ console.log("employment_history",data.employment_history)
           companyName: data.companyName,
           industry: data.industry,
           address: data.address,
-          phonenumber:data.phonenumber,
-          country:data.country,
-          state:data.state,
-          registerNum:data.registerNum,
-          founderYear:data.founderYear,
-          companyWebsite:data.companyWebsite,
-          email:data.email
-
+          phonenumber: data.phonenumber,
+          country: data.country,
+          state: data.state,
+          registerNum: data.registerNum,
+          founderYear: data.founderYear,
+          companyWebsite: data.companyWebsite,
+          email: data.email,
         },
         { transaction }
       );
@@ -140,18 +134,14 @@ console.log("employment_history",data.employment_history)
   }
 };
 
-
-
-
 exports.getAllusers = async () => {
   try {
     const getUsers = await userModel.findAll({
       include: [
         {
-          model: Documents
+          model: Documents,
         },
       ],
-      
     });
     return getUsers;
   } catch (error) {
@@ -159,86 +149,74 @@ exports.getAllusers = async () => {
   }
 };
 
-
 //get user by id
 
-exports.getUserbyid = async (id)=>{
-  try{
-    const getuser = await userModel.findByPk(id,{
-    include :[
-      {
-      model : Documents,
-      }
-    ],
-
-      
-  })
-  return getuser ;
-
-} catch(error){
-  console.error('Error fetching user by id:', error);
-  throw error;
-  
-}
-}
-
+exports.getUserbyid = async (id) => {
+  try {
+    const getuser = await userModel.findByPk(id, {
+      include: [
+        {
+          model: Documents,
+        },
+      ],
+    });
+    return getuser;
+  } catch (error) {
+    console.error("Error fetching user by id:", error);
+    throw error;
+  }
+};
 
 //update user by id
 
-exports.updateUserById = async (id ,data, documentPath)=>{
-
-  try{
-
-    const getuser = await userModel.findByPk(id,{
-      include :[
+exports.updateUserById = async (id, data, documentPath) => {
+  try {
+    const getuser = await userModel.findByPk(id, {
+      include: [
         {
-        model : Documents,
-        }
-      ],   
+          model: Documents,
+        },
+      ],
     });
 
-    console.log(getuser.Document.id,'docicici');
+    console.log(getuser.Document.id, "docicici");
 
-    let file_url = getuser.Document.id
-    
+    let file_url = getuser.Document.id;
 
     const result = await cloudinaryUpload.uploader.upload(documentPath, {
       resource_type: "auto",
       folder: "user_uploads",
     });
 
-    console.log(result,'resultttt');
-    
- 
-    const updatedUser = await userModel.update(data ,{where : {id}});
+    console.log(result, "resultttt");
 
-    if(!updatedUser){
-      throw new error (' user not found')
+    const updatedUser = await userModel.update(data, { where: { id } });
+
+    if (!updatedUser) {
+      throw new error(" user not found");
     }
 
-    const docResponse = await Documents.update({file_path:result.url},{where:{id:file_url}});
+    const docResponse = await Documents.update(
+      { file_path: result.url },
+      { where: { id: file_url } }
+    );
 
-    console.log(docResponse,'responss');
-    
+    console.log(docResponse, "responss");
 
     return updatedUser;
-  }catch(error){
+  } catch (error) {
     throw error;
   }
 };
 
-
-
 //delete user
 
-exports.deleteUser = async (id)=>{
-  try{
-  const deletedUser = await userModel.destroy({where:{id}});
+exports.deleteUser = async (id) => {
+  try {
+    const deletedUser = await userModel.destroy({ where: { id } });
 
-  return deletedUser;
-  }
-  catch(error){
+    return deletedUser;
+  } catch (error) {
     console.log(error);
-    
   }
-}
+};
