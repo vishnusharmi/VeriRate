@@ -17,14 +17,30 @@ const encrypt = (text) => {
 };
 
 // Decryption function
+// const decrypt = (text) => {
+//   let textParts = text.split(":"),
+//     iv = Buffer.from(textParts.shift(), "hex"),
+//     encryptedText = Buffer.from(textParts.join(""), "hex"),
+//     decipher = crypto.createDecipheriv(algorithm, Buffer.from(secretKey), iv),
+//     decrypted = decipher.update(encryptedText);
+//   decrypted = Buffer.concat([decrypted, decipher.final()]);
+//   return decrypted.toString();
+// };
+
 const decrypt = (text) => {
-  let textParts = text.split(":"),
-    iv = Buffer.from(textParts.shift(), "hex"),
-    encryptedText = Buffer.from(textParts.join(""), "hex"),
-    decipher = crypto.createDecipheriv(algorithm, Buffer.from(secretKey), iv),
-    decrypted = decipher.update(encryptedText);
-  decrypted = Buffer.concat([decrypted, decipher.final()]);
-  return decrypted.toString();
+  if (!text) return null; // Handle null or empty text safely
+  try {
+    let textParts = text.split(":");
+    let iv = Buffer.from(textParts.shift(), "hex");
+    let encryptedText = Buffer.from(textParts.join(""), "hex");
+    let decipher = crypto.createDecipheriv(algorithm, Buffer.from(secretKey), iv);
+    let decrypted = decipher.update(encryptedText);
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+    return decrypted.toString();
+  } catch (error) {
+    console.error("Decryption failed:", error.message);
+    return null;
+  }
 };
 
 const User = sequelize.define(
@@ -38,19 +54,13 @@ const User = sequelize.define(
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      set(value) {
-        this.setDataValue("email", encrypt(value));
-      },
-      get() {
-        return decrypt(this.getDataValue("email"));
-      },
     },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     role: {
-      type: DataTypes.ENUM("Employee", "Admin", "Super Admin"),
+      type: DataTypes.ENUM("Employee", "Employee Admin", "Super Admin"),
       allowNull: false,
     },
     otp: {

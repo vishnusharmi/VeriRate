@@ -8,7 +8,7 @@ const { accessSync } = require("fs");
 
 exports.registerUser = async (data, files) => {
   const transaction = await userModel.sequelize.transaction(); // Start transaction
-  console.log("employment_history", data.employment_history);
+  // console.log("employment_history", data.employment_history);
   try {
     // Validate required fields
     if (!data.email || !data.password || !data.role) {
@@ -31,11 +31,7 @@ exports.registerUser = async (data, files) => {
       {
         email: data.email,
         password: hashedPassword,
-        role: data.role,
-        username:
-          data.role === "employee"
-            ? `${data.first_name} ${data.last_name} `
-            : data.username,
+        role: data.role
       },
       { transaction }
     );
@@ -52,8 +48,6 @@ exports.registerUser = async (data, files) => {
           last_name: data.last_name,
           salary: data.salary,
           dateOfBirth: data.dateOfBirth,
-          email: data.email,
-          password: data.password,
           dateOfJoin: data.dateOfJoin,
           phone_number: data.phone_number,
           qualification: data.qualification,
@@ -64,7 +58,6 @@ exports.registerUser = async (data, files) => {
           bankName: data.bankName,
           IFSCcode: data.IFSCcode,
           position: data.position,
-          role: data.role,
           department: data.department,
           employment_history: data.employment_history,
           employee_type: data.employee_type,
