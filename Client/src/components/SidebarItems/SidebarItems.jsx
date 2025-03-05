@@ -19,7 +19,7 @@ import RateReviewIcon from "@mui/icons-material/RateReview";
 import PropTypes from "prop-types";
 
 const SidebarItems = ({ toggleMenu, handleToggle }) => {
-  const role = "admin";
+  const role = "admin/";
 
   const adminMenuItems = [
     {

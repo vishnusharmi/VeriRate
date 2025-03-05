@@ -32,7 +32,7 @@ exports.registerUser = async (data, files) => {
         email: data.email,
         password: hashedPassword,
         role: data.role,
-        username : data.role === 'employee' ? `${data.first_name} ${data.last_name} `: data.username
+        username : data.username
       },
       { transaction }
     );
@@ -63,7 +63,6 @@ exports.registerUser = async (data, files) => {
           position: data.position,
           role: data.role,
           department: data.department,
-          phone_number: data.phone_number,
           employment_history: data.employment_history,
         },
         { transaction }
@@ -88,6 +87,7 @@ exports.registerUser = async (data, files) => {
         { transaction }
       );
     }
+
 
     let documentResponse = null;
 
@@ -126,6 +126,8 @@ exports.registerUser = async (data, files) => {
     console.error("Error in registerUser:", error);
     return { message: "Something went wrong", error: error.message };
   }
+
+
 };
 
 
@@ -223,6 +225,6 @@ exports.deleteUser = async (id) => {
   }
   catch (error) {
     console.log(error);
-
+    throw error;
   }
 }

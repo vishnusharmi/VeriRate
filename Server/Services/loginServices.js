@@ -8,7 +8,7 @@ exports.validateLogin = async (data) => {
     const existingUser = await userModel.findOne({ where: { email } });
 
     // Check if email exists
-    if (!existingUser) {      
+    if (!existingUser) {
         return { statusCode: 404, message: 'Invalid credentials' };
     }
 
@@ -16,7 +16,7 @@ exports.validateLogin = async (data) => {
 
     // Check if password matches
     if (!isPasswordMatch) {
-        return { statusCode: 401, message: 'Invalid password' }; 
+        return { statusCode: 401, message: 'Invalid password' };
     }
 
     // Generate OTP and store in database
@@ -28,31 +28,32 @@ exports.validateLogin = async (data) => {
     try {
         await sendOTPEmail(email, otp);
     } catch (error) {
-        return { statusCode: 500, message: "Failed to send OTP. Try again." , error };
+        return { statusCode: 500, message: "Failed to send OTP. Try again.", error };
     }
 
     // Generate JWT token with only necessary fields
     const token = jwt.sign(
-        { id: existingUser.id, email: existingUser.email }, 
-        process.env.JWT_SECRET, 
+        { id: existingUser.id, email: existingUser.email },
+        process.env.JWT_SECRET,
         { expiresIn: '1d' }
     );
 
     return {
         message: "OTP sent to email. Please verify OTP to proceed.",
-        jwtToken: token
+        jwtToken: token,
+        userData: existingUser
     };
 };
 
 
 exports.verifyOtp = async (data) => {
     const { email, otp } = data;
-    
+
     try {
         const existingOtpUser = await userModel.findOne({ where: { email } });
 
 
-        if (!existingOtpUser) {      
+        if (!existingOtpUser) {
             return { statusCode: 404, message: 'User does not exist' };
         }
 
@@ -62,7 +63,7 @@ exports.verifyOtp = async (data) => {
         }
 
 
-        
+
         // Mark user as verified and remove OTP fields
         await existingOtpUser.update({
             isActive: true,
@@ -81,24 +82,24 @@ exports.verifyOtp = async (data) => {
 
 
 exports.forgettedPassword = async (data) => {
-    const {email} = data
+    const { email } = data
     try {
-       const existingEmail = await userModel.findOne({where:{email}});
-       if(!existingEmail){
-        return { statusCode: 404, message: 'User does not exist' };
-       }
-        
-       const {otp , otpExpiresAt} = generateOTP();
-       //updating otp in database
-       await existingEmail.update({otp,otpExpiresAt});
-       await sendOTPEmail(email,otp);
+        const existingEmail = await userModel.findOne({ where: { email } });
+        if (!existingEmail) {
+            return { statusCode: 404, message: 'User does not exist' };
+        }
 
-       return { statusCode: 200, message: "OTP sent to mail" };
+        const { otp, otpExpiresAt } = generateOTP();
+        //updating otp in database
+        await existingEmail.update({ otp, otpExpiresAt });
+        await sendOTPEmail(email, otp);
+
+        return { statusCode: 200, message: "OTP sent to mail" };
 
 
     } catch (error) {
         console.log(error);
-        
+
     }
 };
 
