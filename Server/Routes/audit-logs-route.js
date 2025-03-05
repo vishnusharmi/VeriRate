@@ -1,12 +1,10 @@
-const express=require("express")
-const auditLogsRouter=express.Router()
-const controllerAuditLog=require("../Controllers/audit-logs-controller")
+const { createAuditLog, getAllAuditLogs, getAuditLogsByEntity } = require('../Controllers/audit-controller');
 
+const express = require('express');
 
-auditLogsRouter.post("/audit-logs/",controllerAuditLog.createAuditLog)
-                .get("/audit-logs/",controllerAuditLog.getAllAuditLogs)
-                .get("/audit-logs/:id",controllerAuditLog.getAuditLogWithId)
-                .put("/audit-logs/:id",controllerAuditLog.updateAuditLog)
-                .delete("/audit-logs/:id",controllerAuditLog.deleteAuditLog)
+const auditRoute = express.Router();
 
-module.exports=auditLogsRouter;
+auditRoute.get('/auditlogs', getAllAuditLogs);
+auditRoute.get('/auditlogs/:entityType/:entityId', getAuditLogsByEntity);
+
+module.exports = auditRoute;
