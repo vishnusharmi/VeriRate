@@ -1,13 +1,11 @@
 const employeeService = require("../Services/EmployeeServices");
-// const UserTable = require("../Models/EmployeeModel");
 
 const createEmployee = async (req, res) => {
   try {
     const employee = await employeeService.createEmployee(req.body);
-    res.status(201).json({
-      message: "Employee created successfully",
-      employee,
-    });
+    res
+      .status(201)
+      .json({ message: "Employee created successfully", employee });
   } catch (error) {
     console.error("Error creating employee:", error);
     res
@@ -19,10 +17,9 @@ const createEmployee = async (req, res) => {
 const getAllEmployees = async (req, res) => {
   try {
     const employees = await employeeService.getAllEmployees();
-    res.status(200).json({
-      message: "Employees fetched successfully",
-      employees,
-    });
+    res
+      .status(200)
+      .json({ message: "Employees fetched successfully", employees });
   } catch (error) {
     console.error("Error fetching employees:", error);
     res
@@ -32,16 +29,14 @@ const getAllEmployees = async (req, res) => {
 };
 
 const getEmployeeById = async (req, res) => {
-  const id = req.params.id;
   try {
-    const employee = await employeeService.getEmployeeById(id);
-    if (!employee) {
+    const employee = await employeeService.getEmployeeById(req.params.id);
+    if (!employee)
       return res.status(404).json({ message: "Employee not found" });
-    }
-    res.status(200).json({
-      message: "Employee fetched successfully",
-      employee,
-    });
+
+    res
+      .status(200)
+      .json({ message: "Employee fetched successfully", employee });
   } catch (error) {
     console.error("Error fetching employee:", error);
     res
@@ -52,13 +47,11 @@ const getEmployeeById = async (req, res) => {
 
 const updateEmployee = async (req, res) => {
   try {
-    const id = req.params.id;
-    const updateData = req.body;
-    const result = await employeeService.updateEmployee(updateData, id);
-    res.status(200).json({
-      message: "Employee updated successfully",
-      result,
-    });
+    const result = await employeeService.updateEmployee(
+      req.body,
+      req.params.id
+    );
+    res.status(200).json({ message: "Employee updated successfully", result });
   } catch (error) {
     res
       .status(500)
@@ -67,9 +60,8 @@ const updateEmployee = async (req, res) => {
 };
 
 const deleteEmployee = async (req, res) => {
-  const id = req.params.id;
   try {
-    const deleted = await employeeService.deleteEmployee(id);
+    const deleted = await employeeService.deleteEmployee(req.params.id);
     res
       .status(deleted ? 200 : 404)
       .json({ message: deleted ? "Employee deleted" : "Not found" });

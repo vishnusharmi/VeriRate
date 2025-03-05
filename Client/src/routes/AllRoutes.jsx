@@ -27,6 +27,7 @@ import AdminSettings from "../pages/adminDashboard/pages/Settings/AdminSettings.
 import EmployeeAdminSettings from "../pages/employerDashboard/pages/Settings/EmployeeAdminSettings.jsx";
 // import SecurityCompliance from "../pages/employerDashboard/pages/SecurityCompliance/SecurityCompliance.jsx"
 import OTP from "../components/Auth/Login/otp.jsx";
+import AppTest from "../components/Sample/AppTest.jsx";
 
 const AllRoutes = () => {
   return (
@@ -40,7 +41,7 @@ const AllRoutes = () => {
         <Route path="/admin/employer" element={<Employer />} />
         <Route path="/admin/records" element={<Records />} />
         <Route path="/admin/monitoring" element={<Monitoring />} />
-        <Route path="/admin/usermanagement" element={<UserManagement />} />
+        <Route path="/admin/user-management" element={<UserManagement />} />
         <Route
           path="/admin/security-compliance"
           element={<SecurityCompliances />}
@@ -72,6 +73,8 @@ const AllRoutes = () => {
           element={<EmployeeAdminSettings />}
         />
       </Route>
+
+      <Route path="/custom" element={<AppTest />} />
     </Routes>
   );
 };

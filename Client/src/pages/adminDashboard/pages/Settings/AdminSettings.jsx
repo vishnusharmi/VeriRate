@@ -5,18 +5,21 @@ import {
   SettingsApplications,
   Visibility,
   BarChart,
+  AdminPanelSettings,
 } from "@mui/icons-material";
 import SettingToggle from "../../../../components/SettingToggle/SettingToggle";
+import SecurityCompliance from "../SecurityCompliance/SecurityCompliance";
 
-const mockUsers = [
+const mockAdmins = [
   { id: 1, name: "Admin John" },
   { id: 2, name: "Admin Sarah" },
   { id: 3, name: "Admin Mike" },
 ];
 
 const AdminSettings = () => {
-  const [selectedUser, setSelectedUser] = useState(mockUsers[0]); // Default to first admin
+  const [selectedUser, setSelectedUser] = useState(mockAdmins[0]); // Default to first admin
   const [settings, setSettings] = useState({});
+  const [confirmChange, setConfirmChange] = useState(null);
 
   // Simulate fetching user-specific settings from API
   useEffect(() => {
@@ -25,6 +28,7 @@ const AdminSettings = () => {
       const userSettings = {
         accessControl: selectedUser.id === 1 ? true : false,
         complianceCheck: true,
+        blacklistControl: false,
         twoFactorAuth: false,
         systemMonitoring: true,
         performanceTracking: true,
@@ -36,31 +40,36 @@ const AdminSettings = () => {
   }, [selectedUser]);
 
   const handleToggle = (key) => {
-    setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
+    setConfirmChange(key);
+  };
+
+  const confirmToggle = () => {
+    setSettings((prev) => ({ ...prev, [confirmChange]: !prev[confirmChange] }));
+    setConfirmChange(null);
   };
 
   return (
-    <div className="p-6 max-w-3xl mx-auto bg-white shadow-md rounded-lg">
-      <h2 className="text-2xl font-bold text-gray-700 mb-4 flex items-center">
+    <div className="p-6 max-w-5xl mx-auto my-2 bg-white shadow-lg rounded-lg border border-gray-200">
+      <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
         <SettingsApplications className="mr-2 text-gray-600" />
         Super Admin Settings
       </h2>
 
       {/* User Selector */}
-      <div className="mb-4">
+      <div className="mb-6">
         <label className="text-gray-700 font-medium">
           Editing Settings for:
         </label>
         <select
-          className="block w-full mt-2 p-2 border rounded-md"
+          className="block w-full mt-2 p-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           value={selectedUser.id}
           onChange={(e) =>
             setSelectedUser(
-              mockUsers.find((user) => user.id === parseInt(e.target.value))
+              mockAdmins.find((user) => user.id === parseInt(e.target.value))
             )
           }
         >
-          {mockUsers.map((user) => (
+          {mockAdmins.map((user) => (
             <option key={user.id} value={user.id}>
               {user.name}
             </option>
@@ -68,50 +77,100 @@ const AdminSettings = () => {
         </select>
       </div>
 
-      {/* Access Control */}
-      <SettingToggle
-        title="Access Control"
-        description="Manage role-based access and permissions."
-        icon={<Security className="mr-2 text-blue-600" />}
-        enabled={settings.accessControl}
-        onToggle={() => handleToggle("accessControl")}
-      />
+      {/* Settings Sections */}
+      <div className="space-y-6">
+        <div className="bg-gray-100 p-4 rounded-lg">
+          <h3 className="text-lg font-semibold text-gray-800 mb-3">
+            Security Settings
+          </h3>
+          <SettingToggle
+            title="Two-Factor Authentication"
+            description="Require this Employee Admin to use two-factor authentication for added security."
+            icon={<Visibility className="mr-2 text-yellow-600" />}
+            enabled={settings.twoFactorAuth}
+            onToggle={() => handleToggle("twoFactorAuth")}
+          />
+          <SettingToggle
+            title="System Monitoring"
+            description="Allow this Employee Admin to access security logs, login tracking, and system performance analytics."
+            icon={<BarChart className="mr-2 text-purple-600" />}
+            enabled={settings.systemMonitoring}
+            onToggle={() => handleToggle("systemMonitoring")}
+          />
+        </div>
 
-      {/* Dispute Resolution */}
-      <SettingToggle
-        title="Dispute Resolution"
-        description="Manage disputes related to ratings or blacklisting."
-        icon={<Gavel className="mr-2 text-red-600" />}
-        enabled={settings.complianceCheck}
-        onToggle={() => handleToggle("complianceCheck")}
-      />
+        <div className="bg-gray-100 p-4 rounded-lg">
+          <h3 className="text-lg font-semibold text-gray-800 mb-3">
+            Employee Admin Control Settings
+          </h3>
+          <SettingToggle
+            title="Access Control"
+            description="Allow this Employee Admin to manage other Employee Admins and their permissions."
+            icon={<AdminPanelSettings className="mr-2 text-blue-600" />}
+            enabled={settings.accessControl}
+            onToggle={() => handleToggle("accessControl")}
+          />
+          <SettingToggle
+            title="Dispute Resolution"
+            description="Allow this Employee Admin to handle employee disputes related to ratings and blacklisting."
+            icon={<Gavel className="mr-2 text-red-600" />}
+            enabled={settings.complianceCheck}
+            onToggle={() => handleToggle("complianceCheck")}
+          />
+          <SettingToggle
+            title="Blacklist Management"
+            description="Allow this Employee Admin to enable/disable blacklisting for other Employee Admins under their company."
+            icon={<Security className="mr-2 text-gray-600" />}
+            enabled={settings.blacklistControl}
+            onToggle={() => handleToggle("blacklistControl")}
+          />
+          <SettingToggle
+            title="Performance Tracking"
+            description="Allow this Employee Admin to track employee performance trends and company-wide analytics."
+            icon={<BarChart className="mr-2 text-green-600" />}
+            enabled={settings.performanceTracking}
+            onToggle={() => handleToggle("performanceTracking")}
+          />
+        </div>
+      </div>
 
-      {/* Two-Factor Authentication */}
-      <SettingToggle
-        title="Two-Factor Authentication"
-        description="Enforce two-factor authentication for admins."
-        icon={<Visibility className="mr-2 text-yellow-600" />}
-        enabled={settings.twoFactorAuth}
-        onToggle={() => handleToggle("twoFactorAuth")}
-      />
+      <div className="bg-gray-100 p-4 rounded-lg mt-4">
+        <h3 className="text-lg font-semibold text-gray-800 mb-3">
+          Security & Compliance
+        </h3>
+        <SecurityCompliance
+          mockAdmins={mockAdmins}
+          selectedAdmin={selectedUser}
+        />
+      </div>
 
-      {/* System Monitoring */}
-      <SettingToggle
-        title="System Monitoring"
-        description="Monitor audit logs, security alerts, and compliance tracking."
-        icon={<BarChart className="mr-2 text-purple-600" />}
-        enabled={settings.systemMonitoring}
-        onToggle={() => handleToggle("systemMonitoring")}
-      />
-
-      {/* Performance Tracking */}
-      <SettingToggle
-        title="Performance Tracking"
-        description="Monitor system response times and concurrent users."
-        icon={<BarChart className="mr-2 text-green-600" />}
-        enabled={settings.performanceTracking}
-        onToggle={() => handleToggle("performanceTracking")}
-      />
+      {/* Confirmation Dialog */}
+      {confirmChange && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm">
+            <h3 className="text-lg font-semibold text-gray-800 mb-3">
+              Confirm Change
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Are you sure you want to change this setting?
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setConfirmChange(null)}
+                className="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmToggle}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
