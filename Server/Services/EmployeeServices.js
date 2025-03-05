@@ -1,7 +1,7 @@
 const Employee = require("../Models/EmployeeModel"); // Renamed for clarity
 const Ratings = require("../Models/ratingsModel");
-const definedCrypto = require("../utils/cryptoUtils"); // Encryption utility
-
+const logActivity = require("../Activity/activityFunction.js");
+const Activity = require("../Models/activityModel.js");
 exports.createEmployee = async (data) => {
   try {
     const encryptedData = {
@@ -16,8 +16,15 @@ exports.createEmployee = async (data) => {
       company_id: data.company_id,
       userId: data.userId,
     };
-
-    const employee = await Employee.create(encryptedData);
+    const employee = await UserTable.create(encryptedData);
+    await logActivity(
+      employee.id,
+      " New employee profile created",
+      `${employee.first_name} ${employee.last_name}`,
+      "Employee",
+      "Employee Management"
+    );
+    console.log("Activity logged successfully", logActivity);
     return employee;
   } catch (error) {
     throw new Error(`Error creating employee: ${error.message}`);
@@ -26,19 +33,50 @@ exports.createEmployee = async (data) => {
 
 exports.updateEmployee = async (data, id) => {
   try {
-    const encryptedData = {};
-    if (data.first_name)
-      encryptedData.first_name = definedCrypto.encrypt(data.first_name);
-    if (data.last_name)
-      encryptedData.last_name = definedCrypto.encrypt(data.last_name);
-    if (data.phone_number)
-      encryptedData.phone_number = definedCrypto.encrypt(data.phone_number);
-    if (data.employment_history)
-      encryptedData.employment_history = definedCrypto.encrypt(
-        JSON.stringify(data.employment_history)
-      );
+    // const encryptedData = {};
+    // if (data.first_name)
+    //   encryptedData.first_name = definedCrypto.encrypt(data.first_name);
+    // if (data.last_name)
+    //   encryptedData.last_name = definedCrypto.encrypt(data.last_name);
+    // if (data.phone_number)
+    //   encryptedData.phone_number = definedCrypto.encrypt(data.phone_number);
+    // if (data.employment_history)
+    //   encryptedData.employment_history = definedCrypto.encrypt(
+    //     JSON.stringify(data.employment_history)
+    //   );
+    const employee = await UserTable.findByPk(id);
+    if (!employee) {
+      throw new Error("Employee not found");
+    }
 
-    const result = await Employee.update(encryptedData, { where: { id } });
+    // Check if the is_verified field is being updated to "Verified"
+    const isVerified =
+      data.is_verified === "Verified" && employee.is_verified !== "Verified";
+
+    // Update the employee's record
+    const result = await UserTable.update(data, {
+      where: { id: id },
+    });
+
+    // Log activity based on whether the status was updated to "verified" or the profile was updated
+    if (isVerified) {
+      await logActivity(
+        employee.id,
+        "employee verified",
+        `${employee.first_name} ${employee.last_name}`,
+        "Employee",
+        "Employee Management"
+      );
+    } else {
+      await logActivity(
+        employee.id,
+        "Employee profile Updated",
+        `${employee.first_name} ${employee.last_name}`,
+        "Employee",
+        "Employee Management"
+      );
+    }
+
     return result;
   } catch (error) {
     console.log("Error in updateEmployee service:", error);
@@ -95,10 +133,36 @@ exports.getEmployeeById = async (id) => {
 
 exports.deleteEmployee = async (id) => {
   try {
-    const deletedCount = await Employee.destroy({ where: { id } });
-    if (!deletedCount) throw new Error("Employee not found");
+    // Step 1: Fetch the employee by ID
+    const employee = await UserTable.findByPk(id); // Adjust this if needed, e.g., using 'findOne' or other methods
+
+    // Check if employee exists
+    if (!employee) {
+      throw new Error("Employee not found");
+    }
+
+    // Step 2: Delete the employee
+    const deletedCount = await UserTable.destroy({
+      where: { id: id },
+    });
+
+    // Step 3: Log the activity (after successful deletion)
+    await logActivity(
+      employee.id,
+      "employee profile deleted",
+      `${employee.first_name} ${employee.last_name}`,
+      "Employee",
+      "Employee Management"
+    );
+
+    // Step 4: Ensure deletion was successful
+    if (!deletedCount) {
+      throw new Error("Error deleting employee");
+    }
+
     return true;
   } catch (error) {
+    console.error("Error in deleteEmployee service:", error);
     throw new Error(`Error deleting employee: ${error.message}`);
   }
 };

@@ -53,29 +53,51 @@ const EmployeeManagement = () => {
   const [error, setError] = useState(null);
   // const [step, setStep] = useState(1);
 
+  // Single declaration of employeeData
   const [employeeData, setEmployeeData] = useState({
-    first_name: editableEmployee?.name || "",
-    last_name: editableEmployee?.last_name || "",
-    position: editableEmployee?.position || "",
+    emp_name: editableEmployee?.emp_name || "",
+    employee_id: editableEmployee?.employee_id || "",
+    salary: editableEmployee?.salary || "",
+    date_of_birth: editableEmployee?.date_of_birth || "",
+    role: editableEmployee?.role || "",
+    password: editableEmployee?.password || "",
     email: editableEmployee?.email || "",
-    history: editableEmployee?.history || "",
-    document: editableEmployee?.document || null,
+    date_of_joining: editableEmployee?.date_of_joining || "",
+    phone_number: editableEmployee?.phone_number || "",
+    qualification: editableEmployee?.qualification || "",
+    address: editableEmployee?.address || "",
+    pan_card: editableEmployee?.pan_card || "",
+    aadhar_card: editableEmployee?.aadhar_card || "",
+    bank_account: editableEmployee?.bank_account || "",
+    bank_name: editableEmployee?.bank_name || "",
+    ifsc_code: editableEmployee?.ifsc_code || "",
+    profile_image: editableEmployee?.profile_image || null,
+    experience: editableEmployee?.experience || [], // Add experience field here
+    document:null
   });
 
   const handleChange = (e) => {
-    setEmployeeData({ ...employeeData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setEmployeeData({ ...employeeData, [name]: value });
   };
 
   const handleFileChange = (e) => {
-    setEmployeeData({ ...employeeData, document: e.target.files[0] });
+    const file = e.target.files[0];
+    setEmployeeData({ ...employeeData, [e.target.name]: file });
+
+    if (e.target.name === "profile_image" && file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
-  // Fetch employees on component mount
   useEffect(() => {
     fetchEmployees();
   }, []);
 
-  // Fetch employees using axios instead of fetch
   const fetchEmployees = async () => {
     setIsLoading(true);
     try {
@@ -88,20 +110,63 @@ const EmployeeManagement = () => {
     } catch (error) {
       console.error("Error fetching employees:", error);
       setError("Failed to load employees. Please try again later.");
-      // Fallback to empty array to prevent errors
-      setEmployees([]);
+      setEmployees([]); // Fallback to an empty array
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Open/close modal for adding/editing employees
   const toggleModal = (employee = null) => {
     setEditableEmployee(employee);
+    if (employee) {
+      setEmployeeData({
+        emp_name: employee.emp_name || "",
+        employee_id: employee.employee_id || "",
+        salary: employee.salary || "",
+        date_of_birth: employee.date_of_birth || "",
+        role: employee.role || "",
+        password: employee.password || "",
+        email: employee.email || "",
+        date_of_joining: employee.date_of_joining || "",
+        phone_number: employee.phone_number || "",
+        qualification: employee.qualification || "",
+        address: employee.address || "",
+        pan_card: employee.pan_card || "",
+        aadhar_card: employee.aadhar_card || "",
+        bank_account: employee.bank_account || "",
+        bank_name: employee.bank_name || "",
+        ifsc_code: employee.ifsc_code || "",
+        profile_image: employee.profile_image || null,
+        experience: employee.experience || [],
+      });
+      setImagePreview(employee.profile_image_url || null);
+    } else {
+      setEmployeeData({
+        emp_name: "",
+        employee_id: "",
+        salary: "",
+        date_of_birth: "",
+        role: "",
+        password: "",
+        email: "",
+        date_of_joining: "",
+        phone_number: "",
+        qualification: "",
+        address: "",
+        pan_card: "",
+        aadhar_card: "",
+        bank_account: "",
+        bank_name: "",
+        ifsc_code: "",
+        profile_image: null,
+        experience: [],
+      });
+      setImagePreview(null);
+    }
     setIsModalOpen(!isModalOpen);
+    setStep(1);
   };
 
-  // Open/close delete confirmation modal
   const toggleDeleteConfirm = (employee = null) => {
     setEmployeeToDelete(employee);
     setIsDeleteConfirmOpen(!isDeleteConfirmOpen);
@@ -152,12 +217,10 @@ const EmployeeManagement = () => {
     toggleModal(employee);
   };
 
-  // Handle employee delete
   const handleDelete = (employee) => {
     toggleDeleteConfirm(employee);
   };
 
-  // Confirm employee deletion
   const confirmDelete = async () => {
     if (employeeToDelete) {
       try {
@@ -175,12 +238,10 @@ const EmployeeManagement = () => {
     }
   };
 
-  // Handle file deletion
   const handleFileDelete = (fileId) => {
     setFiles(files.filter((file) => file.id !== fileId));
   };
 
-  // Handle form submission for adding/editing employees using axios
   const handleFormSubmit = async (form) => {
     const formData = new FormData(form);
 
@@ -198,10 +259,11 @@ const EmployeeManagement = () => {
 
       const updatedEmployee = response.data;
       if (editableEmployee) {
-        const updatedEmployees = employees.map((employee) =>
-          employee.id === editableEmployee.id ? updatedEmployee : employee
+        setEmployees(
+          employees.map((employee) =>
+            employee.id === editableEmployee.id ? updatedEmployee : employee
+          )
         );
-        setEmployees(updatedEmployees);
       } else {
         setEmployees([...employees, updatedEmployee]);
       }
@@ -211,9 +273,15 @@ const EmployeeManagement = () => {
     }
   };
 
-  // Render loading state
   if (isLoading && employees.length === 0) {
-    return <div className="p-6">Loading employees...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-50">
+        <div className="text-center p-8 max-w-sm mx-auto bg-white rounded-xl shadow-md">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-3"></div>
+          <p className="text-gray-600">Loading employees...</p>
+        </div>
+      </div>
+    );
   }
 
   console.log("Component rendered!!");
@@ -265,7 +333,6 @@ const EmployeeManagement = () => {
         <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-md">
           {error}
         </div>
-      )}
 
       {activeTab === "employees" && (
         <Employees
@@ -307,13 +374,10 @@ const EmployeeManagement = () => {
         <Form />
       </Modal>
 
-      {/* Delete Confirmation Modal */}
-      <Modal
-        isOpen={isDeleteConfirmOpen}
-        onRequestClose={() => toggleDeleteConfirm()}
-        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-xl w-[400px]"
-        overlayClassName="fixed inset-0 bg-black/50 bg-opacity-60"
-        ariaHideApp={false} // Added this to prevent the error about appElement
+      <button
+        type="button"
+        onClick={addExperience}
+        className="flex items-center gap-2 text-blue-600 font-medium hover:underline"
       >
         <h2 className="text-xl font-bold mb-4">Confirm Delete</h2>
         <p className="mb-6">

@@ -47,11 +47,14 @@ const getEmployeeById = async (req, res) => {
 
 const updateEmployee = async (req, res) => {
   try {
-    const result = await employeeService.updateEmployee(
-      req.body,
-      req.params.id
-    );
-    res.status(200).json({ message: "Employee updated successfully", result });
+    const id = req.params.id;
+    const updateData = req.body;
+    console.log(updateData);
+    const result = await employeeService.updateEmployee(updateData, id);
+    res.status(200).json({
+      message: "Employee updated successfully",
+      result,
+    });
   } catch (error) {
     res
       .status(500)

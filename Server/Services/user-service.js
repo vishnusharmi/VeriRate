@@ -4,14 +4,15 @@ const Documents = require("../Models/documents");
 const employeeModel = require("../Models/EmployeeModel");
 
 const bcrypt = require("bcryptjs");
+const { accessSync } = require("fs");
 
 exports.registerUser = async (data, files) => {
   const transaction = await userModel.sequelize.transaction(); // Start transaction
-
+  console.log("employment_history", data.employment_history);
   try {
     // Validate required fields
     if (!data.email || !data.password || !data.role) {
-      return { message: "Missing required fields (email, password, role)" };
+      return { statusCode: 404, message: "Missing required fields" };
     }
 
     // Check if user already exists
@@ -19,7 +20,7 @@ exports.registerUser = async (data, files) => {
       where: { email: data.email },
     });
     if (existingUser) {
-      return { message: "User already exists" };
+      return { statusCode: 400, message: "User already exists" };
     }
 
     // Hash password
@@ -65,6 +66,7 @@ exports.registerUser = async (data, files) => {
           position: data.position,
           role: data.role,
           department: data.department,
+          phone_number: data.phone_number,
           employment_history: data.employment_history,
           employee_type: data.employee_type,
           gender: data.gender,
@@ -95,6 +97,7 @@ exports.registerUser = async (data, files) => {
     await transaction.commit();
 
     return {
+      statusCode: 201,
       message: "User created successfully",
       data: {
         user: userData,
@@ -106,11 +109,11 @@ exports.registerUser = async (data, files) => {
     // Rollback transaction if any error occurs
     await transaction.rollback();
     console.error("Error in registerUser:", error);
-    return { message: "Something went wrong", error: error.message };
+    return { statusCode: 500, message: error.message, error: error.message };
   }
 };
 
-exports.getAllUsers = async () => {
+exports.getAllusers = async () => {
   try {
     const getUsers = await userModel.findAll({
       include: [
@@ -127,16 +130,16 @@ exports.getAllUsers = async () => {
 
 //get user by id
 
-exports.getUserById = async (id) => {
+exports.getUserbyid = async (id) => {
   try {
-    const getUser = await userModel.findByPk(id, {
+    const getuser = await userModel.findByPk(id, {
       include: [
         {
           model: Documents,
         },
       ],
     });
-    return getUser;
+    return getuser;
   } catch (error) {
     console.error("Error fetching user by id:", error);
     throw error;
@@ -147,7 +150,7 @@ exports.getUserById = async (id) => {
 
 exports.updateUserById = async (id, data, documentPath) => {
   try {
-    const getUser = await userModel.findByPk(id, {
+    const getuser = await userModel.findByPk(id, {
       include: [
         {
           model: Documents,
@@ -155,27 +158,33 @@ exports.updateUserById = async (id, data, documentPath) => {
       ],
     });
 
-    let file_url = getUser.Document.id;
+    console.log(getuser.Document.id, "docicici");
 
-    // const result = await cloudinaryUpload.uploader.upload(documentPath, {
-    //   resource_type: "auto",
-    //   folder: "user_uploads",
-    // });
+    let file_url = getuser.Document.id;
+
+    const result = await cloudinaryUpload.uploader.upload(documentPath, {
+      resource_type: "auto",
+      folder: "user_uploads",
+    });
+
+    console.log(result, "resultttt");
 
     const updatedUser = await userModel.update(data, { where: { id } });
 
     if (!updatedUser) {
-      throw new Error(" user not found");
+      throw new error(" user not found");
     }
 
-    // const docResponse = await Documents.update(
-    //   { file_path: result.url },
-    //   { where: { id: file_url } }
-    // );
+    const docResponse = await Documents.update(
+      { file_path: result.url },
+      { where: { id: file_url } }
+    );
+
+    console.log(docResponse, "responss");
 
     return updatedUser;
   } catch (error) {
-    console.error("Error: ", error.message);
+    throw error;
   }
 };
 

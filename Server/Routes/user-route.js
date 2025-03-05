@@ -5,13 +5,6 @@ const verifyToken = require("../MiddleWares/verifyToken");
 
 const userRouter = express.Router();
 
-// userRouter
-//   .post("/register", upload.single("document"), userControllers.register)
-//   .get("/users", userControllers.getAllUsers)
-//   .get("/users/:id", userControllers.getUserByIdController)
-//   .put("/users/:id", upload.single("document"), userControllers.updateUserById)
-//   .delete("/users/:id", userControllers.deleteUserById);
-
 userRouter.post(
   "/register",
   upload.single("document"),
