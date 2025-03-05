@@ -6,7 +6,7 @@ const User = require("./user");
 const Employee = database.define(
   "Employee",
   {
-    id: { 
+    id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -36,23 +36,10 @@ const Employee = database.define(
       type: DataTypes.DATE,
       allowNull: false,
     },
-    role:{
-      type:DataTypes.STRING,
-      allowNull:false
-    },
-    email: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      unique: true,
-    },
-    password: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
     dateOfJoin: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: DataTypes.NOW
+      defaultValue: DataTypes.NOW,
     },
     phone_number: {
       type: DataTypes.STRING(20),
@@ -62,9 +49,9 @@ const Employee = database.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    address:{
-      type:DataTypes.TEXT,
-      allowNull:false
+    address: {
+      type: DataTypes.TEXT,
+      allowNull: false,
     },
     panCard: {
       type: DataTypes.STRING,
@@ -80,7 +67,7 @@ const Employee = database.define(
     },
     bankName: {
       type: DataTypes.STRING,
-      allowNull: false, 
+      allowNull: false,
     },
     IFSCcode: {
       type: DataTypes.STRING,
@@ -93,10 +80,7 @@ const Employee = database.define(
       type: DataTypes.ENUM("Pending", "Verified"),
       defaultValue: "Pending",
     },
-    position:{
-      type: DataTypes.STRING(50),
-      allowNull: false,
-    },
+  
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -115,7 +99,36 @@ const Employee = database.define(
       defaultValue: DataTypes.NOW,
       onUpdate: DataTypes.NOW,
     },
-   
+
+    //
+    employee_type: {
+      type: DataTypes.ENUM("Internship", "Part-time", "Full-time"),
+      allowNull: true,
+    },
+    gender: {
+      type: DataTypes.ENUM("Female", "Male", "Others"),
+      allowNull: true,
+    },
+    pf_account: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    father_or_husband_name: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    permanent_address: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    current_address: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    UPI_Id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
 
   {

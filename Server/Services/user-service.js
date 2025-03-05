@@ -2,13 +2,14 @@ const cloudinaryUpload = require("../MiddleWares/Cloudinary");
 const userModel  =require('../Models/user');
 const Documents = require("../Models/documents");
 const employeeModel = require("../Models/EmployeeModel");
-const companyModel = require("../Models/companies");
 
 const bcrypt=require("bcryptjs");
 const { accessSync } = require("fs");
 
 
 exports.registerUser = async (data, files) => {
+
+  
   const transaction = await userModel.sequelize.transaction(); // Start transaction
 
   try {
@@ -39,7 +40,7 @@ exports.registerUser = async (data, files) => {
 
     let additionalData = null;
 
-    if (data.role === "Employee") {
+    if (data.role === "Employee" || data.role === "Employee Admin") {
       // Create employee entry inside transaction
       additionalData = await employeeModel.create(
         {
@@ -65,25 +66,13 @@ exports.registerUser = async (data, files) => {
           department: data.department,
           phone_number: data.phone_number,
           employment_history: data.employment_history,
-        },
-        { transaction }
-      );
-    } else if (data.role === "Employee Admin" || data.role === "Super Admin") {
-      // Create company entry inside transaction
-      additionalData = await companyModel.create(
-        {
-          userId: userData.id,
-          createdBy: data.createdBy,
-          companyName: data.companyName,
-          industry: data.industry,
-          address: data.address,
-          phonenumber: data.phonenumber,
-          country: data.country,
-          state: data.state,
-          registerNum: data.registerNum,
-          founderYear: data.founderYear,
-          companyWebsite: data.companyWebsite,
-          email: data.email,
+          employee_type: data.employee_type,
+          gender: data.gender,
+          pf_account: data.pf_account,
+          father_or_husband_name: data.father_or_husband_name,
+          permanent_address: data.permanent_address,
+          current_address: data.current_address,
+          UPI_Id: data.UPI_Id,
         },
         { transaction }
       );
@@ -92,18 +81,11 @@ exports.registerUser = async (data, files) => {
     let documentResponse = null;
 
     if (files && files.path) {
-      // Upload document
-      const uploadResult = await cloudinaryUpload.uploader.upload(files.path, {
-        resource_type: "auto",
-        folder: "user_uploads",
-      });
-
-      // Create document entry inside transaction
       documentResponse = await Documents.create(
         {
           empId: userData.id,
           documentType: files.mimetype,
-          file_path: uploadResult.url,
+          file_path: files.path,
         },
         { transaction }
       );
