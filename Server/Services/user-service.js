@@ -33,7 +33,7 @@ exports.registerUser = async (data, files) => {
         password: hashedPassword,
         role: data.role,
         username:
-          data.role === "employee"
+          data.role === "Employee"
             ? `${data.first_name} ${data.last_name} `
             : data.username,
       },
