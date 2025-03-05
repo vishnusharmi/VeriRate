@@ -1,4 +1,8 @@
-import { Route, Routes } from "react-router";
+import { Route, Routes,Navigate } from "react-router";
+import { useContext } from "react";
+import { AuthContext } from "../components/Context/Contextapi.jsx";
+import PrivateRoute from "./ProtectedRoute.jsx";
+import ErrorPage from "../components/ErrorPage.jsx";
 
 import Layout from "../pages/Layout/Layout.jsx";
 import Login from "../components/Auth/Login/Login.jsx";
@@ -20,31 +24,32 @@ import Records from "../pages/adminDashboard/pages/Records/Records.jsx";
 import EmployerVerificationSearch from "../pages/employerDashboard/pages/EmployerVerificationSearch/EmployerVerificationSearch.jsx";
 import EmployeeRatingsFeedback from "../pages/employerDashboard/pages/RatingsAndFeedback/EmployeeRatingsFeedback.jsx";
 import UserManagement from "../pages/adminDashboard/pages/UserManagement/UserManagement.jsx";
-import SecurityCompliance from "../pages/employerDashboard/pages/SecurityCompliance/SecurityCompliance.jsx"
-import ForgetPassword from "../components/Auth/Login/ForgetPassword.jsx";
-import ResetPassword from "../components/Auth/Login/NewPassword.jsx";
+import SecurityCompliance from "../pages/employerDashboard/pages/SecurityCompliance/SecurityCompliance.jsx";
+// import ForgetPassword from "../components/Auth/Login/ForgetPassword.jsx";
+// import ResetPassword from "../components/Auth/Login/NewPassword.jsx";
 
-
-import CompanyManagement from "../pages/adminDashboard/pages/CompanyManagement/companyManagement.jsx";
+// import CompanyManagement from "../pages/adminDashboard/pages/CompanyManagement/CompanyManagement.jsx";
 import AdminSettings from "../pages/adminDashboard/pages/Settings/AdminSettings.jsx";
 import EmployeeAdminSettings from "../pages/employerDashboard/pages/Settings/EmployeeAdminSettings.jsx";
 import OTP from "../components/Auth/Login/Otp.jsx";
-// import SecurityCompliance from "../pages/employerDashboard/pages/SecurityCompliance/SecurityCompliance.jsx"
 
+import AppTest from "../components/Sample/AppTest.jsx";
 
 const AllRoutes = () => {
+  const {auth,token} = useContext(AuthContext);
+
   return (
     <Routes>
-      <Route index path="/" element={<Login />} />
+       <Route index path="/" element={token ? <Navigate to={auth.role === "Super Admin" ? "/admin":"/company"} replace /> : <Login />} />
       <Route path="/otp" element={<OTP />} />
 
-      <Route path="/admin//" element={<Layout />}>
+<Route  element={<PrivateRoute/>}>
+      <Route path="/admin" element={<Layout />}>
         <Route index element={<AdminDashboard />} />
         <Route path="/admin/disputes" element={<Disputes />} />
         <Route path="/admin/records" element={<Records />} />
         <Route path="/admin/monitoring" element={<Monitoring />} />
-        <Route path="/admin/usermanagement" element={<UserManagement />} />
-        <Route path="/admin/company-management" element={<CompanyManagement />} />
+        <Route path="/admin/user-management" element={<UserManagement />} />
         <Route
           path="/admin/security-compliance"
           element={<SecurityCompliances />}
@@ -74,10 +79,13 @@ const AllRoutes = () => {
           path="/company/employee-settings"
           element={<EmployeeAdminSettings />}
         />
+        </Route>
       </Route>
+      <Route path="*" element={<ErrorPage/>}/>
+
+      <Route path="/custom" element={<AppTest />} />
     </Routes>
   );
 };
-
 
 export default AllRoutes;

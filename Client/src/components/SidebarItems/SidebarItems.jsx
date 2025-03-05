@@ -17,10 +17,14 @@ import BadgeIcon from "@mui/icons-material/Badge";
 import DescriptionIcon from "@mui/icons-material/Description";
 import RateReviewIcon from "@mui/icons-material/RateReview";
 import PropTypes from "prop-types";
+import { useContext } from "react";
+import { AuthContext } from "../Context/Contextapi";
+import {useState} from "react";
 
 const SidebarItems = ({ toggleMenu, handleToggle }) => {
-  const role = "admin";
-
+const [isLogoutModal,setIsLogoutModal] = useState(false)
+  const {auth,logOut} = useContext(AuthContext);
+  const role = auth.role;
   const adminMenuItems = [
     {
       name: "Dashboard",
@@ -28,9 +32,9 @@ const SidebarItems = ({ toggleMenu, handleToggle }) => {
       path: "/admin",
     },
     {
-      name: "Management",
+      name: "Employers List",
       icon: <BadgeIcon className="w-5 h-5 cb1:w-6 cb1:h-6" />,
-      path: '/admin/company-management'
+      path: "/admin/company-management",
     },
     {
       name: "Disputes",
@@ -50,13 +54,13 @@ const SidebarItems = ({ toggleMenu, handleToggle }) => {
     {
       name: "User Management",
       icon: <PeopleAlt className="w-5 h-5 cb1:w-6 cb1:h-6" />,
-      path: "/admin/usermanagement",
+      path: "/admin/user-management",
     },
-    {
-      name: "Security & Compliance",
-      icon: <Security className="w-5 h-5 cb1:w-6 cb1:h-6" />,
-      path: "/admin/security-compliance",
-    },
+    // {
+    //   name: "Security & Compliance",
+    //   icon: <Security className="w-5 h-5 cb1:w-6 cb1:h-6" />,
+    //   path: "/admin/security-compliance",
+    // },
     {
       name: "Settings",
       icon: <SettingsIcon className="w-5 h-5 cb1:w-6 cb1:h-6" />,
@@ -85,37 +89,51 @@ const SidebarItems = ({ toggleMenu, handleToggle }) => {
       icon: <DomainVerificationIcon className="w-5 h-5 cb1:w-6 cb1:h-6" />,
       path: "/company/verification",
     },
-    // {
-    //   name: "Analytics",
-    //   icon: <Analytics className="w-5 h-5 cb1:w-6 cb1:h-6" />,
-    //   path: "/company/analytics",
-    // },
-    // {
-    //   name: "History",
-    //   icon: <History className="w-5 h-5 cb1:w-6 cb1:h-6" />,
-    //   path: "/company/history",
-    // },
     {
       name: "Ratings and Feedback",
       icon: <RateReviewIcon className="w-5 h-5 cb1:w-6 cb1:h-6" />,
       path: "/company/ratings-feedback",
     },
-    {
-      name: "Security & Compliance",
-      icon: <Security className="w-5 h-5 cb1:w-6 cb1:h-6" />,
-      path: "/company/security-compliance",
-    },
-    {
-      name: "Settings",
-      icon: <SettingsIcon className="w-5 h-5 cb1:w-6 cb1:h-6" />,
-      path: "/company/employee-settings",
-    },
+    // {
+    //   name: "Security & Compliance",
+    //   icon: <Security className="w-5 h-5 cb1:w-6 cb1:h-6" />,
+    //   path: "/company/security-compliance",
+    // },
+    // {
+    //   name: "Settings",
+    //   icon: <SettingsIcon className="w-5 h-5 cb1:w-6 cb1:h-6" />,
+    //   path: "/company/employee-settings",
+    // },
   ];
 
-  let items = role === "admin" ? adminMenuItems : employerMenuItems;
+  let items = role === "Super Admin" ? adminMenuItems : employerMenuItems;
 
   return (
     <>
+     {isLogoutModal && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500/50">
+            <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-lg relative">
+              <h2 className="text-lg font-semibold">Confirm Deletion</h2>
+              <p className="text-gray-600 mt-2">
+                Are you sure you want to logout?
+              </p>
+              <div className="flex justify-end gap-4 mt-4">
+                <button
+                  className="px-4 py-2 bg-gray-300 rounded-lg"
+                  onClick={() => setIsLogoutModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg"
+                  onClick={logOut}
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       <div className="flex flex-col items-center font-medium">
         {items.map((item, index) => (
           <NavLink
@@ -138,7 +156,7 @@ const SidebarItems = ({ toggleMenu, handleToggle }) => {
         ))}
       </div>
       <div>
-        <button className="flex items-center px-5 py-4 gap-4 text-sm cb2:text-base text-white font-medium cursor-pointer hover:bg-[#d2e8ee] hover:text-black transition-all w-full hover:shadow-md">
+        <button onClick={() => setIsLogoutModal((prev) => !prev)} className="flex items-center px-5 py-4 gap-4 text-sm cb2:text-base text-white font-medium cursor-pointer hover:bg-[#d2e8ee] hover:text-black transition-all w-full hover:shadow-md">
           {<LogoutIcon className="w-5 h-5 cb1:w-6 cb1:h-6" />}Logout
         </button>
       </div>
