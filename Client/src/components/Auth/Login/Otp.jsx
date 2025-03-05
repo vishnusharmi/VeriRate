@@ -78,7 +78,7 @@ const OTP = () => {
         email,
         otp: enteredOtp,
       });
-      console.log(response);
+      // console.log(response);
       toast.success("OTP Verified successfully")
       // setTimeout(() => {
       //   if (auth) {

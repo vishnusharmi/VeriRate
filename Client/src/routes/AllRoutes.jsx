@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router";
+import PrivateRoute from "./ProtectedRoute.jsx";
 
 import Layout from "../pages/Layout/Layout.jsx";
 import Login from "../components/Auth/Login/Login.jsx";
@@ -38,6 +39,7 @@ const AllRoutes = () => {
       <Route index path="/" element={<Login />} />
       <Route path="/otp" element={<OTP />} />
 
+<Route  element={<PrivateRoute/>}>
       <Route path="/admin//" element={<Layout />}>
         <Route index element={<AdminDashboard />} />
         <Route path="/admin/disputes" element={<Disputes />} />
@@ -74,6 +76,7 @@ const AllRoutes = () => {
           path="/company/employee-settings"
           element={<EmployeeAdminSettings />}
         />
+        </Route>
       </Route>
     </Routes>
   );
