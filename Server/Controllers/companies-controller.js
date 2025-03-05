@@ -21,7 +21,7 @@ const getAll = async(req,res)=>{
 const getById = async(req,res)=>{
     try {
         const company = await companiesService.getcompanyById(req.params.id);
-        res.status(200).json({message: "Company found successfully", company});
+        res.status(200).json({message: "Company found successfully", data:company});
     } catch (error) {
         res.status(500).json({error: error.message});
     }
