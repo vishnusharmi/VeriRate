@@ -7,8 +7,9 @@ export const AuthContext = createContext()
 function AuthProvider({children}) {
 
   const navigate = useNavigate()
+  const token = sessionStorage.getItem("authToken");
+  
   const [auth, setAuth] = useState(() => {
-    const token = sessionStorage.getItem("authToken");
     if (token) {
       try {
         return jwtDecode(token);
@@ -20,6 +21,7 @@ function AuthProvider({children}) {
     return null;
   });
 
+  // if login success we are setting token into the session storage 
   const login = (token) => {
     sessionStorage.setItem("authToken", token);
     try {
@@ -30,16 +32,14 @@ function AuthProvider({children}) {
     }
   };
 
-
+// logging out the dashboard  
   const logOut =()=>{
     sessionStorage.removeItem("authToken");
     setAuth(null)
     navigate("/")
-    
   }
 
   useEffect(() => {
-    const token = sessionStorage.getItem("authToken");
     if (token) {
       try {
         setAuth(jwtDecode(token));
@@ -50,7 +50,7 @@ function AuthProvider({children}) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ auth, login, logOut }}>
+    <AuthContext.Provider value={{ auth, login, logOut,token }}>
       {children}
     </AuthContext.Provider>
   );

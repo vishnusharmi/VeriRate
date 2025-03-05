@@ -1,5 +1,8 @@
-import { Route, Routes } from "react-router";
+import { Route, Routes,Navigate } from "react-router";
+import { useContext } from "react";
+import { AuthContext } from "../components/Context/Contextapi.jsx";
 import PrivateRoute from "./ProtectedRoute.jsx";
+import ErrorPage from "../components/ErrorPage.jsx";
 
 import Layout from "../pages/Layout/Layout.jsx";
 import Login from "../components/Auth/Login/Login.jsx";
@@ -34,13 +37,15 @@ import OTP from "../components/Auth/Login/Otp.jsx";
 
 
 const AllRoutes = () => {
+  const {auth,token} = useContext(AuthContext);
+
   return (
     <Routes>
-      <Route index path="/" element={<Login />} />
+       <Route index path="/" element={token ? <Navigate to={auth.role === "Super Admin" ? "/admin":"/company"} replace /> : <Login />} />
       <Route path="/otp" element={<OTP />} />
 
 <Route  element={<PrivateRoute/>}>
-      <Route path="/admin//" element={<Layout />}>
+      <Route path="/admin" element={<Layout />}>
         <Route index element={<AdminDashboard />} />
         <Route path="/admin/disputes" element={<Disputes />} />
         <Route path="/admin/records" element={<Records />} />
@@ -78,6 +83,7 @@ const AllRoutes = () => {
         />
         </Route>
       </Route>
+      <Route path="*" element={<ErrorPage/>}/>
     </Routes>
   );
 };

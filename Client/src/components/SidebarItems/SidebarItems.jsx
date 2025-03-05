@@ -24,9 +24,7 @@ import {useState} from "react";
 const SidebarItems = ({ toggleMenu, handleToggle }) => {
 const [isLogoutModal,setIsLogoutModal] = useState(false)
   const {auth,logOut} = useContext(AuthContext);
-
   const role = auth.role;
-
   const adminMenuItems = [
     {
       name: "Dashboard",
@@ -91,16 +89,6 @@ const [isLogoutModal,setIsLogoutModal] = useState(false)
       icon: <DomainVerificationIcon className="w-5 h-5 cb1:w-6 cb1:h-6" />,
       path: "/company/verification",
     },
-    // {
-    //   name: "Analytics",
-    //   icon: <Analytics className="w-5 h-5 cb1:w-6 cb1:h-6" />,
-    //   path: "/company/analytics",
-    // },
-    // {
-    //   name: "History",
-    //   icon: <History className="w-5 h-5 cb1:w-6 cb1:h-6" />,
-    //   path: "/company/history",
-    // },
     {
       name: "Ratings and Feedback",
       icon: <RateReviewIcon className="w-5 h-5 cb1:w-6 cb1:h-6" />,
