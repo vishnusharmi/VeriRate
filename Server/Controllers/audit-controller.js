@@ -2,13 +2,14 @@
 const auditLogServices = require("../Services/audit-services");
 
 // Create Audit Log
-const createAuditLog = async (req, res) => {
+const createAuditLog = async (data) => {
     try {
-        const log = await auditLogServices.createAuditLog(req.body);
-        res.status(200).json({ message: "Audit log created successfully", log });
+        // const {action,entityType,entityId,performedBy,details,ipAddress} = data;
+        const log = await auditLogServices.createAuditLog(data);
+        return {message: `Audit log created successfully`}
     } catch (error) {
         console.error("Error creating audit log:", error);
-        res.status(500).json({ error: "Failed to create audit log" });
+        return {message: `Error creating audit log: ${error}`};
     }
 };
 

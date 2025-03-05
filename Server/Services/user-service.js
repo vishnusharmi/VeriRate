@@ -2,18 +2,17 @@ const cloudinaryUpload = require("../MiddleWares/Cloudinary");
 const userModel = require("../Models/user");
 const Documents = require("../Models/documents");
 const employeeModel = require("../Models/EmployeeModel");
-const companyModel = require("../Models/companies");
 
 const bcrypt = require("bcryptjs");
 const { accessSync } = require("fs");
 
 exports.registerUser = async (data, files) => {
   const transaction = await userModel.sequelize.transaction(); // Start transaction
-console.log("employment_history",data.employment_history)
+  console.log("employment_history", data.employment_history);
   try {
     // Validate required fields
     if (!data.email || !data.password || !data.role) {
-      return { statusCode:404, message: "Missing required fields" };
+      return { statusCode: 404, message: "Missing required fields" };
     }
 
     // Check if user already exists
@@ -21,7 +20,7 @@ console.log("employment_history",data.employment_history)
       where: { email: data.email },
     });
     if (existingUser) {
-      return { statusCode:400, message: "User already exists" };
+      return { statusCode: 400, message: "User already exists" };
     }
 
     // Hash password
@@ -43,7 +42,7 @@ console.log("employment_history",data.employment_history)
 
     let additionalData = null;
 
-    if (data.role === "Employee") {
+    if (data.role === "Employee" || data.role === "Employee Admin") {
       // Create employee entry inside transaction
       additionalData = await employeeModel.create(
         {
@@ -67,47 +66,28 @@ console.log("employment_history",data.employment_history)
           position: data.position,
           role: data.role,
           department: data.department,
-          phone_number: data.phone_number,
           employment_history: data.employment_history,
-        },
-        { transaction }
-      );
-    } else if (data.role === "Employee Admin" || data.role === "Super Admin") {
-      // Create company entry inside transaction
-      additionalData = await companyModel.create(
-        {
-          userId: userData.id,
-          createdBy: data.createdBy,
-          companyName: data.companyName,
-          industry: data.industry,
-          address: data.address,
-          phonenumber: data.phonenumber,
-          country: data.country,
-          state: data.state,
-          registerNum: data.registerNum,
-          founderYear: data.founderYear,
-          companyWebsite: data.companyWebsite,
-          email: data.email,
+          employee_type: data.employee_type,
+          gender: data.gender,
+          pf_account: data.pf_account,
+          father_or_husband_name: data.father_or_husband_name,
+          permanent_address: data.permanent_address,
+          current_address: data.current_address,
+          UPI_Id: data.UPI_Id,
         },
         { transaction }
       );
     }
 
+
     let documentResponse = null;
 
-    if (files && files?.path) {
-      // Upload document
-      const uploadResult = await cloudinaryUpload.uploader.upload(files.path, {
-        resource_type: "auto",
-        folder: "user_uploads",
-      });
-
-      // Create document entry inside transaction
+    if (files && files.path) {
       documentResponse = await Documents.create(
         {
           empId: userData.id,
           documentType: files.mimetype,
-          file_path: uploadResult.url,
+          file_path: files.path,
         },
         { transaction }
       );
@@ -117,7 +97,7 @@ console.log("employment_history",data.employment_history)
     await transaction.commit();
 
     return {
-      statusCode:201,
+      statusCode: 201,
       message: "User created successfully",
       data: {
         user: userData,
@@ -125,13 +105,14 @@ console.log("employment_history",data.employment_history)
         document: documentResponse,
       },
     };
-
   } catch (error) {
     // Rollback transaction if any error occurs
     await transaction.rollback();
     console.error("Error in registerUser:", error);
     return { statusCode: 500, message: error.message, error: error.message };
   }
+
+
 };
 
 exports.getAllusers = async () => {
@@ -218,5 +199,6 @@ exports.deleteUser = async (id) => {
     return deletedUser;
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
