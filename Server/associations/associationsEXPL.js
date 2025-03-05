@@ -121,8 +121,6 @@ const Associations = () => {
   });
 };
 
-<<<<<<< HEAD
+
 module.exports = Associations;
-=======
-module.exports = Associations;
->>>>>>> e011601421d8f83443c3c2d9363573f684fad116
+
