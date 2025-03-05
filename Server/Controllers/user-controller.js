@@ -5,12 +5,20 @@ const { captureRejectionSymbol } = require('events');
 const { createAuditLog } = require('./audit-controller');
 const { response } = require('express');
 require('dotenv').config();
+const definedCrypto = require("../utils/definedCryptoUtils"); // Utility for encryption/decryption
+const registerServices = require("../Services/user-service");
 
 const register = async (req, res) => {
     const data = req.body;
     const files = req.file;
 
     try {
+
+
+      if (data.email) {
+        data.email = definedCrypto.encrypt(data.email);
+      }
+
         const response = await registerServices.registerUser(data, files);
         const userData = response.data.user.dataValues;
         // console.log(response.data.user.dataValues)
@@ -34,74 +42,62 @@ const register = async (req, res) => {
     }
 };
 
-
 const getAllUsers = async (req, res) => {
-    try {
-        const users = await registerServices.getAllusers();
-        console.log(users);
+  try {
+    const users = await registerServices.getAllUsers();
 
-        return res.status(200).json({
-            success: true,
-            message: 'Users retrieved successfully',
-            data: users,
-        });
-    } catch (error) {
-        console.error('Error fetching users:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Failed to retrieve users',
-            error: error.message,
-        });
-    }
+    // Decrypt email before sending response
+    const decryptedUsers = users.map((user) => ({
+      ...user,
+      email: definedCrypto.decrypt(user.email),
+    }));
+
+    return res.status(200).json({
+      success: true,
+      message: "Users retrieved successfully",
+      data: decryptedUsers,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
-
-//get user by id
 const getUserByIdController = async (req, res) => {
-    const { id } = req.params;
+  try {
+    const user = await registerServices.getUserById(req.params.id);
 
-    try {
-        const user = await registerServices.getUserbyid(id);
-
-        if (!user) {
-            return res.status(404).json({
-                message: "user not found",
-            })
-        }
-
-
-        return res.status(200).json({
-            message: 'user retrived successfully',
-            data: user,
-
-        })
-
-    } catch (error) {
-        return res.status(500).json({
-            message: " failed to retrive server"
-        })
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-}
 
+    // Decrypt email before sending response
+    user.email = definedCrypto.decrypt(user.email);
 
-// update user by id
+    return res
+      .status(200)
+      .json({ message: "User retrieved successfully", data: user });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to retrieve user" });
+  }
+};
 
 const updateUserById = async (req, res) => {
-    try {
-        const { id } = req.params
-        const data = req.body
-        console.log(data);
+  try {
+    const { id } = req.params;
+    let data = req.body;
+    if (data.email) {
+      data.email = definedCrypto.encrypt(data.email);
+    }
 
         const documentPath = req.file ? req.file.path : null;
 
-        const updatedUser = await registerServices.updateUserById(id, data, documelntPath);
+        const updatedUser = await registerServices.updateUserById(id, data, documentPath);
 
         res.status(200).json(updatedUser);
     } catch (error) {
         res.status(500).json({ message: " failed to update user", error: error.message })
     }
-}
-
+};
 
 
 //delete user

@@ -3,8 +3,12 @@ const { createAuditLog } = require("./audit-controller");
 
 
 const createCompany = async (req, res) => {
+
+    const data = req.body;
+    const files = req.file
+    
     try {
-        const userData = await companiesService.createCompany(req.body);
+        const userData = await companiesService.createCompany(data,files);
 
         const action = "UPDATE";
         const entityType = "Super Admin";
@@ -24,7 +28,7 @@ const createCompany = async (req, res) => {
 const getAll = async(req,res)=>{
     try {
         const companies = await companiesService.getCompanies();
-        return res.status(200).json({message: "All companies successfully", });
+       return res.status(200).json({message: "All companies successfully", companies});
     } catch (error) {
         return res.status(500).json({error: error.message});
     }
@@ -33,7 +37,7 @@ const getAll = async(req,res)=>{
 const getById = async(req,res)=>{
     try {
         const company = await companiesService.getcompanyById(req.params.id);
-        return res.status(200).json({message: "Company found successfully", company});
+      return  res.status(200).json({message: "Company found successfully", data:company});
     } catch (error) {
         return res.status(500).json({error: error.message});
     }
