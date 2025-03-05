@@ -8,10 +8,6 @@ const bcrypt=require("bcryptjs");
 const { accessSync } = require("fs");
 
 
-
-
-
-
 // exports.registerUser = async(data,files)=>{
 //     const {email,password,role}=data;
 //    console.log(data,'emememem');
