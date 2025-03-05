@@ -68,9 +68,21 @@ export default function EnhancedDashboard() {
   // State for Recent Company Records
   const [recentRecords, setRecentRecords] = useState([
     { company: "Acme Corporation", status: "Active", lastUpdated: "Today" },
-    { company: "Globex Industries", status: "Review", lastUpdated: "Yesterday" },
-    { company: "Stark Enterprises", status: "Active", lastUpdated: "2 days ago" },
-    { company: "Wayne Industries", status: "Pending", lastUpdated: "1 week ago" },
+    {
+      company: "Globex Industries",
+      status: "Review",
+      lastUpdated: "Yesterday",
+    },
+    {
+      company: "Stark Enterprises",
+      status: "Active",
+      lastUpdated: "2 days ago",
+    },
+    {
+      company: "Wayne Industries",
+      status: "Pending",
+      lastUpdated: "1 week ago",
+    },
   ]);
 
   // ---------------- Backend Logic ----------------
@@ -206,7 +218,7 @@ export default function EnhancedDashboard() {
               <Typography variant="h4" fontWeight="bold" gutterBottom>
                 Recent Company Records
               </Typography>
-              <TableContainer component={Paper} sx={{ boxShadow: 0,  }}>
+              <TableContainer component={Paper} sx={{ boxShadow: 0 }}>
                 <Table
                   sx={{
                     borderSpacing: "0 5px",
@@ -216,18 +228,12 @@ export default function EnhancedDashboard() {
                 >
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: "bold" }}>
-                        Company
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: "bold" }}>
-                        Status
-                      </TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>Company</TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
                       <TableCell sx={{ fontWeight: "bold" }}>
                         Last Updated
                       </TableCell>
-                      <TableCell sx={{ fontWeight: "bold" }}>
-                        Actions
-                      </TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>

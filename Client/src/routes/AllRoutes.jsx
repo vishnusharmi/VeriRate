@@ -20,17 +20,16 @@ import Records from "../pages/adminDashboard/pages/Records/Records.jsx";
 import EmployerVerificationSearch from "../pages/employerDashboard/pages/EmployerVerificationSearch/EmployerVerificationSearch.jsx";
 import EmployeeRatingsFeedback from "../pages/employerDashboard/pages/RatingsAndFeedback/EmployeeRatingsFeedback.jsx";
 import UserManagement from "../pages/adminDashboard/pages/UserManagement/UserManagement.jsx";
-import SecurityCompliance from "../pages/employerDashboard/pages/SecurityCompliance/SecurityCompliance.jsx"
+import SecurityCompliance from "../pages/employerDashboard/pages/SecurityCompliance/SecurityCompliance.jsx";
 import ForgetPassword from "../components/Auth/Login/ForgetPassword.jsx";
 import ResetPassword from "../components/Auth/Login/NewPassword.jsx";
-
 
 import CompanyManagement from "../pages/adminDashboard/pages/CompanyManagement/CompanyManagement.jsx";
 import AdminSettings from "../pages/adminDashboard/pages/Settings/AdminSettings.jsx";
 import EmployeeAdminSettings from "../pages/employerDashboard/pages/Settings/EmployeeAdminSettings.jsx";
 import OTP from "../components/Auth/Login/Otp.jsx";
-// import SecurityCompliance from "../pages/employerDashboard/pages/SecurityCompliance/SecurityCompliance.jsx"
 
+import AppTest from "../components/Sample/AppTest.jsx";
 
 const AllRoutes = () => {
   return (
@@ -43,8 +42,7 @@ const AllRoutes = () => {
         <Route path="/admin/disputes" element={<Disputes />} />
         <Route path="/admin/records" element={<Records />} />
         <Route path="/admin/monitoring" element={<Monitoring />} />
-        <Route path="/admin/usermanagement" element={<UserManagement />} />
-        <Route path="/admin/company-management" element={<CompanyManagement />} />
+        <Route path="/admin/user-management" element={<UserManagement />} />
         <Route
           path="/admin/security-compliance"
           element={<SecurityCompliances />}
@@ -75,9 +73,10 @@ const AllRoutes = () => {
           element={<EmployeeAdminSettings />}
         />
       </Route>
+
+      <Route path="/custom" element={<AppTest />} />
     </Routes>
   );
 };
-
 
 export default AllRoutes;

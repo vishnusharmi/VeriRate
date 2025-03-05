@@ -7,14 +7,12 @@ const bcrypt = require("bcryptjs");
 const { accessSync } = require("fs");
 
 exports.registerUser = async (data, files) => {
-
-  
   const transaction = await userModel.sequelize.transaction(); // Start transaction
-console.log("employment_history",data.employment_history)
+  console.log("employment_history", data.employment_history);
   try {
     // Validate required fields
     if (!data.email || !data.password || !data.role) {
-      return { statusCode:404, message: "Missing required fields" };
+      return { statusCode: 404, message: "Missing required fields" };
     }
 
     // Check if user already exists
@@ -22,7 +20,7 @@ console.log("employment_history",data.employment_history)
       where: { email: data.email },
     });
     if (existingUser) {
-      return { statusCode:400, message: "User already exists" };
+      return { statusCode: 400, message: "User already exists" };
     }
 
     // Hash password
@@ -84,18 +82,7 @@ console.log("employment_history",data.employment_history)
 
     let documentResponse = null;
 
-<<<<<<< HEAD
     if (files && files.path) {
-=======
-    if (files && files?.path) {
-      // Upload document
-      const uploadResult = await cloudinaryUpload.uploader.upload(files.path, {
-        resource_type: "auto",
-        folder: "user_uploads",
-      });
-
-      // Create document entry inside transaction
->>>>>>> e011601421d8f83443c3c2d9363573f684fad116
       documentResponse = await Documents.create(
         {
           empId: userData.id,
@@ -110,7 +97,7 @@ console.log("employment_history",data.employment_history)
     await transaction.commit();
 
     return {
-      statusCode:201,
+      statusCode: 201,
       message: "User created successfully",
       data: {
         user: userData,
@@ -118,7 +105,6 @@ console.log("employment_history",data.employment_history)
         document: documentResponse,
       },
     };
-
   } catch (error) {
     // Rollback transaction if any error occurs
     await transaction.rollback();
