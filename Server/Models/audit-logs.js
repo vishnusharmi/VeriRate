@@ -8,11 +8,11 @@ const Auditlogs = sequelize.define("Auditlogs", {
         primaryKey: true
     },
     action: {
-        type: DataTypes.ENUM("CREATE", "UPDATE", "DELETE", "BLACKLIST", "VERIFY", "RATE"),
+        type: DataTypes.ENUM("CREATE", "UPDATE", "DELETE", "BLACKLIST", "VERIFY", "RATE","LOGIN","LOGOUT"),
         allowNull: false
     },
     entityType: {
-        type: DataTypes.ENUM("EMPLOYEE", "EMPLOYER", "ADMIN"),
+        type: DataTypes.ENUM('Employee', "Employee Admin", "Super Admin"),
         allowNull: false
     },    
     entityId: {

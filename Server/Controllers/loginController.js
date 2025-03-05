@@ -1,24 +1,27 @@
-const loginServices = require("../Services/loginServices");
+const loginServices = require('../Services/loginServices');
+const { createAuditLog } = require('./audit-controller');
 
 exports.login = async (req, res) => {
-  try {
-    const loginUser = await loginServices.validateLogin(req.body);
-
-    if (loginUser.statusCode) {
-      return res
-        .status(loginUser.statusCode)
-        .json({ message: loginUser.message });
+    try {
+        const loginUser = await loginServices.validateLogin(req.body);
+        // console.log(loginUser.userData.dataValues);
+        // const { action, entityType, entityId, performedBy, details, ipAddress }
+        const userData = loginUser.userData.dataValues;
+        const action = "LOGIN";
+        const entityType = userData.role;
+        const entityId = userData.id;
+        const performedBy = "Self"
+        const details = `${userData.username} is logged in ${entityType}`
+        const ipAddress = req.ip || "0.0.0.0";
+        const auditResponse = await createAuditLog({ action, entityType,performedBy, entityId, details, ipAddress })
+        if (loginUser.statusCode) {
+            return res.status(loginUser.statusCode).json({ message: loginUser.message });
+        }
+        const token = loginUser.jwtToken;
+        return res.status(200).json({ message: 'Login successful',token, loginUser ,auditResponse});
+    } catch (error) {
+        return res.status(500).json({ message: "Something went wrong" });
     }
-
-    // Generate JWT token on successful login
-    const token = loginUser.jwtToken;
-
-    return res
-      .status(200)
-      .json({ message: "Login successful", token, loginUser });
-  } catch (error) {
-    return res.status(500).json({ message: "Something went wrong" });
-  }
 };
 
 exports.otp = async (req, res) => {

@@ -66,7 +66,6 @@ exports.registerUser = async (data, files) => {
           position: data.position,
           role: data.role,
           department: data.department,
-          phone_number: data.phone_number,
           employment_history: data.employment_history,
           employee_type: data.employee_type,
           gender: data.gender,
@@ -79,6 +78,7 @@ exports.registerUser = async (data, files) => {
         { transaction }
       );
     }
+
 
     let documentResponse = null;
 
@@ -111,6 +111,8 @@ exports.registerUser = async (data, files) => {
     console.error("Error in registerUser:", error);
     return { statusCode: 500, message: error.message, error: error.message };
   }
+
+
 };
 
 exports.getAllusers = async () => {
@@ -197,5 +199,6 @@ exports.deleteUser = async (id) => {
     return deletedUser;
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
