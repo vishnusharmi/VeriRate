@@ -2,8 +2,13 @@ const companiesService = require("../Services/companies-services");
 
 
 const createCompany = async (req, res) => {
+    console.log(req.body,'bodddd');
+    console.log('hiiii');
+    const data = req.body;
+    const files = req.file
+    
     try {
-        const company = await companiesService.createCompany(req.body);
+        const company = await companiesService.createCompany(data,files);
         res.status(201).json({message: "Company created successfully", company});
     } catch (error) {
         res.status(500).json({error: error.message});
