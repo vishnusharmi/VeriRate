@@ -19,7 +19,7 @@ import RateReviewIcon from "@mui/icons-material/RateReview";
 import PropTypes from "prop-types";
 
 const SidebarItems = ({ toggleMenu, handleToggle }) => {
-  const role = "admin";
+  const role = "admin/";
 
   const adminMenuItems = [
     {
@@ -50,7 +50,7 @@ const SidebarItems = ({ toggleMenu, handleToggle }) => {
     {
       name: "User Management",
       icon: <PeopleAlt className="w-5 h-5 cb1:w-6 cb1:h-6" />,
-      path: "/admin/usermanagement",
+      path: "/admin/user-management",
     },
     // {
     //   name: "Security & Compliance",

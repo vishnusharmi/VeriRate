@@ -73,7 +73,7 @@ const EmployeeManagement = () => {
     ifsc_code: editableEmployee?.ifsc_code || "",
     profile_image: editableEmployee?.profile_image || null,
     experience: editableEmployee?.experience || [], // Add experience field here
-    document:null
+    document: null,
   });
 
   const handleChange = (e) => {
@@ -88,14 +88,14 @@ const EmployeeManagement = () => {
     if (e.target.name === "profile_image" && file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result);
+        // setImagePreview(reader.result);
       };
       reader.readAsDataURL(file);
     }
   };
 
   useEffect(() => {
-    fetchEmployees();
+    // fetchEmployees();
   }, []);
 
   const fetchEmployees = async () => {
@@ -139,7 +139,7 @@ const EmployeeManagement = () => {
         profile_image: employee.profile_image || null,
         experience: employee.experience || [],
       });
-      setImagePreview(employee.profile_image_url || null);
+      // setImagePreview(employee.profile_image_url || null);
     } else {
       setEmployeeData({
         emp_name: "",
@@ -161,10 +161,10 @@ const EmployeeManagement = () => {
         profile_image: null,
         experience: [],
       });
-      setImagePreview(null);
+      // setImagePreview(null);
     }
     setIsModalOpen(!isModalOpen);
-    setStep(1);
+    // setStep(1);
   };
 
   const toggleDeleteConfirm = (employee = null) => {
@@ -273,7 +273,7 @@ const EmployeeManagement = () => {
     }
   };
 
-  if (isLoading && employees.length === 0) {
+  if (!isLoading && employees.length === 0) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
         <div className="text-center p-8 max-w-sm mx-auto bg-white rounded-xl shadow-md">
@@ -333,14 +333,17 @@ const EmployeeManagement = () => {
         <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-md">
           {error}
         </div>
-
-      {activeTab === "employees" && (
-        <Employees
-          employees={employees}
-          handleEdit={handleEdit}
-          handleDelete={handleDelete}
-        />
       )}
+
+      <div>
+        {activeTab === "employees" && (
+          <Employees
+            employees={employees}
+            handleEdit={handleEdit}
+            handleDelete={handleDelete}
+          />
+        )}
+      </div>
 
       {activeTab === "history" && (
         <EmploymentHistory employmentHistory={employmentHistory} />
@@ -376,7 +379,7 @@ const EmployeeManagement = () => {
 
       <button
         type="button"
-        onClick={addExperience}
+        // onClick={addExperience}
         className="flex items-center gap-2 text-blue-600 font-medium hover:underline"
       >
         <h2 className="text-xl font-bold mb-4">Confirm Delete</h2>
@@ -398,7 +401,7 @@ const EmployeeManagement = () => {
             Delete
           </button>
         </div>
-      </Modal>
+      </button>
     </div>
   );
 };
