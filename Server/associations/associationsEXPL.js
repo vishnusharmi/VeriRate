@@ -7,7 +7,7 @@ const Employee = require("../Models/EmployeeModel");
 const Disputes = require("../Models/disputes");
 const Rating = require("../Models/ratingsModel");
 const Employee = require("../Models/EmployeeModel");
-const Disputes = require("../Models/disputes");
+
 
 const Associations = () => {
   // user to employee relation
@@ -122,3 +122,4 @@ const Associations = () => {
 };
 
 module.exports = Associations;
+
