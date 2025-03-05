@@ -18,11 +18,8 @@
     "@mui/x-date-pickers": "^7.27.1",
     "@tailwindcss/vite": "^4.0.7",
     "axios": "^1.7.9",
-<<<<<<< HEAD
     "dayjs": "^1.11.13",
-=======
     "chart.js": "^4.4.8",
->>>>>>> bb9e734c5f6039675fd99ac4e698d75f7eed2f71
     "framer-motion": "^12.4.7",
     "jspdf": "^3.0.0",
     "jwt-decode": "^4.0.0",
