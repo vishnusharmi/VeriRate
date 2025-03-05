@@ -2,7 +2,7 @@ import { jwtDecode } from 'jwt-decode';
 import React, { createContext, useEffect, useState } from 'react'
 import {useNavigate} from "react-router";
 
-export const AuthContext = createContext()
+export const AuthContext = createContext();
 
 function AuthProvider({children}) {
 
@@ -55,5 +55,9 @@ function AuthProvider({children}) {
     </AuthContext.Provider>
   );
 }
+
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 
 export default AuthProvider;

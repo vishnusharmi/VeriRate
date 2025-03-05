@@ -2,9 +2,9 @@ const userModel = require("../Models/user");
 const Documents = require("../Models/documents");
 const Company = require("../Models/companies");
 const BlackList = require("../Models/blackList-model");
-const Rating = require('../Models/ratingsModel');
-const Employee = require('../Models/EmployeeModel');
+const Rating = require("../Models/ratingsModel");
 const Disputes = require("../Models/disputes");
+const Employee = require("../Models/EmployeeModel");
 
 
 const Associations = () => {
@@ -120,3 +120,4 @@ const Associations = () => {
 };
 
 module.exports = Associations;
+

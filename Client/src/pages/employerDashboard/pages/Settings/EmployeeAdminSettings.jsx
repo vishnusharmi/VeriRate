@@ -1,30 +1,43 @@
 import { useState, useEffect } from "react";
-import { Person, Star, Block, Search, Storage } from "@mui/icons-material";
+import { Star, Block, Search, Storage } from "@mui/icons-material";
 import SettingToggle from "../../../../components/SettingToggle/SettingToggle";
 
-const mockAdmins = [
-  { id: 1, name: "HR Admin John" },
-  { id: 2, name: "HR Admin Sarah" },
-  { id: 3, name: "HR Admin Mike" },
+// Fake Employer Admins Data (Replace with API Call)
+const mockEmployerAdmins = [
+  { id: 1, name: "Employer Admin John" },
+  { id: 2, name: "Employer Admin Sarah" },
+  { id: 3, name: "Employer Admin Mike" },
 ];
 
+// Fake Admin Settings (Replace with API Call)
+const mockAdminSettings = {
+  1: {
+    employeeManagement: true,
+    ratingsFeedback: true,
+    blacklistManagement: false,
+    searchVerification: true,
+  },
+  2: {
+    employeeManagement: false,
+    ratingsFeedback: true,
+    blacklistManagement: true,
+    searchVerification: false,
+  },
+  3: {
+    employeeManagement: true,
+    ratingsFeedback: false,
+    blacklistManagement: false,
+    searchVerification: true,
+  },
+};
+
 const EmployeeAdminSettings = () => {
-  const [selectedAdmin, setSelectedAdmin] = useState(mockAdmins[0]); // Default admin
-  const [settings, setSettings] = useState({});
+  const [selectedAdmin, setSelectedAdmin] = useState(mockEmployerAdmins[0]); // Default to first admin
+  const [settings, setSettings] = useState(mockAdminSettings[selectedAdmin.id]);
 
   useEffect(() => {
-    const fetchAdminSettings = async () => {
-      // Mock API Response (Replace with real API call)
-      const adminSettings = {
-        employeeManagement: true,
-        ratingsFeedback: true,
-        blacklistManagement: false,
-        searchVerification: true,
-      };
-      setSettings(adminSettings);
-    };
-
-    fetchAdminSettings();
+    // When selectedAdmin changes, update settings
+    setSettings(mockAdminSettings[selectedAdmin.id]);
   }, [selectedAdmin]);
 
   const handleToggle = (key) => {
@@ -35,39 +48,32 @@ const EmployeeAdminSettings = () => {
     <div className="p-4 w-full max-w-3xl mx-auto bg-white shadow-md rounded-lg">
       <h2 className="text-2xl font-bold text-gray-700 mb-4 flex items-center">
         <Storage className="mr-2 text-gray-600" />
-        Employee Admin Settings
+        Employer Admin Settings
       </h2>
 
-      {/* Admin Selector */}
+      {/* Employer Admin Selector */}
       <div className="mb-4">
         <label className="text-gray-700 font-medium">
-          Editing Settings for:
+          Managing Settings for:
         </label>
         <select
           className="block w-full mt-2 p-2 border rounded-md"
           value={selectedAdmin.id}
           onChange={(e) =>
             setSelectedAdmin(
-              mockAdmins.find((admin) => admin.id === parseInt(e.target.value))
+              mockEmployerAdmins.find(
+                (admin) => admin.id === parseInt(e.target.value)
+              )
             )
           }
         >
-          {mockAdmins.map((admin) => (
+          {mockEmployerAdmins.map((admin) => (
             <option key={admin.id} value={admin.id}>
               {admin.name}
             </option>
           ))}
         </select>
       </div>
-
-      {/* Employee Management */}
-      <SettingToggle
-        title="Employee Management"
-        description="Create, update, and delete employee records."
-        icon={<Person className="mr-2 text-blue-600" />}
-        enabled={settings.employeeManagement}
-        onToggle={() => handleToggle("employeeManagement")}
-      />
 
       {/* Ratings & Feedback */}
       <SettingToggle
