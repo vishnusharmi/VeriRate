@@ -42,17 +42,7 @@ exports.createCompany = async (company) => {
 //get all compamies
 exports.getCompanies = async () => {
     try {
-        const companies = await Company.findAll(
-         {
-            include:[
-                {
-                    model: document
-                }
-            ]
-         }
-               
-            
-        );
+        const companies = await Company.findAll({});
         return companies
     } catch (error) {
         console.error("error:", error)

@@ -2,10 +2,18 @@ const userModel = require("../Models/user");
 const Documents = require("../Models/documents");
 const Company = require("../Models/companies");
 const BlackList = require("../Models/blackList-model");
+<<<<<<< HEAD
 const Rating = require("../Models/ratingsModel");
 const Employee = require("../Models/EmployeeModel");
 const Disputes = require("../Models/disputes");
 
+=======
+const Rating = require('../Models/ratingsModel');
+const Employee = require('../Models/EmployeeModel');
+const Disputes = require("../Models/disputes");
+
+
+>>>>>>> e011601421d8f83443c3c2d9363573f684fad116
 const Associations = () => {
   // user to employee relation
   userModel.hasOne(Employee, {
@@ -118,4 +126,8 @@ const Associations = () => {
   });
 };
 
+<<<<<<< HEAD
 module.exports = Associations;
+=======
+module.exports = Associations;
+>>>>>>> e011601421d8f83443c3c2d9363573f684fad116
