@@ -1,12 +1,11 @@
 const bcrypt = require('bcryptjs')
-const registerServices = require('../Services/user-service');
 const { accessSync } = require('fs');
 const { captureRejectionSymbol } = require('events');
 const { createAuditLog } = require('./audit-controller');
 const { response } = require('express');
 require('dotenv').config();
-const definedCrypto = require("../utils/definedCryptoUtils"); // Utility for encryption/decryption
-const registerServices = require("../Services/user-service");
+const definedCrypto = require("../utils/cryptoUtils.js"); // Utility for encryption/decryption
+const registerServices = require("../Services/user-service.js");
 
 const register = async (req, res) => {
     const data = req.body;
