@@ -9,6 +9,7 @@ const { accessSync } = require("fs");
 exports.registerUser = async (data, files) => {
   const transaction = await userModel.sequelize.transaction(); // Start transaction
   // console.log("employment_history", data.employment_history);
+  // console.log(`*************************************${files}`)
   try {
     // Validate required fields
     if (!data.email || !data.password || !data.role) {
@@ -31,7 +32,10 @@ exports.registerUser = async (data, files) => {
       {
         email: data.email,
         password: hashedPassword,
-        role: data.role
+        role: data.role,
+        username: !(data.username)
+          ? `${data.first_name} ${data.last_name} `
+          : data.username,
       },
       { transaction }
     );
@@ -70,21 +74,68 @@ exports.registerUser = async (data, files) => {
         },
         { transaction }
       );
+
+      if (data.role === "Employee Admin") {
+        await AdminSettings.create({
+          adminId: additionalData.userId, // TODO: SUPER ADMIN ID
+          accessControl: false,
+          complianceCheck: true,
+          blacklistControl: false,
+          twoFactorAuth: false,
+          systemMonitoring: true,
+          performanceTracking: true,
+        });
+      }
+
     }
 
 
-    let documentResponse = null;
+    // let documentResponse = null;
 
-    if (files && files.path) {
-      documentResponse = await Documents.create(
-        {
-          empId: userData.id,
-          documentType: files.mimetype,
-          file_path: files.path,
-        },
-        { transaction }
-      );
+    // if (files && files.path) {
+    //   documentResponse = await Documents.create(
+    //     {
+    //       empId: userData.id,
+    //       documentType: files.mimetype,
+    //       file_path: files.path,
+    //     },
+    //     { transaction }
+    //   );
+    // }
+
+
+
+
+
+    let documentResponses = [];
+
+    if (files && Array.isArray(files)) {
+      for (const file of files) {
+
+        if (file.path) {
+          const document = await Documents.create({
+            empId: userData.id,
+            documentType: file.mimetype,
+            file_path: file.path,
+          }, { transaction });
+
+          documentResponses.push(document);
+        }
+
+      }
+    } else if (files && files.path) {
+
+      console.log(`***************************************${files} *******************${files.path} ****************`);
+      const document = await Documents.create({
+        empId: userData.id,
+        documentType: files.mimetype,
+        file_path: files.path,
+      }, { transaction });
+
+      documentResponses.push(document);
     }
+
+
 
     // If everything succeeds, commit the transaction
     await transaction.commit();
@@ -95,7 +146,7 @@ exports.registerUser = async (data, files) => {
       data: {
         user: userData,
         additionalData,
-        document: documentResponse,
+        document: documentResponses,
       },
     };
   } catch (error) {
@@ -108,38 +159,71 @@ exports.registerUser = async (data, files) => {
 
 };
 
+// exports.getAllusers = async () => {
+//   try {
+//     const getUsers = await userModel.findAll({
+//       include: [
+//         {
+//           model: Documents,
+//         },
+//       ],
+//     });
+//     return getUsers;
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+
+
 exports.getAllusers = async () => {
   try {
     const getUsers = await userModel.findAll({
-      include: [
-        {
-          model: Documents,
-        },
-      ],
+      include: [Documents, employeeModel],
     });
-    return getUsers;
+    return { data: getUsers };
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    return { message: "Internal Server Error", error: error.message };
   }
 };
 
+
+
 //get user by id
+
+// exports.getUserbyid = async (id) => {
+//   try {
+//     const getuser = await userModel.findByPk(id, {
+//       include: [
+//         {
+//           model: Documents,
+//         },
+//       ],
+//     });
+//     return getuser;
+//   } catch (error) {
+//     console.error("Error fetching user by id:", error);
+//     throw error;
+//   }
+// };
+
+
 
 exports.getUserbyid = async (id) => {
   try {
     const getuser = await userModel.findByPk(id, {
-      include: [
-        {
-          model: Documents,
-        },
-      ],
+      include: [Documents, employeeModel, companyModel],
     });
-    return getuser;
+    if (!getuser) {
+      return { message: "User not found" };
+    }
+    return { data: getuser };
   } catch (error) {
-    console.error("Error fetching user by id:", error);
-    throw error;
+    console.error('Error fetching user by id:', error);
+    return { message: "Internal Server Error", error: error.message };
   }
 };
+
 
 //update user by id
 
@@ -161,6 +245,7 @@ exports.updateUserById = async (id, data, documentPath) => {
       resource_type: "auto",
       folder: "user_uploads",
     });
+
 
     console.log(result, "resultttt");
 

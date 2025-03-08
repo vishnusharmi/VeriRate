@@ -1,13 +1,13 @@
 const express = require("express");
 const userControllers = require("../Controllers/user-controller");
-const upload = require("../multer/multer");
+const upload = require("../Multer/multer");
 const verifyToken = require("../MiddleWares/verifyToken");
 
 const userRouter = express.Router();
 
 userRouter.post(
   "/register",
-  upload.single("document"),
+  upload.array("document",10),
   userControllers.register
 );
 

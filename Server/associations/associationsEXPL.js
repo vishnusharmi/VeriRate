@@ -5,6 +5,7 @@ const BlackList = require("../Models/blackList-model");
 const Rating = require("../Models/ratingsModel");
 const Disputes = require("../Models/disputes");
 const Employee = require("../Models/EmployeeModel");
+const User = require("../Models/user");
 
 
 const Associations = () => {
@@ -28,11 +29,11 @@ const Associations = () => {
   });
 
   // user to documents relation
-  Employee.hasMany(Documents, {
+  User.hasMany(Documents, {
     foreignKey: "empId",
     onDelete: "CASCADE",
   });
-  Documents.belongsTo(Employee, {
+  Documents.belongsTo(User, {
     foreignKey: "empId",
     onDelete: "CASCADE",
   });

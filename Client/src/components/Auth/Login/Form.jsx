@@ -50,7 +50,7 @@ const Form = () => {
     const { email, password } = loginData;
 
     try {
-      const res = await axios.post("http://localhost:3007/api/login", {
+      const res = await axios.post("http://localhost:3000/api/login", {
         email,
         password,
       });

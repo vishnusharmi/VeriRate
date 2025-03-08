@@ -43,7 +43,7 @@ import AutorenewIcon from '@mui/icons-material/Autorenew';
 import RequestPageIcon from '@mui/icons-material/RequestPage';
 import axios from "axios";
 
-const API = "http://localhost:3007/api";
+const API = "http://localhost:3000/api";
 
 const style = {
   position: "absolute",
@@ -116,7 +116,7 @@ const Disputes = () => {
 
 
   useEffect(() => {
-    fetchDisputes();
+    // fetchDisputes();
   }, [filterStatus,selectedDate,disputes]);
 
 

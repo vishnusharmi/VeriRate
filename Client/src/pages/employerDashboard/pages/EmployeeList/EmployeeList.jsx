@@ -102,7 +102,7 @@ const EmployeeManagement = () => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        "http://localhost:3007/api/get-employees"
+        "http://localhost:3000/api/get-employees"
       );
       console.log("Fetched employees:", response.data);
       setEmployees(response.data);
@@ -225,7 +225,7 @@ const EmployeeManagement = () => {
     if (employeeToDelete) {
       try {
         // You might want to add API call here if you have a delete endpoint
-        // await axios.delete(`http://localhost:3007/api/delete-employee/${employeeToDelete.id}`);
+        // await axios.delete(`http://localhost:3000/api/delete-employee/${employeeToDelete.id}`);
 
         // Update local state after successful deletion
         setEmployees(
@@ -251,7 +251,7 @@ const EmployeeManagement = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3007/api/create-employees",
+        "http://localhost:3000/api/create-employees",
         data
       );
       console.log("response", response);

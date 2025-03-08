@@ -33,7 +33,7 @@ exports.validateLogin = async (data) => {
   // Generate JWT token
   const token = jwt.sign(
     { id: existingUser.id, email: existingUser.email, role: existingUser.role },
-    process.env.JWT_SECRET,
+    process.env.JWT_SECRET_KEY,
     { expiresIn: "1d" }
   );
 
@@ -43,6 +43,8 @@ exports.validateLogin = async (data) => {
   };
 };
 
+
+
 exports.verifyOtp = async (data) => {
   const { email, otp } = data;
 
@@ -51,17 +53,22 @@ exports.verifyOtp = async (data) => {
     if (!existingOtpUser) {
       return { statusCode: 404, message: "User does not exist" };
     }
-
-    if (
-      existingOtpUser.otp !== otp ||
-      new Date() > new Date(existingOtpUser.otpExpiresAt)
-    ) {
+    // console.log(existingOtpUser)
+    console.log(new Date(existingOtpUser.otpExpiresAt));
+    
+    const isOtpValid = await bcrypt.compare(otp, existingOtpUser.otp);
+    console.log(
+      "IS OTP VALID ****************->",
+      isOtpValid,
+      "COMPARISON ***************************->",
+      new Date() < new Date(existingOtpUser.otpExpiresAt)
+    );
+    if (!(isOtpValid && new Date() < new Date(existingOtpUser.otpExpiresAt))) {
       return { statusCode: 400, message: "Invalid or expired OTP" };
     }
-
+    console.log("*************BEFORE UPDATING USER AGAIN");
     await existingOtpUser.update({
       isActive: true,
-      otp: null,
       otpExpiresAt: null,
     });
 
@@ -72,7 +79,7 @@ exports.verifyOtp = async (data) => {
         email: existingOtpUser.email,
         role: existingOtpUser.role,
       },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET_KEY,
       { expiresIn: "1d" }
     );
 
@@ -80,12 +87,15 @@ exports.verifyOtp = async (data) => {
       statusCode: 200,
       message: "OTP Verified successfully",
       jwtToken: token,
+      userData: { id: existingOtpUser.id, email: existingOtpUser.email,role: existingOtpUser.role }
     };
   } catch (error) {
     console.error(error);
-    return { statusCode: 500, message: "Internal server error" };
+    return { statusCode: 500, message: "Internal server error FROM SERVICES" };
   }
 };
+
+
 
 exports.forgettedPassword = async (data) => {
   const { email } = data;

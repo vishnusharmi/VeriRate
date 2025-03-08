@@ -24,12 +24,13 @@ import SecurityCompliance from "../pages/employerDashboard/pages/SecurityComplia
 // import ForgetPassword from "../components/Auth/Login/ForgetPassword.jsx";
 // import ResetPassword from "../components/Auth/Login/NewPassword.jsx";
 
-// import CompanyManagement from "../pages/adminDashboard/pages/CompanyManagement/CompanyManagement.jsx";
+import CompanyManagement from "../pages/adminDashboard/pages/CompanyManagement/CompanyManagement.jsx";
 import AdminSettings from "../pages/adminDashboard/pages/Settings/AdminSettings.jsx";
 import EmployeeAdminSettings from "../pages/employerDashboard/pages/Settings/EmployeeAdminSettings.jsx";
 import OTP from "../components/Auth/Login/Otp.jsx";
 
 import AppTest from "../components/Sample/AppTest.jsx";
+import DepartmentManagement from "../pages/adminDashboard/pages/DepartmentManagement/DepartmentManagement.jsx";
 
 const AllRoutes = () => {
   return (
@@ -39,10 +40,13 @@ const AllRoutes = () => {
 
       <Route path="/admin//" element={<Layout />}>
         <Route index element={<AdminDashboard />} />
+        <Route path="/admin/company-management" element={<CompanyManagement />} />
         <Route path="/admin/disputes" element={<Disputes />} />
         <Route path="/admin/records" element={<Records />} />
         <Route path="/admin/monitoring" element={<Monitoring />} />
         <Route path="/admin/user-management" element={<UserManagement />} />
+        <Route path="/admin/department" element={<DepartmentManagement />} />
+
         <Route
           path="/admin/security-compliance"
           element={<SecurityCompliances />}

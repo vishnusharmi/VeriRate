@@ -1,38 +1,26 @@
 const Company = require("../Models/companies");
 const document = require('../Models/documents');
+const departmentModel = require("../Models/department");
 const cloudinaryUpload = require("../MiddleWares/Cloudinary");
 
 exports.createCompany = async (company) => {
-    console.log(company,'commmm');
-    
     try {
-        const companyCreated = Company.create(company);
-        if(!companyCreated){
-            return {statusCode:404,message:"Error While creating Company"}
+
+        const {departments,...companyData} = company
+        const companyCreated = await Company.create(companyData);
+        if (!companyCreated) {
+            return { statusCode: 404, message: "Error While creating Company" }
         }
-          let documentResponse = null;
+        
+        const finalDepartments = departments.map(department => {
+            return {
+                ...department,
+                companyId: companyCreated.id
+            }
+        })
+        const departmentResponse = await departmentModel.bulkCreate(finalDepartments);
 
-          if (files && files.path) {
-            // Upload document
-            const uploadResult = await cloudinaryUpload.uploader.upload(
-              files.path,
-              {
-                resource_type: "auto",
-                folder: "user_uploads",
-              }
-            );
-
-            // Create document entry inside transaction
-            documentResponse = await document.create(
-              {
-                empId: userData.id,
-                documentType: files.mimetype,
-                file_path: uploadResult.url,
-              },
-              { transaction }
-            );
-          }
-        return companyCreated;
+        return {companyCreated, departmentResponse};
     } catch (error) {
         console.error("error:", error);
         throw error;

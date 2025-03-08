@@ -6,7 +6,7 @@ const verifyToken = require("../MiddleWares/verifyToken");
 const loginRouter = express.Router();
 
 loginRouter.post("/login", loginLimiter, loginController.login);
-loginRouter.post("/otp", verifyToken, loginLimiter, loginController.otp);
+loginRouter.post("/otp", loginLimiter, loginController.otp);
 loginRouter.post(
   "/forget-password",
   verifyToken,

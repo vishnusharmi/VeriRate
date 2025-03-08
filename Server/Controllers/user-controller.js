@@ -9,7 +9,7 @@ const registerServices = require("../Services/user-service.js");
 
 const register = async (req, res) => {
   const data = req.body;
-  const files = req.file;
+  const files = req.files;
 
   try {
 
@@ -18,26 +18,26 @@ const register = async (req, res) => {
     // }
 
     const response = await registerServices.registerUser(data, files);
-    const userData = response.data.user;
+    // const userData = response.data.user;
 
-    if (userData.role != "SuperAdmin") {
+    // if (userData.role != "SuperAdmin") {
 
-      if (!userData) {
-        return res.status(500).json({ message: "User registration unsuccessful" });
-      }
+    //   if (!userData) {
+    //     return res.status(500).json({ message: "User registration unsuccessful" });
+    //   }
 
-      const action = "CREATE";
-      const entityType = userData.role || "Unknown";
-      const entityId = userData.id || "Not available";
-      // performed by should contain the id of the performer which can be brought by decoding JWT token
-      // here i mentioned userData.id just for now after implementing JWT authentication then change it
-      const performedBy = data.company_id || "Self";
-      const details = `${entityType} account created by ${performedBy}`;
-      const ipAddress = req.ip || "0.0.0.0";
-      const auditResponse = await createAuditLog({ action, entityType, entityId, performedBy, details, ipAddress });
+    //   const action = "CREATE";
+    //   const entityType = userData.role || "Unknown";
+    //   const entityId = userData.id || "Not available";
+    //   // performed by should contain the id of the performer which can be brought by decoding JWT token
+    //   // here i mentioned userData.id just for now after implementing JWT authentication then change it
+    //   const performedBy = data.company_id || "Self";
+    //   const details = `${entityType} account created by ${performedBy}`;
+    //   const ipAddress = req.ip || "0.0.0.0";
+    //   const auditResponse = await createAuditLog({ action, entityType, entityId, performedBy, details, ipAddress });
 
-      return res.status(201).json({ response, auditResponse });
-    }
+    //   return res.status(201).json({ response, auditResponse });
+    // }
     return res.status(201).json({ response })
   } catch (error) {
     console.error('Registration error:', error);
@@ -67,7 +67,7 @@ const getAllUsers = async (req, res) => {
 
 const getUserByIdController = async (req, res) => {
   try {
-    const user = await registerServices.getUserById(req.params.id);
+    const user = await registerServices.getUserbyid(req.params.id);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -92,7 +92,7 @@ const updateUserById = async (req, res) => {
       data.email = definedCrypto.encrypt(data.email);
     }
 
-    const documentPath = req.file ? req.file.path : null;
+    const documentPath = req.file ? req.file : null;
 
     const updatedUser = await registerServices.updateUserById(id, data, documentPath);
 

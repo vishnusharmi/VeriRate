@@ -28,7 +28,7 @@ const ForgotPassword = () => {
     
     try {
       // Make API call to send OTP
-      const response = await axios.post('http://localhost:3007/api/forget-password', { email });
+      const response = await axios.post('http://localhost:3000/api/forget-password', { email });
       
       // Check response and handle accordingly
       if (response.data && response.status === 200) {

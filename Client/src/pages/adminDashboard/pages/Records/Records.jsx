@@ -36,7 +36,7 @@ const Records = () => {
   const [error, setError] = useState(null);
 
   // API endpoint
-  const API_ENDPOINT = "http://localhost:3007/api/getRecentActivities";
+  const API_ENDPOINT = "http://localhost:3000/api/getRecentActivities";
 
   useEffect(() => {
     fetchActivities();

@@ -27,27 +27,29 @@ const validateEmployeeId = [
 // Protected Routes (Require JWT)
 router.post(
   "/create",
-  verifyToken,
+  // verifyToken,
   validateEmployee,
   employeeController.createEmployee
 );
-router.get("/all", verifyToken, employeeController.getAllEmployees);
+router.get("/all",
+  // verifyToken,
+  employeeController.getAllEmployees);
 router.get(
   "/single/:id",
-  verifyToken,
+  // verifyToken,
   validateEmployeeId,
   employeeController.getEmployeeById
 );
 router.put(
   "/update/:id",
-  verifyToken,
+  // verifyToken,
   validateEmployeeId,
   validateEmployee,
   employeeController.updateEmployee
 );
 router.delete(
   "/delete/:id",
-  verifyToken,
+  // verifyToken,
   validateEmployeeId,
   employeeController.deleteEmployee
 );

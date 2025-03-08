@@ -1,7 +1,7 @@
 const express = require("express");
 const companiesController = require("../Controllers/companies-controller");
 const companiesRouter = express.Router();
-const upload = require("../multer/multer");
+const upload = require("../Multer/multer");
 
 companiesRouter
   .get("/get-companies", companiesController.getAll)

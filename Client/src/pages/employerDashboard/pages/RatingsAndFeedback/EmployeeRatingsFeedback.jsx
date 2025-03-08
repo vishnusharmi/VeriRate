@@ -35,7 +35,7 @@ const EmployeeRatingsFeedback = () => {
           id: emp.id,
           name: `${emp.first_name} ${emp.last_name}`,
           position: emp.position ? emp.position : 'Not specified',
-          department: `Company ID: ${emp.company_id}`,
+          department: `Company ID: ${emp.employment_history}`,
           email: emp.email,
           Ratings: emp.Ratings ? emp.Ratings.map(rating => ({
             id: rating.id,
@@ -188,7 +188,7 @@ const EmployeeRatingsFeedback = () => {
         id: emp.id,
         name: `${emp.first_name} ${emp.last_name}`,
         position: emp.position ? emp.position : 'Not specified',
-        department: `Company ID: ${emp.company_id}`,
+        department: `Company ID: ${emp.employment_history}`,
         email: emp.email,
         Ratings: emp.Ratings ? emp.Ratings.map(rating => ({
           id: rating.id,

@@ -13,6 +13,7 @@ const userRouters = require("./Routes/user-route.js");
 const loginRoutes = require("./Routes/userLoginRoute.js");
 const activityModel = require("./Models/activityModel.js");
 const activityRoutes = require("./Routes/activityRoutes.js");
+const departmentRoutes = require("./Routes/department-route.js");
 require("dotenv").config();
 
 const allAssociations = require("./associations/associationsEXPL");
@@ -20,7 +21,11 @@ const allAssociations = require("./associations/associationsEXPL");
 const app = express();
 allAssociations();
 
-app.use(cors());
+app.use(cors({
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
+  origin: "*",
+}));
 app.use(helmet());
 app.use(express.json());
 const PORT = process.env.PORT || 3000;
@@ -34,6 +39,11 @@ app.use("/api", companiesRouter);
 app.use("/api", disputeRoutes);
 app.use("/api", EmployeeRoutes);
 app.use("/api", activityRoutes);
+app.use("/api", departmentRoutes);
+
+
+const adminSettingsRouter = require("./Routes/adminSettingsRoutes.js");
+app.use("/api/admin-settings", adminSettingsRouter);
 
 // Sync all models
 sequelize

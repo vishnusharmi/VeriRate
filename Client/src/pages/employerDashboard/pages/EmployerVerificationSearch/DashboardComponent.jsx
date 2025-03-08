@@ -33,7 +33,7 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         // Make the API request using axios
-        const response = await axios.get("http://localhost:3007/api/ratings"); // Replace this URL with your actual API
+        const response = await axios.get("http://localhost:3000/api/ratings"); // Replace this URL with your actual API
 
         if (response.data.success) {
           // Process the data to create the trend data structure

@@ -100,8 +100,8 @@ const EmploymentVerificationSearch = () => {
   const [error, setError] = useState(null);
   const [employees, setEmployees] = useState([]);
 
-  const apiUrl = "http://localhost:3007/api/get-employees";
-  const updateApiUrl = "http://localhost:3007/api/update-employees";
+  const apiUrl = "http://localhost:3000/api/get-employees";
+  const updateApiUrl = "http://localhost:3000/api/update-employees";
 
   useEffect(() => {
     fetchEmployees();
