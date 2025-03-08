@@ -7,13 +7,14 @@ const logActivity = require("../Activity/activityFunction.js");
 exports.createBlackList = async (data) => {
   try {
     const user = await blackList.create(data);
+
     await logActivity(
       user.id,
-      " BlackList Added ",
-      "Temporary blacklist for 90 days - Code: Misconduct",
-      `${user.name}`,
-      "Blacklist Changes "
+      "Blacklist Added",
+      `Blacklisted by: ${createdByUser.name} | Blacklisted User: ${user.name}`,
+      "Blacklist Management"
     );
+
     console.log(user);
     return user;
   } catch (error) {
@@ -72,7 +73,7 @@ exports.updateBlackList = async (id, data) => {
       " BlackList User Updated ",
       "Temporary blacklist for 90 days - Code: Misconduct",
       `${user.name}`,
-      "Blacklist Changes "
+      "Blacklist Management"
     );
     return updateUser;
   } catch (error) {
@@ -94,7 +95,7 @@ exports.deleteBlackList = async (id) => {
       " BlackList User Deleted",
       "Temporary blacklist for 90 days - Code: Misconduct",
       `${user.name}`,
-      "Blacklist Changes "
+      "Blacklist Management"
     );
     return deletedUser;
   } catch (error) {

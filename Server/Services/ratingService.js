@@ -2,24 +2,35 @@ const Rating = require("../Models/ratingsModel");
 const logActivity = require("../Activity/activityFunction.js");
 exports.createRating = async (data) => {
   try {
+    // 🔍 Step 1: Check if Employee exists
+    const employeeExists = await Employee.findByPk(data.employee_id);
+    if (!employeeExists) {
+      throw new Error(`Employee with ID ${data.employee_id} does not exist.`);
+    }
+    // 🔍 Step 2: Fetch User Name (Who Gave the Rating)
+    const user = await User.findByPk(data.created_by);
+    if (!user) {
+      throw new Error(`User with ID ${data.created_by} does not exist.`);
+    }
     const rating = await Rating.create(data);
     try {
       await logActivity(
         rating.id,
-        "Rating Created",
-        rating.rating,
-        rating.name,
+        "New Rating Created",
+        `Given by User: ${user.username} to ${data.name}`, // ✅ Fetching actual user name
+        `Rating: ${rating.rating}`,
         "Rating Management"
       );
-      // console.log("Activity logged successfully");
+      console.log("Activity logged successfully");
     } catch (logErr) {
       console.error("Error logging activity:", logErr);
+      throw error;
     }
 
     return rating;
   } catch (err) {
     console.error("Error creating rating:", err);
-    throw new Error(err.message); // You can also include more details if needed
+    throw new Error(err.message);
   }
 };
 

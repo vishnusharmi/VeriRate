@@ -28,6 +28,17 @@ const Associations = () => {
     onDelete: "CASCADE",
   });
 
+  // user to employee relation
+  userModel.hasMany(Employee, {
+    foreignKey: "userId",
+    onDelete: "CASCADE",
+  });
+
+  Employee.belongsTo(userModel, {
+    foreignKey: "userId",
+    onDelete: "CASCADE",
+  });
+
   // user to documents relation
   User.hasMany(Documents, {
     foreignKey: "empId",

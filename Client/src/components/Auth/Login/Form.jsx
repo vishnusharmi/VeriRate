@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../../Context/Contextapi";
 
@@ -81,7 +81,7 @@ const Form = () => {
 
   return (
     <>
-      <ToastContainer position="top-right" autoClose={3000} />
+      
       <form
         onSubmit={handleSubmit}
         className="rounded-md shadow-[0_4px_10px_rgba(0,0,0,0.2)] flex flex-col gap-7 px-6 pt-7 pb-9 w-120"
