@@ -1,14 +1,14 @@
-const cloudinaryUpload = require("../MiddleWares/Cloudinary");
+
 const userModel = require("../Models/user");
 const Documents = require("../Models/documents");
 const employeeModel = require("../Models/EmployeeModel");
-const AdminSettings = require("../Models/AdminSettings");
+const AdminSettings = require("../Models/adminSettings");
 
 const bcrypt = require("bcryptjs");
-const { accessSync } = require("fs");
-const { log, error } = require("console");
 
-exports.registerUser = async (data, files) => {
+
+
+exports.registerUser = async (adminId,data, files) => {
   const transaction = await userModel.sequelize.transaction(); // Start transaction
   // console.log("employment_history", data.employment_history);
   // console.log(`*************************************${files}`)
@@ -80,18 +80,18 @@ exports.registerUser = async (data, files) => {
         { transaction }
       );
 
-      // if (data.role === "Employee Admin") {
-      //   await AdminSettings.create({
-      //     superAdminId:additionalData.created_By,
-      //     adminId: userData.id, 
-      //     accessControl: false,
-      //     complianceCheck: true,
-      //     blacklistControl: false,
-      //     twoFactorAuth: false,
-      //     systemMonitoring: true,
-      //     performanceTracking: true,
-      //   });
-      // }
+      if (data.role === "Employee Admin") {
+        
+        await AdminSettings.create({
+          adminId: userData.id, // TODO: SUPER ADMIN ID
+          accessControl: false,
+          complianceCheck: true,
+          blacklistControl: false,
+          twoFactorAuth: false,
+          systemMonitoring: true,
+          performanceTracking: true,
+        },{transaction});
+      }
 
     }
 
@@ -146,6 +146,16 @@ exports.registerUser = async (data, files) => {
     // If everything succeeds, commit the transaction
     await transaction.commit();
 
+    await logActivity(
+      userData.id,
+      `New ${data.role || "User"} created`,
+      `${userData.username ||
+      `${userData.first_name || ""} ${userData.last_name || ""}`.trim()
+      }`,
+      "User",
+      "User Management"
+    );
+
     return {
       message: "User created successfully",
       data: {
@@ -181,6 +191,8 @@ exports.registerUser = async (data, files) => {
 
 
 exports.getAllusers = async () => {
+  console.log('errrrrrrrrrrr');
+  
   try {
     const getUsers = await userModel.findAll({
       include: [Documents, employeeModel],
@@ -281,6 +293,17 @@ exports.updateUserById = async (id, data, documentPath) => {
     const updatedUser = await userModel.findByPk(id, {
       include: [{ model: Documents} ,  { model: employeeModel }],
     });
+    // console.log(docResponse, "responss");
+
+    await logActivity(
+      this.updateUserById.id,
+      `${this.updateUserById.role || "User"} updated`,
+      `${this.updateUserById.username ||
+      `${updatedUser.first_name || ""} ${updatedUser.last_name || ""}`.trim()
+      }`,
+      "User",
+      "User Management"
+    );
 
     return updatedUser;
   } catch (error) {
@@ -293,8 +316,20 @@ exports.updateUserById = async (id, data, documentPath) => {
 
 exports.deleteUser = async (id) => {
   try {
+    const findUser = await userModel.findByPk(id);
+    if (!findUser) {
+      throw new Error("User not found");
+    }
     const deletedUser = await userModel.destroy({ where: { id } });
-
+    await logActivity(
+      findUser.id,
+      `${findUser.role || "User"} Deleted`,
+      `${findUser.username ||
+      `${findUser.first_name || ""} ${findUser.last_name || ""}`.trim()
+      }`,
+      "User",
+      "User Management"
+    );
     return deletedUser;
   } catch (error) {
     console.log(error);

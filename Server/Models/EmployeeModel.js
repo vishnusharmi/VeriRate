@@ -177,6 +177,10 @@ const Employee = database.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    position: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    }
   },
 
   {

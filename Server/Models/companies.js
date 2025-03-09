@@ -12,13 +12,13 @@ const Company = sequelize.define("Company", {
   companyName: {
     type: DataTypes.STRING(255),
     allowNull: false,
-   },
-  email :{
-    type : DataTypes.STRING,
-    allowNull : false,
-    unique : true,
   },
-  phonenumber:{
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  phonenumber: {
     type: DataTypes.BIGINT,
     allowNull: true,
   },
@@ -30,7 +30,7 @@ const Company = sequelize.define("Company", {
     type: DataTypes.STRING,
     allowNull: true,
   },
-  createdBy:{
+  createdBy: {
     type: DataTypes.INTEGER,
     allowNull: true,
     references: {
@@ -39,29 +39,30 @@ const Company = sequelize.define("Company", {
     },
     onDelete: "CASCADE",
   },
-  country:{
+  country: {
     type: DataTypes.STRING,
-    allowNull:false
+    allowNull: false
   },
-  state:{
+  state: {
     type: DataTypes.STRING,
-    allowNull:false
+    allowNull: false
   },
-  registerNum :{
+  registerNum: {
     type: DataTypes.STRING,
-    allowNull:false
+    allowNull: false
   },
-  founderYear:{
-    type:DataTypes.STRING,
-    allowNull:false
+  founderYear: {
+    type: DataTypes.STRING,
+    allowNull: false
   },
-  companyWebsite:{
-    type:DataTypes.STRING,
-    allowNull:false
+  companyWebsite: {
+    type: DataTypes.STRING,
+    allowNull: false
   },
- 
+
 
 });
+
 
 
 module.exports = Company;
