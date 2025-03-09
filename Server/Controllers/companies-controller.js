@@ -1,5 +1,4 @@
 const companiesService = require("../Services/companies-services");
-const { createAuditLog } = require("./audit-controller");
 
 
 const createCompany = async (req, res) => {
@@ -25,7 +24,7 @@ const createCompany = async (req, res) => {
         // return res.status(201).json({message: "Company Updated successfully", userData ,auditResponse});
         return res.json({message: "Company Created Successfully",userData})
     } catch (error) {
-        return res.status(500).json({error: error.message});
+        return res.status(500).json({ error: error.message });
     }
 }
 
@@ -39,16 +38,16 @@ const getAll = async(req,res)=>{
         const companies = await companiesService.getCompanies(size,offset,page);
        return res.status(200).json({message: "All companies successfully", companies});
     } catch (error) {
-        return res.status(500).json({error: error.message});
+        return res.status(500).json({ error: error.message });
     }
 }
 
-const getById = async(req,res)=>{
+const getById = async (req, res) => {
     try {
         const company = await companiesService.getcompanyById(req.params.id);
-      return  res.status(200).json({message: "Company found successfully", data:company});
+        return res.status(200).json({ message: "Company found successfully", data: company });
     } catch (error) {
-        return res.status(500).json({error: error.message});
+        return res.status(500).json({ error: error.message });
     }
 }
 
@@ -73,11 +72,11 @@ const updateCompany = async(req,res)=>{
 
         return res.status(200).json(company);
     } catch (error) {
-        return res.status(500).json({error: error.message});
+        return res.status(500).json({ error: error.message });
     }
 }
 
-const deleteCompany = async(req,res)=>{
+const deleteCompany = async (req, res) => {
     try {
         // const userData = await companiesService.getcompanyById(req.params.id);
        const company = await companiesService.deleteCompany(req.params.id); 
@@ -95,11 +94,11 @@ const deleteCompany = async(req,res)=>{
 
         return res.status(200).json({message: "Company deleted successfully",company});
     } catch (error) {
-        return res.status(500).json({error: error.message});
+        return res.status(500).json({ error: error.message });
     }
 }
 
-    
+
 module.exports = {
     createCompany,
     getAll,

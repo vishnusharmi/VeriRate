@@ -4,7 +4,7 @@ const FilterButtons = ({
   setActiveFilter,
   fetchEmployees,
 }) => (
-  <div className="flex items-center justify-between py-4 px-2">
+  <div className="flex items-center justify-between py-3 px-2">
     <div className="flex gap-4">
       {filters.map((filter) => (
         <button

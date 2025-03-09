@@ -4,6 +4,7 @@ const departmentModel = require("../Models/department");
 const cloudinaryUpload = require("../MiddleWares/Cloudinary");
 const sequelize=require('../Config/DBconnection')
 const Department=require('../Models/department');
+const logActivity = require("../Activity/activityFunction.js");
 
 exports.createCompany = async (company,createdBy) => {
     try {
@@ -12,7 +13,7 @@ exports.createCompany = async (company,createdBy) => {
         if (!companyCreated) {
             return { statusCode: 404, message: "Error While creating Company" }
         }
-        
+
         const finalDepartments = departments.map(department => {
             return {
                 ...department,
@@ -21,7 +22,15 @@ exports.createCompany = async (company,createdBy) => {
         })
         const departmentResponse = await departmentModel.bulkCreate(finalDepartments);
 
-        return {companyCreated, departmentResponse};
+        await logActivity(
+            companyCreated.id,
+            " New company profile created",
+            `${companyCreated.companyName}`,
+            "Company",
+            "Company Management"
+        );
+
+        return { companyCreated, departmentResponse };
     } catch (error) {
         console.error("error:", error);
         throw error;
@@ -142,8 +151,15 @@ exports.deleteCompany = async (id) => {
             return res.status(404).json({error: "company not found "})
         }
         const deleteCompany = await Company.destroy({ where: { id } });
-        return deleteCompany
+        await logActivity(
+            company.id,
+            "company profile deleted",
+            ` ${company.companyName}`,
+            "Company",
+            "Company Management"
+        );
+        return deleteCompany;
     } catch (error) {
-        console.error("error:", error)
+        console.error("error:", error);
     }
-}
+};

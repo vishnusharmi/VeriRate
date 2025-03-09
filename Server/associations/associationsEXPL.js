@@ -7,6 +7,7 @@ const Disputes = require("../Models/disputes");
 const Employee = require("../Models/EmployeeModel");
 const User = require("../Models/user");
 const  Department=require("../Models/department")
+const AdminSettings = require("../Models/adminSettings");
 
 
 const Associations = () => {
@@ -26,6 +27,16 @@ const Associations = () => {
   });
   Employee.belongsTo(userModel, {
     foreignKey: "createdBy",
+    onDelete: "CASCADE",
+  });
+
+  // user to employee relation
+  userModel.hasMany(Employee, {
+    foreignKey: "userId",
+    onDelete: "CASCADE",
+  });
+  Employee.belongsTo(userModel, {
+    foreignKey: "userId",
     onDelete: "CASCADE",
   });
 
@@ -125,6 +136,16 @@ const Associations = () => {
 
 
 
+  //admin settings
+  userModel.hasOne(AdminSettings, {
+    foreignKey: "adminId",
+    onDelete: "CASCADE",
+  });
+
+  AdminSettings.belongsTo(userModel, {
+    foreignKey: "adminId",
+    onDelete: "CASCADE",
+  });
 };
 
 module.exports = Associations;
