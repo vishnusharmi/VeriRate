@@ -5,6 +5,7 @@ import FilterButtons from "./FilterButtonsComponent";
 import SearchComponent from "./SearchComponent";
 import Tabs from "./TabsComponent";
 import CardsComponent from "./CardsComponent";
+import { toast } from "react-toastify";
 
 // ENUM Definition
 const VerificationStatus = {
@@ -41,7 +42,7 @@ const VerificationDialog = ({ isOpen, onClose, employment, onVerify }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-[rgba(0,0,0,50%)] flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-[rgba(0,0,0,50%)] h-screen flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg p-6 max-w-md w-full">
         <h2 className="text-xl font-bold mb-4">Verify Employment</h2>
         <div className="space-y-4">
@@ -100,12 +101,14 @@ const EmploymentVerificationSearch = () => {
   const [error, setError] = useState(null);
   const [employees, setEmployees] = useState([]);
 
-  const apiUrl = "http://localhost:3000/api/get-employees";
-  const updateApiUrl = "http://localhost:3000/api/update-employees";
+  const apiUrl = "http://localhost:3000/api/all";
+  const updateApiUrl = "http://localhost:3000/api/update";
 
   useEffect(() => {
     fetchEmployees();
   }, []);
+
+
 
   const fetchEmployees = async () => {
     try {
@@ -115,18 +118,21 @@ const EmploymentVerificationSearch = () => {
       const formattedEmployees =
         response?.data?.employees?.map((employee) => ({
           id: employee.id || "N/A",
-          name: `${employee.first_name} ${employee.last_name}` || "NA",
-          employeeId: employee.employeeId || employee.id || "N/A",
-          email: employee.email || "N/A",
-          company: employee?.employment_history?.at(-1)?.company || "N/A",
-          position: employee?.employment_history?.at(-1)?.position || "N/A",
-          startDate: employee?.employment_history?.at(-1)?.start_date || "N/A",
-          endDate: employee?.employment_history?.at(-1)?.end_date || "N/A",
-          is_verified: employee.is_verified || VerificationStatus.PENDING,
-          rating: employee.rating || 0,
-          totalCompaniesWorked:
-            employee?.employment_history?.map((v) => v.company) || [],
-          originalData: employee,
+          name: `${employee.first_name} ${employee.last_name}`.trim() || "N/A",
+          email: employee.User.email || "N/A",
+          position: employee.position || "N",
+          salary: employee.salary || "N/A",
+          phone_number: employee.phone_number || "N/A",
+          qualification: employee.qualification || "N/A",
+          address: employee.address || "N/A",
+          bankAccount: employee.bankAccount || "N/A",
+          bankName: employee.bankName || "N/A",
+          IFSCcode: employee.IFSCcode || "N/A",
+          is_verified:
+            employee.is_verified === "Verified"
+              ? VerificationStatus.VERIFIED
+              : VerificationStatus.PENDING,
+          employment_history: employee.employment_history || "N/A", // Directly use the string
         })) || [];
 
       setEmployees(formattedEmployees);
@@ -176,7 +182,6 @@ const EmploymentVerificationSearch = () => {
       return false;
     }
   };
-
   const filteredEmployees = employees
     .filter((employee) => {
       if (!searchQuery) return true;
@@ -185,7 +190,7 @@ const EmploymentVerificationSearch = () => {
           ? employee.name
           : searchType === "email"
           ? employee.email
-          : employee.employeeId;
+          : employee.id;
       return String(searchField || "")
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
@@ -199,16 +204,13 @@ const EmploymentVerificationSearch = () => {
           employee.is_verified === VerificationStatus.PENDING)
       );
     });
-
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="bg-gray-50 px-4">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-2">
+        <h1 className="text-3xl font-bold mb-2 pt-2">
           Employment Verification System
         </h1>
-
         <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
-
         {activeTab === 0 ? (
           <>
             <SearchComponent
@@ -223,7 +225,6 @@ const EmploymentVerificationSearch = () => {
               setActiveFilter={setActiveFilter}
               fetchEmployees={fetchEmployees}
             />
-
             {loading ? (
               <p>Loading...</p>
             ) : error ? (
@@ -241,7 +242,6 @@ const EmploymentVerificationSearch = () => {
           <Dashboard />
         )}
       </div>
-
       <VerificationDialog
         isOpen={!!selectedEmployee}
         onClose={() => setSelectedEmployee(null)}

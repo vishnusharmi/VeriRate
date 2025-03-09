@@ -2,6 +2,7 @@ const Employee = require("../Models/EmployeeModel"); // Renamed for clarity
 const Ratings = require("../Models/ratingsModel");
 const logActivity = require("../Activity/activityFunction.js");
 const Activity = require("../Models/activityModel.js");
+const User = require("../Models/user.js");
 
 exports.createEmployee = async (data) => {
   try {
@@ -62,7 +63,16 @@ exports.updateEmployee = async (data, id) => {
 
 exports.getAllEmployees = async () => {
   try {
-    const employees = await Employee.findAll({ include: [Ratings] });
+    const employees = await Employee.findAll({ include: [
+      {
+        model: Ratings,
+      },
+      {
+        model: User,
+        attributes: ['role', 'email', 'id'], // Fetch only specific fields
+        where: { role: 'Employee' } // Condition to get only Employee role users
+      }
+    ] });
     return employees;
   } catch (error) {
     throw new Error(`Error fetching employees: ${error.message}`);

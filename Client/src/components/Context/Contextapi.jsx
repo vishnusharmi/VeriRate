@@ -1,38 +1,57 @@
-import { jwtDecode } from "jwt-decode";
-import { createContext, useEffect, useState } from "react";
+import { jwtDecode } from 'jwt-decode';
+import React, { createContext, useEffect, useState } from 'react'
+import {useNavigate} from "react-router";
 import PropTypes from "prop-types";
 
 export const AuthContext = createContext();
 
-function AuthProvider({ children }) {
+function AuthProvider({children}) {
+
+  const navigate = useNavigate()
+  const token = sessionStorage.getItem("authToken");
+  
   const [auth, setAuth] = useState(() => {
-    const token = sessionStorage.getItem("authToken");
-    return token ? jwtDecode(token) : null;
+    if (token) {
+      try {
+        return jwtDecode(token);
+      } catch (error) {
+        console.error("Invalid token:", error);
+        return null;
+      }
+    }
+    return null;
   });
 
+  // if login success we are setting token into the session storage 
   const login = (token) => {
     sessionStorage.setItem("authToken", token);
-    const decToken = jwtDecode(token);
-    setAuth(decToken);
+    try {
+      setAuth(jwtDecode(token));
+    } catch (error) {
+      console.error("Invalid token:", error);
+      setAuth(null);
+    }
   };
 
-  const logOut = () => {
+// logging out the dashboard  
+  const logOut =()=>{
     sessionStorage.removeItem("authToken");
-    setAuth(null);
-  };
+    setAuth(null)
+    navigate("/")
+  }
 
   useEffect(() => {
-    const token = sessionStorage.getItem("authToken");
-
     if (token) {
-      setAuth(jwtDecode(token));
+      try {
+        setAuth(jwtDecode(token));
+      } catch (error) {
+        console.error("Invalid token:", error);
+      }
     }
   }, []);
 
-  console.log(auth);
-
   return (
-    <AuthContext.Provider value={{ auth, login, logOut }}>
+    <AuthContext.Provider value={{ auth, login, logOut,token }}>
       {children}
     </AuthContext.Provider>
   );

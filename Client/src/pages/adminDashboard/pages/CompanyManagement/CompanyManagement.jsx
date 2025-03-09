@@ -23,12 +23,9 @@ const CompanyManagement = () => {
     state: "",
     phonenumber: "",
     companyWebsite: "",
-    email: "",
-    username: "",
     role: "Employee Admin",
-    password: "",
     document: null,
-    departments: [{ name: "", code: "" }]
+    departments: [{ name: "", departmentCode: "" }]
   });
 
   const handleCancel = () => {
@@ -54,23 +51,23 @@ const CompanyManagement = () => {
 
   const editCompany = async (company) => {
     setSelectedCompanyId(company.id);
-
     setFormData({
       companyName: company.companyName || "",
-      industry: company.industry || "",
-      founderYear: company.founderYear || "",
-      registerNum: company.registerNum || "",
+      email: company.email || "",
+      phonenumber: company.phonenumber || "",
       address: company.address || "",
+      industry: company.industry || "",
       country: company.country || "",
       state: company.state || "",
-      phonenumber: company.phonenumber || "",
+      registerNum: company.registerNum || "",
+      founderYear: company.founderYear || "",
       companyWebsite: company.companyWebsite || "",
-      email: company.email || "",
-      username: company.username || "",
       role: company.role || "Employee Admin",
-      password: company.password || "",
       document: company.document || null,
-      departments: [{ name: "", code: "" }]
+      departments: company.departments?.map(dept => ({
+        name: dept.name,
+        departmentCode: dept.departmentCode
+      })) || [{ name: "", departmentCode: "" }]
     });
 
     setShowAddModal(true);

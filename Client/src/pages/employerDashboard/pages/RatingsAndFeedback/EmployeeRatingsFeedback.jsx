@@ -29,14 +29,20 @@ const EmployeeRatingsFeedback = () => {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/get-employees');
+        const token = sessionStorage.getItem('authToken');  
+        const config = {
+          headers: { Authorization: `Bearer ${token}` }
+      }
+
+        const response = await axios.get('http://localhost:3000/api/all', config);
+        
         // console.log(response.data.employees);
         const formattedEmployees = response.data.employees.map(emp => ({
           id: emp.id,
           name: `${emp.first_name} ${emp.last_name}`,
-          position: emp.position ? emp.position : 'Not specified',
-          department: `Company ID: ${emp.employment_history}`,
-          email: emp.email,
+          email: emp.User ? emp.User.email : '',  // Get email from User object
+          role: emp.User ? emp.User.role : '',    // Get role from User object
+          position: emp.position,
           Ratings: emp.Ratings ? emp.Ratings.map(rating => ({
             id: rating.id,
             rating: rating.rating,
@@ -177,19 +183,24 @@ const EmployeeRatingsFeedback = () => {
         name: feedbackData.reviewer
       };
 
+      const token = sessionStorage.getItem('authToken');  
+        const config = {
+          headers: { Authorization: `Bearer ${token}` }
+      }
+
       // Send POST request to API
-      await axios.post('http://localhost:3000/api/ratings-post', ratingData);
+      await axios.post('http://localhost:3000/api/ratings-post', ratingData, config);
 
       // Fetch updated employee data after adding new rating
-      const response = await axios.get('http://localhost:3000/api/get-employees');
+      const response = await axios.get('http://localhost:3000/api/all', config);
 
       // Map the API response to match our component's data structure
       const formattedEmployees = response.data.employees.map(emp => ({
         id: emp.id,
         name: `${emp.first_name} ${emp.last_name}`,
-        position: emp.position ? emp.position : 'Not specified',
-        department: `Company ID: ${emp.employment_history}`,
-        email: emp.email,
+        email: emp.User ? emp.User.email : '',  // Get email from User object
+        role: emp.User ? emp.User.role : '',    // Get role from User object
+        position: emp.position,
         Ratings: emp.Ratings ? emp.Ratings.map(rating => ({
           id: rating.id,
           rating: rating.rating,
@@ -340,7 +351,7 @@ const EmployeeRatingsFeedback = () => {
     return (
       <div className="mb-4 bg-gray-50 p-3 rounded-md shadow-md shadow-gray-400 rounded-lg">
         <button
-          className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-700 focus:outline-none"
+          className="flex items-center justify-between w-full text-left text-sm font-medium text-[#2896f9] focus:outline-none"
           onClick={() => setExpanded(!expanded)}
         >
           <span>Rating History ({displayRatings.length})</span>
@@ -364,7 +375,7 @@ const EmployeeRatingsFeedback = () => {
                     <div className="text-xs text-gray-500">{rating.date}</div>
                   </div>
                   <p className="mt-2 text-sm text-gray-700">{rating.feedback}</p>
-                  <div className="mt-2 text-xs text-gray-500">
+                  <div className="mt-2 text-xs font-bold text-gray-700">
                     Reviewed by: {rating.reviewer}
                   </div>
                 </div>
@@ -550,10 +561,10 @@ const EmployeeRatingsFeedback = () => {
           <div className="absolute inset-0 px-2 overflow-y-auto">
             
             <table className="min-w-full bg-white">
-              <thead className="shadow-[inset_0_-30px_36px_-28px_rgba(0,0,0,0.35),inset_0_20px_36px_-28px_rgba(0,0,0,0.35)] bg-white p-6 rounded-lg sticky top-0">
+              <thead className="bg-gradient-to-br from-[#3f51b5] to-[#2196f3] h-8 w-full text-white rounded-lg text-base p-6 sticky top-0">
                 <tr>
                   <th 
-                    className="px-10 py-3 text-left text-xs font-medium text-white-500 uppercase tracking-wider cursor-pointer"
+                    className="px-10 py-3 text-left text-mb font-medium text-white uppercase tracking-wider cursor-pointer"
                     onClick={() => handleSort('name')}
                   >
                     <div className="flex items-center">
@@ -564,7 +575,7 @@ const EmployeeRatingsFeedback = () => {
                     </div>
                   </th>
                   <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-white-500 uppercase tracking-wider cursor-pointer"
+                    className="px-6 py-3 text-left text-mb font-medium text-white uppercase tracking-wider cursor-pointer"
                     onClick={() => handleSort('rating')}
                   >
                     <div className="flex items-center">
@@ -574,7 +585,7 @@ const EmployeeRatingsFeedback = () => {
                       )}
                     </div>
                   </th>
-                  <th className="px-12 py-3 text-right text-xs font-medium text-white-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-12 py-3 text-right text-mb font-medium text-white uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               
@@ -590,8 +601,8 @@ const EmployeeRatingsFeedback = () => {
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">{employee.name}</div>
                             <div className="text-sm text-gray-500">{employee.email}</div>
-                            <div className="text-sm text-gray-500">{employee.position}</div>
-                            <div className="text-xs text-gray-400">{employee.department}</div>
+                            <div className="text-xs text-gray-400">Role: {employee.role}</div>
+                            <div className="text-xs text-gray-400">Position: {employee.position}</div>
                           </div>
                         </div>
                       </td>
