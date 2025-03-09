@@ -5,6 +5,8 @@ import PropTypes from "prop-types";
 export const AuthContext = createContext();
 
 function AuthProvider({ children }) {
+  const token = sessionStorage.getItem("authToken");
+
   const [auth, setAuth] = useState(() => {
     const token = sessionStorage.getItem("authToken");
     return token ? jwtDecode(token) : null;
@@ -29,10 +31,9 @@ function AuthProvider({ children }) {
     }
   }, []);
 
-  console.log(auth);
 
   return (
-    <AuthContext.Provider value={{ auth, login, logOut }}>
+    <AuthContext.Provider value={{ auth, login, logOut,token }}>
       {children}
     </AuthContext.Provider>
   );

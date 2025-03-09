@@ -64,6 +64,7 @@ const Company = sequelize.define("Company", {
 });
 
 
+
 module.exports = Company;
 
 

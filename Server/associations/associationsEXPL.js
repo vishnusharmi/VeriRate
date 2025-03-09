@@ -6,6 +6,7 @@ const Rating = require("../Models/ratingsModel");
 const Disputes = require("../Models/disputes");
 const Employee = require("../Models/EmployeeModel");
 const User = require("../Models/user");
+const  Department=require("../Models/department")
 
 
 const Associations = () => {
@@ -29,11 +30,11 @@ const Associations = () => {
   });
 
   // user to documents relation
-  User.hasMany(Documents, {
+  Employee.hasMany(Documents, {
     foreignKey: "empId",
     onDelete: "CASCADE",
   });
-  Documents.belongsTo(User, {
+  Documents.belongsTo(Employee, {
     foreignKey: "empId",
     onDelete: "CASCADE",
   });
@@ -118,6 +119,12 @@ const Associations = () => {
     foreignKey: "created_by",
     onDelete: "CASCADE",
   });
+
+  Company.hasMany(Department, { foreignKey: "companyId" , onDelete: "CASCADE"});
+  Department.belongsTo(Company, { foreignKey: "companyId" , onDelete: "CASCADE"});
+
+
+
 };
 
 module.exports = Associations;

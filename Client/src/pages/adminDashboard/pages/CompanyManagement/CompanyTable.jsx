@@ -1,7 +1,5 @@
-
-
 import React, { useState } from "react";
-import { Eye, Edit2, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Eye, Edit2, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router";
 
 const CompanyTable = ({
@@ -12,10 +10,6 @@ const CompanyTable = ({
     const navigate = useNavigate();
     const [isModalOpenPopup, setIsModalOpenPopup] = useState(false);
     const [selectedCompanyId, setSelectedCompanyId] = useState(null);
-
-    // Pagination states
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(5);
 
     const handleDeleteClick = (id) => {
         setSelectedCompanyId(id);
@@ -29,37 +23,8 @@ const CompanyTable = ({
         }
     };
 
-    const handleView = () => {
-        navigate("/admin/department");
-    };
-
-    // Pagination calculation
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = Array.isArray(filteredCompanies)
-        ? filteredCompanies.slice(indexOfFirstItem, indexOfLastItem)
-        : [];
-
-    const totalPages = Math.ceil(
-        (Array.isArray(filteredCompanies) ? filteredCompanies.length : 0) / itemsPerPage
-    );
-
-    // Pagination handlers
-    const goToNextPage = () => {
-        if (currentPage < totalPages) {
-            setCurrentPage(currentPage + 1);
-        }
-    };
-
-    const goToPreviousPage = () => {
-        if (currentPage > 1) {
-            setCurrentPage(currentPage - 1);
-        }
-    };
-
-    const handleItemsPerPageChange = (e) => {
-        setItemsPerPage(Number(e.target.value));
-        setCurrentPage(1); // Reset to first page when changing items per page
+    const handleView = (company) => {
+        navigate("/admin/department", { state: { company } });
     };
 
     return (
@@ -93,17 +58,16 @@ const CompanyTable = ({
                                     ACTION
                                 </th>
                             </tr>
-
                         </thead>
                     </table>
                 </div>
 
                 {/* Scrollable table body */}
-                <div className="overflow-y-auto" style={{ maxHeight: "400px" }}>
+                <div className="overflow-y-auto" style={{ maxHeight: "320px" }}>
                     <table className="min-w-full divide-y divide-gray-200">
                         <tbody className="bg-white divide-y divide-gray-200">
-                            {currentItems.length > 0 ? (
-                                currentItems.map((company, index) => (
+                            {Array.isArray(filteredCompanies) && filteredCompanies.length > 0 ? (
+                                filteredCompanies.map((company, index) => (
                                     <tr
                                         key={company.id || index}
                                         className="hover:bg-gray-50 transition-all duration-200"
@@ -126,7 +90,7 @@ const CompanyTable = ({
                                         <td className="px-2 md:px-4  text-xs md:text-sm text-gray-900 text-center">
                                             <button
                                                 className="cursor-pointer text-blue-500 hover:text-blue-600 hover:scale-110 transition-all duration-200"
-                                                onClick={handleView}
+                                                onClick={() => handleView(company)}
                                             >
                                                 <Eye size={10} className="md:w-5 md:h-5" />
                                             </button>
@@ -161,55 +125,6 @@ const CompanyTable = ({
                     </table>
                 </div>
             </div>
-
-            {/* Simplified Next/Previous Pagination */}
-            {Array.isArray(filteredCompanies) && filteredCompanies.length > 0 && (
-                <div className="flex flex-col md:flex-row items-center justify-between mt-4 px-2">
-                    <div className="flex items-center mb-4 md:mb-0">
-                        <span className="text-sm text-gray-700 mr-2">Show</span>
-                        <select
-                            className="border border-gray-300 rounded px-2 py-1 text-sm"
-                            value={itemsPerPage}
-                            onChange={handleItemsPerPageChange}
-                        >
-                            {[5, 10, 25, 50].map((size) => (
-                                <option key={size} value={size}>
-                                    {size}
-                                </option>
-                            ))}
-                        </select>
-                        <span className="text-sm text-gray-700 ml-2">entries</span>
-                    </div>
-
-                    <div className="flex items-center justify-between w-full md:w-auto">
-                        <span className="text-sm text-gray-700 mr-4">
-                            Showing {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredCompanies.length)} of {filteredCompanies.length}
-                        </span>
-
-                        <div className="flex border border-gray-300 rounded divide-x">
-                            <button
-                                onClick={goToPreviousPage}
-                                disabled={currentPage === 1}
-                                className={`px-4 py-1 flex items-center ${currentPage === 1 ? "text-gray-400 cursor-not-allowed" : "text-indigo-600 hover:bg-indigo-50"
-                                    }`}
-                            >
-                                <ChevronLeft size={16} className="mr-1" />
-                                Previous
-                            </button>
-
-                            <button
-                                onClick={goToNextPage}
-                                disabled={currentPage === totalPages}
-                                className={`px-4 py-1 flex items-center ${currentPage === totalPages ? "text-gray-400 cursor-not-allowed" : "text-indigo-600 hover:bg-indigo-50"
-                                    }`}
-                            >
-                                Next
-                                <ChevronRight size={16} className="ml-1" />
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* Delete Confirmation Modal */}
             {isModalOpenPopup && (
