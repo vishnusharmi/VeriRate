@@ -7,7 +7,7 @@ const bcrypt = require("bcryptjs");
 const { accessSync } = require("fs");
 
 exports.registerUser = async (data, files) => {
-  const transaction = await userModel.sequelize.transaction(); // Start transaction
+  const transaction = await userModel.sequelize.transaction(); 
   // console.log("employment_history", data.employment_history);
   // console.log(`*************************************${files}`)
   try {

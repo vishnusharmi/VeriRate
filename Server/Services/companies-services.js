@@ -32,13 +32,13 @@ exports.createCompany = async (company) => {
 exports.getCompanies = async () => {
     try {
         const companies = await Company.findAll(
-            {
-                include: [
-                    {
-                        model: document
-                    }
-                ]
-            }
+            // {
+            //     include: [
+            //         {
+            //             model: document
+            //         }
+            //     ]
+            // }
         );
         return companies
     } catch (error) {
