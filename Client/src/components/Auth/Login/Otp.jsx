@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useContext } from "react";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../../Context/Contextapi";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -111,7 +111,7 @@ const OTP = () => {
   };
 
   return (
-    <> <ToastContainer position="top-right" autoClose={3000} />
+    <> 
       <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
         <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-xl">
           <h2 className="text-3xl font-bold text-gray-800 mb-3 text-center">
