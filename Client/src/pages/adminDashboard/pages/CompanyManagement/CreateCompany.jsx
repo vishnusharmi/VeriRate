@@ -3,17 +3,16 @@ import { Country, State } from "country-state-city";
 import Select from "react-select";
 import { toast } from "react-toastify";
 
-
 const CreateCompany = ({
     handleCancel,
-    formData,
     loading,
-    setFormData,
     handleSubmit,
-    showAddModal
-
+    showAddModal,
+    formData,
+    setFormData
 }) => {
-    const totalCards = 4;
+
+    const totalCards = 3;
     const [activeCard, setActiveCard] = useState(1);
 
     useEffect(() => {
@@ -22,28 +21,24 @@ const CreateCompany = ({
         }
     }, [showAddModal]);
 
+
+// handle change 
     const handleChange = (e) => {
         const { id, value } = e.target;
-
-        // Check if the field is NOT email or password
-        const formattedValue = ( id === "companyWebsite")
+    
+        // Keep email and companyWebsite unchanged; capitalize first letter for other fields
+        const formattedValue = (id === "email" || id === "companyWebsite")
             ? value
             : value.charAt(0).toUpperCase() + value.slice(1);
-
+    
         setFormData((prev) => ({
             ...prev,
             [id]: formattedValue,
         }));
     };
 
-    const handleFileChange = (e) => {
-        setFormData((prevState) => ({
-            ...prevState,
-            document: e.target.files[0],
-        }));
-    };
 
-
+// handle country change
     const handleCountryChange = (selected) => {
         setFormData({
             ...formData,
@@ -52,6 +47,7 @@ const CreateCompany = ({
         });
     };
 
+// handle state change
     const handleStateChange = (selected) => {
         setFormData({
             ...formData,
@@ -59,7 +55,7 @@ const CreateCompany = ({
         });
     };
 
-  
+  // next button for create form
     const nextCard = () => {
         if (!validateForm()) return;
         if (activeCard < totalCards) {
@@ -67,13 +63,15 @@ const CreateCompany = ({
         }
     };
 
+  // prev button for create form 
     const prevCard = () => {
         if (activeCard > 1) {
             setActiveCard(activeCard - 1);
         }
     };
 
-    const isNextDisabled = () => {
+  // next button isdisabled for create form
+   const isNextDisabled = () => {
         if (activeCard === 1) {
             return (
                 !formData.email||
@@ -83,12 +81,13 @@ const CreateCompany = ({
                 !formData.registerNum
             );
         }
-        // if (activeCard === 2) {
-        //     return (
-        //         !formData.departments.name||
-        //         !formData.departments.departmentCode
-        //     );
-        // }
+        if (activeCard === 2) {
+            // Ensure there is at least one department with a name and departmentCode
+            return (
+                !formData.departments.length ||
+                formData.departments.some(dept => !dept.name || !dept.departmentCode)
+            );
+        }
         if (activeCard === 3) {
             return (
                 !formData.address ||
@@ -101,9 +100,9 @@ const CreateCompany = ({
         return false;
     };
 
-
+// validation form for company
     const validateForm = () => {
-        const { email, password, companyWebsite, phonenumber } = formData;
+        const { email, companyWebsite, phonenumber } = formData;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const urlRegex = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/.*)?$/;
         const phoneRegex = /^[0-9]{10,15}$/; // Allows only digits, 10 to 15 characters long
@@ -131,6 +130,8 @@ const CreateCompany = ({
 
         return true;
     };
+
+    // handling department form 
     const handleDepartmentChange = (index, e) => {
         const { name, value } = e.target;
         const updatedDepartments = [...formData.departments];
@@ -141,6 +142,7 @@ const CreateCompany = ({
         });
     };
 
+    // adding department to create form
     const addDepartment = () => {
         setFormData({
             ...formData,
@@ -148,6 +150,7 @@ const CreateCompany = ({
         });
     };
 
+    // remove department in create form
     const removeDepartment = (index) => {
         const updatedDepartments = formData.departments.filter((_, i) => i !== index);
         setFormData({
@@ -155,6 +158,9 @@ const CreateCompany = ({
             departments: updatedDepartments
         });
     };
+
+     
+    
 
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500/50">
@@ -194,97 +200,7 @@ const CreateCompany = ({
                 </div>
 
                 <form>
-                    {/* Card 1: Founder Information */}
-                    {/* <div
-                        className={`bg-white rounded-lg  transition-all duration-300 ${activeCard === 1 ? "block" : "hidden"
-                            }`}
-                    >
-                        <div className=" rounded-t-lg px-3 pt-3">
-                            <h2 className="text-lg font-semibold text-black">
-                                Founder Information
-                            </h2>
-                        </div>
-                        <div className="p-6 space-y-2">
-                            <div>
-                                <label
-                                    htmlFor="username"
-                                    className="block text-sm font-medium text-gray-700 mb-1"
-                                >
-                                    Username
-                                </label>
-                                <input
-                                    type="text"
-                                    id="username"
-                                    value={formData.username}
-                                    onChange={handleChange}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-1 border"
-                                />
-                            </div>
-                            <div>
-                                <label
-                                    htmlFor="email"
-                                    className="block text-sm font-medium text-gray-700 mb-1"
-                                >
-                                    Email
-                                </label>
-                                <input
-                                    type="email"
-                                    id="email"
-                                    value={formData.email}
-                                    required
-                                    onChange={handleChange}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-1 border"
-                                />
-                            </div>
-
-                            <div>
-                                <label
-                                    htmlFor="password"
-                                    className="block text-sm font-medium text-gray-700 mb-1"
-                                >
-                                    Password
-                                </label>
-                                <div className="relative">
-                                    <input
-                                        type={showPassword ? "text" : "password"}
-                                        id="password"
-                                        value={formData.password}
-                                        onChange={handleChange}
-                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-1 border pr-10"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={togglePasswordVisibility}
-                                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 transition-colors"
-                                    >
-                                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="pt-4 flex justify-between">
-                                <button
-                                    type="button"
-                                    onClick={handleCancel}
-                                    className="cursor-pointer inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={nextCard}
-                                    disabled={isNextDisabled()}
-                                    className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md 
-    ${isNextDisabled()
-                                            ? "bg-gray-400 cursor-not-allowed"
-                                            : "bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
-                                        }`}
-                                >
-                                    Next
-                                </button>
-                            </div>
-                        </div>
-                    </div> */}
+                   
                     {/* Card 1: Company Information */}
                     <div
                         className={`bg-white rounded-lg  transition-all duration-300 ${activeCard === 1 ? "block" : "hidden"
@@ -439,15 +355,6 @@ const CreateCompany = ({
                                             >
                                                 Department Code
                                             </label>
-                                            {/* <input
-                                                type="text"
-                                                id={`departmentCode-${index}`}
-                                                name="code"
-                                                placeholder="Ex: Hr"
-                                                value={dept.departmentCode}
-                                                onChange={(e) => handleDepartmentChange(index, e)}
-                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-1 border"
-                                            /> */}
                                              <input
                                             type="text"
                                             id={`departmentcode-${index}`}
@@ -648,23 +555,24 @@ ${isNextDisabled()
                                     Back
                                 </button>
                                 <button
-                                    type="button"
-                                    onClick={nextCard}
-                                    disabled={isNextDisabled()}
+                                    type="submit"
+                                    disabled={loading}
+                                    onClick={handleSubmit}
                                     className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md 
-    ${isNextDisabled()
+          ${loading
                                             ? "bg-gray-400 cursor-not-allowed"
                                             : "bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
-                                        }`}
+                                        }
+        `}
                                 >
-                                    Next
+                                    {loading ? "Submitting..." : "Submit Registration"}
                                 </button>
                             </div>
                         </div>
                     </div>
 
                     {/* Card 4: Company document */}
-                    <div
+                    {/* <div
                         className={`bg-white rounded-lg  transition-all duration-300 ${activeCard === 4 ? "block" : "hidden"
                             }`}
                     >
@@ -740,7 +648,7 @@ ${isNextDisabled()
                                 </button>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
                 </form>
             </div>
         </div>
