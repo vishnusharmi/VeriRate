@@ -2,6 +2,9 @@ import { jwtDecode } from 'jwt-decode';
 import React, { createContext, useEffect, useState } from 'react'
 import {useNavigate} from "react-router";
 import PropTypes from "prop-types";
+import axios from "axios";
+import axiosInstance from "../../middleware/axiosInstance";
+  const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 export const AuthContext = createContext();
 
@@ -22,7 +25,10 @@ function AuthProvider({children}) {
     return null;
   });
 
-  // if login success we are setting token into the session storage 
+  useEffect(()=>{
+    fetchCompanies();
+  },[]);
+
   const login = (token) => {
     sessionStorage.setItem("authToken", token);
     try {
@@ -49,6 +55,21 @@ function AuthProvider({children}) {
       }
     }
   }, []);
+
+  // console.log(auth);
+
+  
+      const fetchCompanies = async () => {
+          try {
+                  const response = await axiosInstance.get(`/get-companies`);
+              console.log(response,'hhhh');
+  
+          
+          } catch (error) {
+              console.error("Error fetching companies:", error);
+       
+          }
+      };
 
   return (
     <AuthContext.Provider value={{ auth, login, logOut,token }}>

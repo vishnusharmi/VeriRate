@@ -17,7 +17,7 @@ export const CompanyProvider = ({ children }) => {
         try {
             setLoading(true);
             const response = await axios.get(`${baseURL}/get-companies`);
-            console.log(response);
+            console.log(response,'kkkkkkkkkkk');
 
             setCompanies(response.data.companies || []);
         } catch (error) {

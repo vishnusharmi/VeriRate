@@ -5,9 +5,9 @@ import {
   Warning as AlertTriangleIcon,
   Delete as TrashIcon,
   Edit as EditIcon,
-  Business as BuildingIcon, // For Company Management
-  Group as UsersIcon, // For User Management
-  Gavel as GavelIcon, // For Dispute Management
+  Business as BuildingIcon, 
+  Group as UsersIcon, 
+  Gavel as GavelIcon, 
   AccessTime as ClockIcon,
   Notifications as BellIcon,
 } from "@mui/icons-material";
@@ -66,7 +66,7 @@ const ActivityList = ({ activities, loading, error }) => {
   };
 
   return (
-    <div className="overflow-y-auto p-5 space-y-4 flex-grow">
+    <div className="overflow-y-auto p-5 space-y-4 flex-grow sub-scrollbar">
       {loading ? (
         <div className="flex justify-center items-center h-40">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>

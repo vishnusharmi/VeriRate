@@ -35,7 +35,7 @@ const VerificationDialog = ({ isOpen, onClose, employment, onVerify }) => {
       }
     } catch (error) {
       console.error("Verification failed:", error);
-      alert("Failed to verify employee. Please try again.");
+      toast.error("Failed to verify employee. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -50,7 +50,7 @@ const VerificationDialog = ({ isOpen, onClose, employment, onVerify }) => {
             <strong>Name:</strong> {employment.name}
           </div>
           <div>
-            <strong>Company:</strong> {companyName}
+            <strong>Company:</strong> {employment.company_name}
           </div>
           <div>
             <strong>Position:</strong> {employment.position}
@@ -114,13 +114,12 @@ const EmploymentVerificationSearch = () => {
     try {
       setLoading(true);
       const response = await axios.get(apiUrl);
-
       const formattedEmployees =
-        response?.data?.employees?.map((employee) => ({
+        response?.data?.employees?.data?.map((employee) => ({
           id: employee.id || "N/A",
           name: `${employee.first_name} ${employee.last_name}`.trim() || "N/A",
           email: employee.User.email || "N/A",
-          position: employee.position || "N",
+          position: employee.position || "N/A",
           salary: employee.salary || "N/A",
           phone_number: employee.phone_number || "N/A",
           qualification: employee.qualification || "N/A",
@@ -132,7 +131,8 @@ const EmploymentVerificationSearch = () => {
             employee.is_verified === "Verified"
               ? VerificationStatus.VERIFIED
               : VerificationStatus.PENDING,
-          employment_history: employee.employment_history || "N/A", // Directly use the string
+          employment_history: employee.employment_history || "N/A",
+          company_name: employee.Company.companyName || "N/A",
         })) || [];
 
       setEmployees(formattedEmployees);
@@ -171,14 +171,14 @@ const EmploymentVerificationSearch = () => {
           )
         );
 
-        alert("Employee verification successful!");
+        toast.success("Employee verification successful!");
         return true;
       } else {
         throw new Error(`Failed: ${response.statusText}`);
       }
     } catch (error) {
       console.error("Verification Error:", error);
-      alert(`Failed to verify employee: ${error.message}`);
+      toast.error(`Failed to verify employee: ${error.message}`);
       return false;
     }
   };

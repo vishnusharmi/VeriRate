@@ -21,7 +21,6 @@ const Records = () => {
   // Activity data state
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   // Pagination states
   const [pagination, setPagination] = useState({
@@ -31,7 +30,7 @@ const Records = () => {
     pageSize: 10,
   });
 
-  const API = "http://localhost:3000/api/getRecentActivities";
+  const API = "http://localhost:3000/api/activity-logs";
 
   useEffect(() => {
     fetchActivities();
@@ -83,11 +82,7 @@ const Records = () => {
       setActivities(transformedData);
       setPagination({ totalRecords, totalPages, currentPage, pageSize });
     } catch (err) {
-      setError(
-        "Failed to fetch activities: " +
-          (err.response?.data?.message || err.message)
-      );
-      console.error("Unable to fetch activities", err);
+      console.log(err);
     } finally {
       setLoading(false);
     }
@@ -105,7 +100,7 @@ const Records = () => {
       setDisputePercent(data.disputeChangePercentage.toString());
       setSolvedPercent(data.solvedDisputeGrowthPercentage.toString());
     } catch (err) {
-      console.error("Failed to fetch stats:", err);
+      console.log(err);
     }
   };
 
@@ -125,13 +120,11 @@ const Records = () => {
 
   return (
     <div className="h-full flex flex-col max-w-6xl mx-auto overflow-hidden">
-      {/* Header */}
       <div className="space-y-2 my-3">
         <h2 className="text-3xl font-semibold">Employee Records</h2>
         <p className="text-gray-600">Welcome John! Here's today's update.</p>
       </div>
 
-      {/* Dashboard Stats */}
       <DashboardStats
         employees={employees}
         disputes={disputes}
@@ -141,7 +134,6 @@ const Records = () => {
         solvedPercent={solvedPercent}
       />
 
-      {/* Recent Activity with Filters */}
       <div className="bg-white rounded-2xl shadow-md overflow-hidden flex flex-col flex-grow">
         <ActivityFilter
           activityFilter={activityFilter}
@@ -150,10 +142,8 @@ const Records = () => {
           setPeriodFilter={setPeriodFilter}
         />
 
-        {/* Activity List */}
-        <ActivityList activities={activities} loading={loading} error={error} />
+        <ActivityList activities={activities} loading={loading} />
 
-        {/* Pagination Controls */}
         <PaginationControls
           pagination={pagination}
           handlePageChange={handlePageChange}

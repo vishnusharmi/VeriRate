@@ -1,13 +1,10 @@
 import {
-  Analytics,
   Block,
   Dashboard,
-  History,
   People,
   Person,
   Settings,
   PeopleAlt,
-  Security,
 } from "@mui/icons-material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { NavLink } from "react-router";

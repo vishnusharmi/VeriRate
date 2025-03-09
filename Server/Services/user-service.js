@@ -143,6 +143,16 @@ exports.registerUser = async (adminId,data, files) => {
     // If everything succeeds, commit the transaction
     await transaction.commit();
 
+    await logActivity(
+      userData.id,
+      `New ${data.role || "User"} created`,
+      `${userData.username ||
+      `${userData.first_name || ""} ${userData.last_name || ""}`.trim()
+      }`,
+      "User",
+      "User Management"
+    );
+
     return {
       statusCode: 201,
       message: "User created successfully",
@@ -240,7 +250,7 @@ exports.updateUserById = async (id, data, documentPath) => {
       ],
     });
 
-    console.log(getuser.Document.id, "docicici");
+    // console.log(getuser.Document.id, "docicici");
 
     let file_url = getuser.Document.id;
 
@@ -250,7 +260,7 @@ exports.updateUserById = async (id, data, documentPath) => {
     });
 
 
-    console.log(result, "resultttt");
+    // console.log(result, "resultttt");
 
     const updatedUser = await userModel.update(data, { where: { id } });
 
@@ -263,7 +273,17 @@ exports.updateUserById = async (id, data, documentPath) => {
       { where: { id: file_url } }
     );
 
-    console.log(docResponse, "responss");
+    // console.log(docResponse, "responss");
+
+    await logActivity(
+      this.updateUserById.id,
+      `${this.updateUserById.role || "User"} updated`,
+      `${this.updateUserById.username ||
+      `${updatedUser.first_name || ""} ${updatedUser.last_name || ""}`.trim()
+      }`,
+      "User",
+      "User Management"
+    );
 
     return updatedUser;
   } catch (error) {
@@ -275,8 +295,20 @@ exports.updateUserById = async (id, data, documentPath) => {
 
 exports.deleteUser = async (id) => {
   try {
+    const findUser = await userModel.findByPk(id);
+    if (!findUser) {
+      throw new Error("User not found");
+    }
     const deletedUser = await userModel.destroy({ where: { id } });
-
+    await logActivity(
+      findUser.id,
+      `${findUser.role || "User"} Deleted`,
+      `${findUser.username ||
+      `${findUser.first_name || ""} ${findUser.last_name || ""}`.trim()
+      }`,
+      "User",
+      "User Management"
+    );
     return deletedUser;
   } catch (error) {
     console.log(error);
