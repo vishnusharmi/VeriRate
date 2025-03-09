@@ -3,24 +3,38 @@ const blackList = require("../Models/blackList-model");
 const employee = require("../Models/EmployeeModel");
 const company = require("../Models/companies");
 const logActivity = require("../Activity/activityFunction.js");
-//create
-exports.createBlackList = async (data) => {
-  try {
-    const user = await blackList.create(data);
 
+//create
+exports.createBlackList = async (data, adminId) => {
+  console.log(data, 'hdhdhdhhdh');
+  
+  try {
+    // Check if employee is already blacklisted
+    const existedData = await blackList.findOne({ where: { employee_id: data.employee_id } });
+
+    if (existedData) {
+      return { statusCode: 400, message: "Employee is already in the blacklist" };
+    }
+
+    // Create blacklist entry
+    const createBlackList = await blackList.create({ ...data, createdBy: adminId });
+
+    // Log activity
     await logActivity(
-      user.id,
-      "Blacklist Added",
-      `Blacklisted by: ${createdByUser.name} | Blacklisted User: ${user.name}`,
+      createBlackList.id,
+      "BlackList Added",
+      `Blacklisted by: ${ createBlackList.name} | Blacklisted User: ${user.name}`,
       "Blacklist Management"
     );
 
-    console.log(user);
-    return user;
+    return { statusCode: 201, message: "Blacklist created successfully", createBlackList };
+
   } catch (error) {
-    console.error("Error occured", error.message);
+    console.error("Error occurred:", error.message);
+    return { statusCode: 500, message: "Internal Server Error" };
   }
 };
+
 
 //read
 exports.readBlackList = async (id) => {
@@ -60,14 +74,14 @@ exports.readAllBlackList = async () => {
 };
 
 //update
-exports.updateBlackList = async (id, data) => {
+exports.updateBlackList = async (id, data,adminId) => {
   try {
     const user = await blackList.findByPk(id);
     if (!user) {
       return "User id not available";
     }
 
-    const updateUser = await blackList.update(data, { where: { id } });
+    const updateUser = await blackList.update({ ...data, createdBy: adminId }, { where: { id } });
     await logActivity(
       user.id,
       " BlackList User Updated ",

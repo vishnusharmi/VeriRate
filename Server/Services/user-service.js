@@ -7,6 +7,7 @@ const AdminSettings = require("../Models/adminSettings");
 const bcrypt = require("bcryptjs");
 const { accessSync } = require("fs");
 
+
 exports.registerUser = async (adminId,data, files) => {
   const transaction = await userModel.sequelize.transaction(); // Start transaction
   // console.log("employment_history", data.employment_history);
@@ -189,6 +190,8 @@ exports.registerUser = async (adminId,data, files) => {
 
 
 exports.getAllusers = async () => {
+  console.log('errrrrrrrrrrr');
+  
   try {
     const getUsers = await userModel.findAll({
       include: [Documents, employeeModel],
