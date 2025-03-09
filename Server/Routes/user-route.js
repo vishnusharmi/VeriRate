@@ -12,15 +12,17 @@ userRouter.post(
 );
 
 // Protected Routes (Require JWT)
-userRouter.get("/users", verifyToken, userControllers.getAllUsers);
+userRouter.get("/users",
+  //  verifyToken,
+    userControllers.getAllUsers);
 userRouter.get(
   "/users/:id",
-  verifyToken,
+  // verifyToken,
   userControllers.getUserByIdController
 );
 userRouter.put(
   "/users/:id",
-  verifyToken,
+  // verifyToken,
   upload.single("document"),
   userControllers.updateUserById
 );
