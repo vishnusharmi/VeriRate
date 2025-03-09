@@ -1,11 +1,11 @@
-const cloudinaryUpload = require("../MiddleWares/Cloudinary");
+
 const userModel = require("../Models/user");
 const Documents = require("../Models/documents");
 const employeeModel = require("../Models/EmployeeModel");
 const AdminSettings = require("../Models/adminSettings");
 
 const bcrypt = require("bcryptjs");
-const { accessSync } = require("fs");
+
 
 
 exports.registerUser = async (adminId,data, files) => {
@@ -15,7 +15,8 @@ exports.registerUser = async (adminId,data, files) => {
   try {
     // Validate required fields
     if (!data.email || !data.password || !data.role) {
-      return { statusCode: 404, message: "Missing required fields" };
+      // return { statusCode: 404, message: "Missing required fields" };
+      throw new Error("Missing required fields")
     }
 
     // Check if user already exists
@@ -23,7 +24,8 @@ exports.registerUser = async (adminId,data, files) => {
       where: { email: data.email },
     });
     if (existingUser) {
-      return { statusCode: 400, message: "User already exists" };
+      // return { statusCode: 400, message: "User already exists" };
+      throw new Error("User already exists");
     }
 
     // Hash password
@@ -73,7 +75,7 @@ exports.registerUser = async (adminId,data, files) => {
           permanent_address: data.permanent_address,
           current_address: data.current_address,
           UPI_Id: data.UPI_Id,
-          createdBy: adminId,
+          created_By:data.created_By
         },
         { transaction }
       );
@@ -129,7 +131,7 @@ exports.registerUser = async (adminId,data, files) => {
       }
     } else if (files && files.path) {
 
-      console.log(`***************************************${files} *******************${files.path} ****************`);
+      // console.log(`***************************************${files} *******************${files.path} ****************`);
       const document = await Documents.create({
         empId: userData.id,
         documentType: files.mimetype,
@@ -155,7 +157,6 @@ exports.registerUser = async (adminId,data, files) => {
     );
 
     return {
-      statusCode: 201,
       message: "User created successfully",
       data: {
         user: userData,
@@ -166,8 +167,8 @@ exports.registerUser = async (adminId,data, files) => {
   } catch (error) {
     // Rollback transaction if any error occurs
     await transaction.rollback();
-    console.error("Error in registerUser:", error);
-    return { statusCode: 500, message: error.message, error: error.message };
+    // console.error("Error in registerUser:", error);
+    throw error;
   }
 
 
@@ -241,41 +242,57 @@ exports.getUserbyid = async (id) => {
 };
 
 
-//update user by id
-
 exports.updateUserById = async (id, data, documentPath) => {
+  console.log(data, '*************************88');
   try {
     const getuser = await userModel.findByPk(id, {
       include: [
         {
           model: Documents,
+        
         },
+        {
+          model: employeeModel
+        }
       ],
     });
 
-    // console.log(getuser.Document.id, "docicici");
+    console.log(getuser.Employee.id,'get users');
+    
 
-    let file_url = getuser.Document.id;
-
-    const result = await cloudinaryUpload.uploader.upload(documentPath, {
-      resource_type: "auto",
-      folder: "user_uploads",
-    });
-
-
-    // console.log(result, "resultttt");
-
-    const updatedUser = await userModel.update(data, { where: { id } });
-
-    if (!updatedUser) {
-      throw new error(" user not found");
+    if (!getuser) {
+      throw new Error("User not found");
     }
 
-    const docResponse = await Documents.update(
-      { file_path: result.url },
-      { where: { id: file_url } }
-    );
+    if (getuser.Documents) {
 
+      let docId = getuser.Documents[0].id;
+
+      if (documentPath) {
+        await Documents.update(
+          { file_path: documentPath }, 
+          { where: { id: docId } }
+        );
+      }
+    };
+
+    if(getuser.Employee){
+      let id = getuser.Employee.id
+      console.log(id,'idddddddddd');
+      await employeeModel.update(data,{where:{id}})
+      
+    }
+
+   
+
+    const [rowsUpdated] = await userModel.update(data, { where: { id } });
+
+    if (rowsUpdated === 0) {
+      throw new Error("User update failed");
+    }
+    const updatedUser = await userModel.findByPk(id, {
+      include: [{ model: Documents} ,  { model: employeeModel }],
+    });
     // console.log(docResponse, "responss");
 
     await logActivity(
@@ -294,7 +311,8 @@ exports.updateUserById = async (id, data, documentPath) => {
   }
 };
 
-//delete user
+
+
 
 exports.deleteUser = async (id) => {
   try {
