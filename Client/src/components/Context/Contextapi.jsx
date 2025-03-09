@@ -56,8 +56,8 @@ function AuthProvider({children}) {
   );
 }
 
-// AuthProvider.propTypes = {
-//   children: PropTypes.node.isRequired,
-// };
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 
 export default AuthProvider;
