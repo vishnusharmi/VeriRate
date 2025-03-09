@@ -2,16 +2,17 @@ const Company = require("../Models/companies");
 const document = require('../Models/documents');
 const departmentModel = require("../Models/department");
 const cloudinaryUpload = require("../MiddleWares/Cloudinary");
+const logActivity = require("../Activity/activityFunction.js");
 
 exports.createCompany = async (company) => {
     try {
 
-        const {departments,...companyData} = company
+        const { departments, ...companyData } = company
         const companyCreated = await Company.create(companyData);
         if (!companyCreated) {
             return { statusCode: 404, message: "Error While creating Company" }
         }
-        
+
         const finalDepartments = departments.map(department => {
             return {
                 ...department,
@@ -20,7 +21,15 @@ exports.createCompany = async (company) => {
         })
         const departmentResponse = await departmentModel.bulkCreate(finalDepartments);
 
-        return {companyCreated, departmentResponse};
+        await logActivity(
+            companyCreated.id,
+            " New company profile created",
+            `${companyCreated.companyName}`,
+            "Company",
+            "Company Management"
+        );
+
+        return { companyCreated, departmentResponse };
     } catch (error) {
         console.error("error:", error);
         throw error;
@@ -31,15 +40,7 @@ exports.createCompany = async (company) => {
 //get all compamies
 exports.getCompanies = async () => {
     try {
-        const companies = await Company.findAll(
-            {
-                include: [
-                    {
-                        model: document
-                    }
-                ]
-            }
-        );
+        const companies = await Company.findAll( );
         return companies
     } catch (error) {
         console.error("error:", error)
@@ -65,11 +66,21 @@ exports.getcompanyById = async (id) => {
 //updating company
 exports.updateCompany = async (id, company) => {
     try {
-        // const companyUpdate = await Company.findByPk(id);
-        // if(!company){
-        //     return res.status(404).json({error: "company not found "})
-        // }
+        let companyUpdate = await Company.findByPk(id);
+        if (!company) {
+            return res.status(404).json({ error: "company not found " });
+        }
         const updateCompany = await Company.update(company, { where: { id } });
+
+        companyUpdate = await Company.findByPk(id);
+        await logActivity(
+            companyUpdate.id,
+            "company profile updated",
+            ` ${companyUpdate.companyName}`,
+            "Company",
+            "Company Management"
+        );
+
         return updateCompany;
     } catch (error) {
         console.error("error:", error);
@@ -83,13 +94,20 @@ exports.updateCompany = async (id, company) => {
 //deleting Company
 exports.deleteCompany = async (id) => {
     try {
-        // const company = await Company.findByPk(id);
-        // if(!company){
-        //     return res.status(404).json({error: "company not found "})
-        // }
+        const company = await Company.findByPk(id);
+        if (!company) {
+            return res.status(404).json({ error: "company not found " });
+        }
         const deleteCompany = await Company.destroy({ where: { id } });
-        return deleteCompany
+        await logActivity(
+            company.id,
+            "company profile deleted",
+            ` ${company.companyName}`,
+            "Company",
+            "Company Management"
+        );
+        return deleteCompany;
     } catch (error) {
-        console.error("error:", error)
+        console.error("error:", error);
     }
-}
+};

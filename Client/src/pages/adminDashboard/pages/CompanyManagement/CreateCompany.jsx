@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Country, State } from "country-state-city";
 import Select from "react-select";
 import { toast } from "react-toastify";
-import { Eye, EyeOff } from "lucide-react";
+
 
 const CreateCompany = ({
     handleCancel,
@@ -13,9 +13,8 @@ const CreateCompany = ({
     showAddModal
 
 }) => {
-    const totalCards = 5;
+    const totalCards = 4;
     const [activeCard, setActiveCard] = useState(1);
-    const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
         if (showAddModal) {
@@ -27,7 +26,7 @@ const CreateCompany = ({
         const { id, value } = e.target;
 
         // Check if the field is NOT email or password
-        const formattedValue = (id === "email" || id === "password" || id === "companyWebsite")
+        const formattedValue = ( id === "companyWebsite")
             ? value
             : value.charAt(0).toUpperCase() + value.slice(1);
 
@@ -60,10 +59,7 @@ const CreateCompany = ({
         });
     };
 
-    const togglePasswordVisibility = () => {
-        setShowPassword(!showPassword);
-    };
-
+  
     const nextCard = () => {
         if (!validateForm()) return;
         if (activeCard < totalCards) {
@@ -79,17 +75,21 @@ const CreateCompany = ({
 
     const isNextDisabled = () => {
         if (activeCard === 1) {
-            return !formData.email || !formData.password || !formData.username;
-        }
-        if (activeCard === 2) {
             return (
+                !formData.email||
                 !formData.companyName ||
                 !formData.industry ||
                 !formData.founderYear ||
                 !formData.registerNum
             );
         }
-        if (activeCard === 4) {
+        // if (activeCard === 2) {
+        //     return (
+        //         !formData.departments.name||
+        //         !formData.departments.departmentCode
+        //     );
+        // }
+        if (activeCard === 3) {
             return (
                 !formData.address ||
                 !formData.country ||
@@ -113,13 +113,9 @@ const CreateCompany = ({
                 toast.error("Invalid email format!");
                 return false;
             }
-            if (password.length < 6) {
-                toast.error("Password must be at least 6 characters long!");
-                return false;
-            }
         }
 
-        if (activeCard === 4) {
+        if (activeCard === 3) {
             // Validate company website and phone number
             if (!urlRegex.test(companyWebsite)) {
                 toast.error("Invalid website URL format!");
@@ -148,7 +144,7 @@ const CreateCompany = ({
     const addDepartment = () => {
         setFormData({
             ...formData,
-            departments: [...formData.departments, { name: '', code: '' }]
+            departments: [...formData.departments, { name: '', departmentCode: '' }]
         });
     };
 
@@ -199,7 +195,7 @@ const CreateCompany = ({
 
                 <form>
                     {/* Card 1: Founder Information */}
-                    <div
+                    {/* <div
                         className={`bg-white rounded-lg  transition-all duration-300 ${activeCard === 1 ? "block" : "hidden"
                             }`}
                     >
@@ -288,10 +284,10 @@ const CreateCompany = ({
                                 </button>
                             </div>
                         </div>
-                    </div>
-                    {/* Card 2: Company Information */}
+                    </div> */}
+                    {/* Card 1: Company Information */}
                     <div
-                        className={`bg-white rounded-lg  transition-all duration-300 ${activeCard === 2 ? "block" : "hidden"
+                        className={`bg-white rounded-lg  transition-all duration-300 ${activeCard === 1 ? "block" : "hidden"
                             }`}
                     >
                         <div className=" rounded-t-lg px-3 pt-3">
@@ -315,7 +311,22 @@ const CreateCompany = ({
                                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-1 border"
                                 />
                             </div>
-
+                            <div>
+                                <label
+                                    htmlFor="email"
+                                    className="block text-sm font-medium text-gray-700 mb-1"
+                                >
+                                    Email
+                                </label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    value={formData.email}
+                                    required
+                                    onChange={handleChange}
+                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-1 border"
+                                />
+                            </div>
                             <div>
                                 <label
                                     htmlFor="industry"
@@ -365,14 +376,13 @@ const CreateCompany = ({
                                     />
                                 </div>
                             </div>
-
                             <div className="pt-4 flex justify-between">
                                 <button
                                     type="button"
-                                    onClick={prevCard}
+                                    onClick={handleCancel}
                                     className="cursor-pointer inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                 >
-                                    Back
+                                    Cancel
                                 </button>
 
                                 <button
@@ -390,9 +400,9 @@ const CreateCompany = ({
                             </div>
                         </div>
                     </div>
-                    {/* Card 3: Department Information */}
+                    {/* Card 2: Department Information */}
                     <div
-                        className={`bg-white rounded-lg  transition-all duration-300 ${activeCard === 3 ? "block" : "hidden"
+                        className={`bg-white rounded-lg  transition-all duration-300 ${activeCard === 2 ? "block" : "hidden"
                             }`}
                     >
                         <div className=" rounded-t-lg px-3 pt-3">
@@ -429,15 +439,24 @@ const CreateCompany = ({
                                             >
                                                 Department Code
                                             </label>
-                                            <input
+                                            {/* <input
                                                 type="text"
                                                 id={`departmentCode-${index}`}
                                                 name="code"
                                                 placeholder="Ex: Hr"
-                                                value={dept.code}
+                                                value={dept.departmentCode}
                                                 onChange={(e) => handleDepartmentChange(index, e)}
                                                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-1 border"
-                                            />
+                                            /> */}
+                                             <input
+                                            type="text"
+                                            id={`departmentcode-${index}`}
+                                            name="departmentCode"
+                                            value={dept.departmentCode}
+                                              placeholder="Ex: Hr"
+                                            onChange={(e) => handleDepartmentChange(index, e)}
+                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-1 border"
+                                        />
                                         </div>
 
                                         {index > 0 && (
@@ -493,9 +512,9 @@ ${isNextDisabled()
                             </div>
                         </div>
                     </div>
-                    {/* Card 4 Contact Information */}
+                    {/* Card 3 Contact Information */}
                     <div
-                        className={`bg-white rounded-lg  transition-all duration-300 ${activeCard === 4 ? "block" : "hidden"
+                        className={`bg-white rounded-lg  transition-all duration-300 ${activeCard === 3 ? "block" : "hidden"
                             }`}
                     >
                         <div className=" rounded-t-lg px-3 pt-3">
@@ -644,9 +663,9 @@ ${isNextDisabled()
                         </div>
                     </div>
 
-                    {/* Card 5: Company document */}
+                    {/* Card 4: Company document */}
                     <div
-                        className={`bg-white rounded-lg  transition-all duration-300 ${activeCard === 5 ? "block" : "hidden"
+                        className={`bg-white rounded-lg  transition-all duration-300 ${activeCard === 4 ? "block" : "hidden"
                             }`}
                     >
                         <div className=" rounded-t-lg px-3 py-2">

@@ -29,8 +29,8 @@ const CompanyTable = ({
         }
     };
 
-    const handleView = () => {
-        navigate("/admin/department");
+    const handleView = (company) => {
+        navigate("/admin/department", { state: { company } });
     };
 
     // Pagination calculation
@@ -126,7 +126,7 @@ const CompanyTable = ({
                                         <td className="px-2 md:px-4  text-xs md:text-sm text-gray-900 text-center">
                                             <button
                                                 className="cursor-pointer text-blue-500 hover:text-blue-600 hover:scale-110 transition-all duration-200"
-                                                onClick={handleView}
+                                                onClick={() => handleView(company)}
                                             >
                                                 <Eye size={10} className="md:w-5 md:h-5" />
                                             </button>
