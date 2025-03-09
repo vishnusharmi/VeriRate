@@ -2,12 +2,13 @@ const cloudinaryUpload = require("../MiddleWares/Cloudinary");
 const userModel = require("../Models/user");
 const Documents = require("../Models/documents");
 const employeeModel = require("../Models/EmployeeModel");
+const AdminSettings = require("../Models/adminSettings");
 
 const bcrypt = require("bcryptjs");
 const { accessSync } = require("fs");
 
-exports.registerUser = async (data, files) => {
-  const transaction = await userModel.sequelize.transaction(); 
+exports.registerUser = async (adminId,data, files) => {
+  const transaction = await userModel.sequelize.transaction(); // Start transaction
   // console.log("employment_history", data.employment_history);
   // console.log(`*************************************${files}`)
   try {
@@ -71,20 +72,22 @@ exports.registerUser = async (data, files) => {
           permanent_address: data.permanent_address,
           current_address: data.current_address,
           UPI_Id: data.UPI_Id,
+          createdBy: adminId,
         },
         { transaction }
       );
 
       if (data.role === "Employee Admin") {
+        
         await AdminSettings.create({
-          adminId: additionalData.userId, // TODO: SUPER ADMIN ID
+          adminId: userData.id, // TODO: SUPER ADMIN ID
           accessControl: false,
           complianceCheck: true,
           blacklistControl: false,
           twoFactorAuth: false,
           systemMonitoring: true,
           performanceTracking: true,
-        });
+        },{transaction});
       }
 
     }

@@ -42,12 +42,10 @@ const CompanyHeader = ({ searchTerm, setSearchTerm, companies, setShowAddModal, 
                                 state: "",
                                 phonenumber: "",
                                 companyWebsite: "",
-                                email: "",
-                                username: "",
                                 role: "Employee Admin",
-                                password: "",
+                                
                                 document: null,
-                                departments: [{ name: '', code: '' }]
+                                departments: [{ name: '',departmentCode:""}]
                             });
                         }}
                         className="cursor-pointer flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"

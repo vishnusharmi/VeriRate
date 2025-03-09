@@ -1,25 +1,27 @@
 import {
-  Analytics,
   Block,
   Dashboard,
-  History,
   People,
   Person,
-  Reviews,
   Settings,
   PeopleAlt,
-  Security,
 } from "@mui/icons-material";
+import SettingsIcon from "@mui/icons-material/Settings";
+import { NavLink } from "react-router";
 import DomainVerificationIcon from "@mui/icons-material/DomainVerification";
 import LogoutIcon from "@mui/icons-material/Logout";
 import BadgeIcon from "@mui/icons-material/Badge";
 import DescriptionIcon from "@mui/icons-material/Description";
-import { NavLink } from "react-router";
 import RateReviewIcon from "@mui/icons-material/RateReview";
-import SettingsIcon  from "@mui/icons-material/Settings";
+import PropTypes from "prop-types";
+import {useState, useContext } from "react";
+import { AuthContext } from "../Context/Contextapi";
 
-const SidebarItems = () => {
-  const role = "admin/";
+const SidebarItems = ({ toggleMenu, handleToggle }) => {
+  const [isLogoutModal,setIsLogoutModal] = useState(false)
+  const { auth , logOut} = useContext(AuthContext);
+  // const role = auth.role;
+  const role = auth ? auth.role : null;
 
   const adminMenuItems = [
     {
@@ -28,7 +30,7 @@ const SidebarItems = () => {
       path: "/admin",
     },
     {
-      name: "Companies",
+      name: "Employers List",
       icon: <BadgeIcon className="w-5 h-5 cb1:w-6 cb1:h-6" />,
       path: "/admin/company-management",
     },
@@ -65,67 +67,114 @@ const SidebarItems = () => {
   ];
 
   const employerMenuItems = [
-    { name: "Dashboard", icon: <Dashboard />, path: "/company" },
-    { name: "Employee List", icon: <People />, path: "/company/employee-list" },
-    { name: "Reviews", icon: <Reviews />, path: "/company/reviews" },
-    { name: "Blacklist", icon: <Block />, path: "/company/blacklist" },
+    {
+      name: "Dashboard",
+      icon: <Dashboard className="w-5 h-5 cb1:w-6 cb1:h-6" />,
+      path: "/company",
+    },
+    {
+      name: "Employee List",
+      icon: <People className="w-5 h-5 cb1:w-6 cb1:h-6" />,
+      path: "/company/employee-list",
+    },
+    {
+      name: "Blacklist",
+      icon: <Block className="w-5 h-5 cb1:w-6 cb1:h-6" />,
+      path: "/company/blacklist",
+    },
     {
       name: "Verification",
-      icon: <DomainVerificationIcon />,
+      icon: <DomainVerificationIcon className="w-5 h-5 cb1:w-6 cb1:h-6" />,
       path: "/company/verification",
     },
-    {
-      name: "Analytics",
-      icon: <Analytics />,
-      path: "/company/analytics",
-    },
-    {
-      name: "History",
-      icon: <History />,
-      path: "/company/history",
-    },
+    // {
+    //   name: "Analytics",
+    //   icon: <Analytics className="w-5 h-5 cb1:w-6 cb1:h-6" />,
+    //   path: "/company/analytics",
+    // },
+    // {
+    //   name: "History",
+    //   icon: <History className="w-5 h-5 cb1:w-6 cb1:h-6" />,
+    //   path: "/company/history",
+    // },
     {
       name: "Ratings and Feedback",
-      icon: <RateReviewIcon />,
+      icon: <RateReviewIcon className="w-5 h-5 cb1:w-6 cb1:h-6" />,
       path: "/company/ratings-feedback",
     },
-    {
-      name: "SecurityCompliance",
-      icon: <Security />,
-      path: "/company/security-compliance",
-    },
+    // {
+    //   name: "Security & Compliance",
+    //   icon: <Security className="w-5 h-5 cb1:w-6 cb1:h-6" />,
+    //   path: "/company/security-compliance",
+    // },
+    // {
+    //   name: "Settings",
+    //   icon: <SettingsIcon className="w-5 h-5 cb1:w-6 cb1:h-6" />,
+    //   path: "/company/employee-settings",
+    // },
   ];
 
-  let items = role === "admin" ? adminMenuItems : employerMenuItems;
+  let items = role === "Super Admin" ? adminMenuItems : employerMenuItems;
 
   return (
     <>
+    {isLogoutModal && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500/50">
+            <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-lg relative">
+              <h2 className="text-lg font-semibold">Confirm Deletion</h2>
+              <p className="text-gray-600 mt-2">
+                Are you sure you want to logout?
+              </p>
+              <div className="flex justify-end gap-4 mt-4">
+                <button
+                  className="px-4 py-2 bg-gray-300 rounded-lg"
+                  onClick={() => setIsLogoutModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg"
+                  onClick={logOut}
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       <div className="flex flex-col items-center font-medium">
         {items.map((item, index) => (
           <NavLink
             key={index}
             to={item.path}
-            // className="flex items-center px-4 py-4 gap-4 text-md text-white cursor-pointer hover:bg-[#d2e8ee] hover:text-black transition-all w-full hover:shadow-md"
             className={({ isActive }) =>
-              `flex items-center px-4 py-4 gap-4 text-md cursor-pointer transition-all w-full hover:shadow-md ${
+              `flex items-center p-4 gap-4 text-sm cursor-pointer transition-all w-full cb2:text-base hover:shadow-md border-y-1 border-[#2196f3] ${
                 isActive && item.name !== "Dashboard"
-                  ? "bg-[#d2e8ee] text-black"
-                  : "text-white  hover:bg-[#d2e8ee] hover:text-black"
+                  ? "bg-[#3f51b5] text-white"
+                  : "text-white  hover:bg-[#2196f3] hover:text-white"
               }`
             }
+            onClick={() => toggleMenu && handleToggle()}
           >
-            <span>{item.icon}</span>
-            <span>{item.name}</span>
+            <div className="flex gap-4 h-max items-center justify-center">
+              <span>{item.icon}</span>
+              <span className="text-xs cb1:text-base">{item.name}</span>
+            </div>
           </NavLink>
         ))}
       </div>
-      <div className="">
-        <button className="flex items-center px-5 py-4 gap-4 text-md text-white font-medium cursor-pointer hover:bg-[#d2e8ee] hover:text-black transition-all w-full hover:shadow-md">
-          {<LogoutIcon />}Logout
+      <div>
+      <button onClick={() => setIsLogoutModal((prev) => !prev)} className="flex items-center px-5 py-4 gap-4 text-sm cb2:text-base text-white font-medium cursor-pointer hover:bg-[#2196f3] hover:text-white transition-all w-full hover:shadow-md">
+          {<LogoutIcon className="w-5 h-5 cb1:w-6 cb1:h-6" />}Logout
         </button>
       </div>
     </>
   );
+};
+
+SidebarItems.propTypes = {
+  toggleMenu: PropTypes.bool.isRequired,
+  handleToggle: PropTypes.func.isRequired,
 };
 
 export default SidebarItems;

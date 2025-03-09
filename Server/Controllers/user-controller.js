@@ -10,6 +10,7 @@ const registerServices = require("../Services/user-service.js");
 const register = async (req, res) => {
   const data = req.body;
   const files = req.files;
+  const adminId = req.userId;
 
   try {
 
@@ -17,7 +18,7 @@ const register = async (req, res) => {
     //   data.email = definedCrypto.encrypt(data.email);
     // }
 
-    const response = await registerServices.registerUser(data, files);
+    const response = await registerServices.registerUser(adminId,data, files);
     // const userData = response.data.user;
 
     // if (userData.role != "SuperAdmin") {

@@ -4,6 +4,7 @@ const logActivity = require("../Activity/activityFunction.js");
 const Activity = require("../Models/activityModel.js");
 const User = require("../Models/user.js");
 const Company = require("../Models/companies.js");
+const Company = require("../Models/companies.js");
 
 exports.createEmployee = async (data) => {
   try {
@@ -68,7 +69,19 @@ exports.getAllEmployees = async (page, pageSize) => {
   const offset = (page - 1) * pageSize
   try {
     const { count, rows } = await Employee.findAndCountAll({
-      include: [Ratings,User,Company],
+      include: [
+        {
+          model: Ratings,
+        },
+        {
+          model: Company,
+        },
+        {
+          model: User,
+          attributes: ['role', 'email', 'id'], // Fetch only specific fields
+          where: { role: 'Employee' } // Condition to get only Employee role users
+        }
+      ],
       limit,
       offset,
       order: [["id", "DESC"]],
