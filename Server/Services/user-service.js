@@ -6,7 +6,7 @@ const AdminSettings = require("../Models/adminSettings");
 
 const bcrypt = require("bcryptjs");
 const { accessSync } = require("fs");
-const AdminSettings = require("../Models/AdminSettings");
+
 
 exports.registerUser = async (adminId,data, files) => {
   const transaction = await userModel.sequelize.transaction(); // Start transaction

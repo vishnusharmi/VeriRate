@@ -9,7 +9,6 @@ exports.createBlackList = async (data, adminId) => {
   console.log(data, 'hdhdhdhhdh');
   
   try {
-<<<<<<< HEAD
     // Check if employee is already blacklisted
     const existedData = await blackList.findOne({ where: { employee_id: data.employee_id } });
 
@@ -24,26 +23,12 @@ exports.createBlackList = async (data, adminId) => {
     await logActivity(
       createBlackList.id,
       "BlackList Added",
-      "Temporary blacklist for 90 days - Code: Misconduct",
-      createBlackList.name,
-      "Blacklist Changes"
+      `Blacklisted by: ${ createBlackList.name} | Blacklisted User: ${user.name}`,
+      "Blacklist Management"
     );
 
     return { statusCode: 201, message: "Blacklist created successfully", createBlackList };
 
-=======
-    const user = await blackList.create(data);
-
-    await logActivity(
-      user.id,
-      "Blacklist Added",
-      `Blacklisted by: ${createdByUser.name} | Blacklisted User: ${user.name}`,
-      "Blacklist Management"
-    );
-
-    console.log(user);
-    return user;
->>>>>>> 8fe94f28386f766c66e2dc734c866cac4ab4d358
   } catch (error) {
     console.error("Error occurred:", error.message);
     return { statusCode: 500, message: "Internal Server Error" };
