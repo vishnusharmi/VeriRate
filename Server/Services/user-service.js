@@ -5,6 +5,7 @@ const employeeModel = require("../Models/EmployeeModel");
 
 const bcrypt = require("bcryptjs");
 const { accessSync } = require("fs");
+const AdminSettings = require("../Models/AdminSettings");
 
 exports.registerUser = async (data, files) => {
   const transaction = await userModel.sequelize.transaction(); // Start transaction
@@ -176,6 +177,8 @@ exports.registerUser = async (data, files) => {
 
 
 exports.getAllusers = async () => {
+  console.log('errrrrrrrrrrr');
+  
   try {
     const getUsers = await userModel.findAll({
       include: [Documents, employeeModel],

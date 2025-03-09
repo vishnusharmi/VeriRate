@@ -23,7 +23,7 @@ const verifyToken = async (req, res, next) => {
       }
 
       // Attach user ID to the request object for further use
-      req.userId = payload.userId; // Ensure payload contains `userId`
+      req.userId = payload.id; // Ensure payload contains `userId`
       next(); // Proceed to the next middleware/controller
     });
   } catch (e) {

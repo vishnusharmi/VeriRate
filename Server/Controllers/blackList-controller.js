@@ -4,29 +4,36 @@ const { createAuditLog } = require('./audit-controller');
 
 //create
 const createBlackListUser = async (req, res) => {
+    const adminId = req.userId;
+    console.log(req.body, 'req.body');
+  
     try {
-        const response = await blackListServices.createBlackList(req.body)
-        
-        const userData = response;
-        // console.log(response.data.user.dataValues)
-        if (!userData) {
-            return res.status(500).json({ message: "User registration unsuccessful" });
-        }
-        const action = "BLACKLIST";
-        const entityType = "Employee Admin";
-        const entityId = userData.created_by || "Not available";
-        // performed by should contain the id of the performer which can be brought by decoding JWT token
-        // here i mentioned userData.id just for now after implementing JWT authentication then change it
-        const performedBy = userData.created_by;
-        const details = `${userData.created_by} Blacklisted  ID: ${userData.employee_id} in ${userData.company_id} Company`;
-        const ipAddress = req.ip || "0.0.0.0";
-        const auditResponse = await createAuditLog({ action, entityType, entityId, performedBy, details, ipAddress });
-
-        return res.status(200).json({ message: " User Blacklisted succesfully", response, auditResponse });
+      const response = await blackListServices.createBlackList(req.body, adminId);
+  
+      if (response.statusCode !== 201) {
+        return res.status(response.statusCode).json({ message: response.message });
+      }
+  
+      const { createBlackList } = response;
+  
+      // Create audit log
+      const auditResponse = await createAuditLog({
+        action: "BLACKLIST",
+        entityType: "Employee Admin",
+        entityId: createBlackList.createdBy || "Not available",
+        performedBy: createBlackList.createdBy,
+        details: `${createBlackList.createdBy} blacklisted ID: ${createBlackList.employee_id} in Company ID: ${createBlackList.company_id}`,
+        ipAddress: req.ip || "0.0.0.0"
+      });
+  
+      return res.status(201).json({ message: "User blacklisted successfully", response, auditResponse });
+  
     } catch (error) {
-        return res.status(404).json({ message: error.message });
+      console.error("Error creating blacklist:", error);
+      return res.status(500).json({ message: "Internal Server Error" });
     }
-};
+  };
+  
 
 // get
 const readBlackListUser = async (req, res) => {
@@ -55,8 +62,9 @@ const readAllBlackListUser = async (req, res) => {
 const updateBlackListUser = async (req, res) => {
     const { id } = req.params
     const data = req.body
+    const adminId = req.userId
     try {
-        const response = await blackListServices.updateBlackList(id, data);
+        const response = await blackListServices.updateBlackList(id, data,adminId);
         const userData = await blackListServices.readBlackList(id);
 
         const action = "BLACKLIST";

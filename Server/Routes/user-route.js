@@ -12,7 +12,7 @@ userRouter.post(
 );
 
 // Protected Routes (Require JWT)
-userRouter.get("/users", verifyToken, userControllers.getAllUsers);
+userRouter.get("/users", userControllers.getAllUsers);
 userRouter.get(
   "/users/:id",
   verifyToken,

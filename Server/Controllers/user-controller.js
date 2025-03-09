@@ -47,18 +47,15 @@ const register = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
-    const users = await registerServices.getAllUsers();
+    const users = await registerServices.getAllusers();
 
     // Decrypt email before sending response
-    const decryptedUsers = users.map((user) => ({
-      ...user,
-      email: definedCrypto.decrypt(user.email),
-    }));
+    // const decryptedUsers = users.map((user) => ({email: definedCrypto.decrypt(user.email), ...user}));
 
     return res.status(200).json({
       success: true,
       message: "Users retrieved successfully",
-      data: decryptedUsers,
+      data: users,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
