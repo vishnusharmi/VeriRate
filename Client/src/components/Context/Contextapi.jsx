@@ -54,12 +54,10 @@ function AuthProvider({ children }) {
     }
   }, []);
 
-  // console.log(auth);
-
   const fetchCompanies = async () => {
     try {
       const response = await axiosInstance.get(`/get-companies`);
-      console.log(response, "hhhh");
+      // console.log(response, "hhhh");
     } catch (error) {
       console.error("Error fetching companies:", error);
     }

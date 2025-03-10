@@ -1,13 +1,11 @@
 import { useContext, useState } from "react";
-import { AuthContext } from "../../Context/Contextapi";
 import { Link, useNavigate } from "react-router";
-import { toast } from "react-toastify";
+import { toast,ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axiosInstance from "../../../middleware/axiosInstance";
 
 const Form = () => {
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [loginData, setLoginData] = useState({
     email: "",
@@ -57,16 +55,16 @@ const Form = () => {
       if (res.status === 200) {
         const token = res.data.loginUser.jwtToken;
         if (token && typeof token === "string") {
-          login(token);
+          sessionStorage.setItem("tempToken", token); 
+         toast.success("OTP sent to your mail");
           // Redirect after success
           setTimeout(() => {
-            navigate("/otp", { state: { email: loginData.email } });
+            navigate("/otp", { state: { email: loginData.email,role:loginData.role } });
           }, 1500);
         } else {
           console.error("Invalid token received", token);
         }
       }
-      toast.success("OTP sent to your mail");
       console.log("Submitted:", res.data.loginUser.message);
       console.log(res);
     } catch (error) {
@@ -130,6 +128,7 @@ const Form = () => {
           {loading ? "Logging in..." : "Login"}
         </button>
       </form>
+      <ToastContainer/>
     </>
   );
 };

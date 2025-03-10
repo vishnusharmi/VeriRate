@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useContext } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { AuthContext } from "../../Context/Contextapi";
-import { toast } from "react-toastify";
+import { toast,ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import axiosInstance from "../../../middleware/axiosInstance";
@@ -17,6 +17,7 @@ const OTP = () => {
   const navigate = useNavigate();
   const { login, auth } = useContext(AuthContext);
   const email = location.state?.email;
+  const role = location.state?.role;
 
   useEffect(() => {
     if (!isActive || timeLeft === 0) return;
@@ -73,39 +74,43 @@ const OTP = () => {
     setStatus("loading");
     try {
       const enteredOtp = otp.join("");
+      const tempToken = sessionStorage.getItem("tempToken"); 
+
+      if (!tempToken) {
+        throw new Error("Session expired. Please log in again.");
+      }
+
       const response = await axiosInstance.post("/otp", {
         email,
         otp: enteredOtp,
       });
-      console.log(response);
-      toast.success("OTP Verified successfully");
-      // setTimeout(() => {
-      //   if (auth) {
-      //     if (auth.existingUser?.role === "admin") {
-      //       navigate("/admin");
-      //     } else if (auth.existingUser?.role === "super-admin") {
-      //       navigate("/company");
-      //     } else if (auth.existingUser?.role === "employer") {
-      //       navigate("/employee");
-      //     }
-      //   } else {
-      //     console.error('Decoded token is not available');
-      //   }
-      // }, 1500);
-      navigate("/admin");
-      if (response.status === 200) {
+
+      // console.log(response);
+
+      if (response.status === 200){
+
+        sessionStorage.setItem("authToken", tempToken); 
+        sessionStorage.removeItem("tempToken"); 
+        login(tempToken); 
+        toast.success("OTP Verified successfully");
+        if(role === "Super Admin"){
+          navigate("/admin"); 
+        }else{
+          navigate('/company')
+        }
         setStatus("success");
-        setOtpStatus(Array(6).fill("success")); // Set all inputs to green
+        setOtpStatus(Array(6).fill("success"));
       } else {
         setStatus("error");
-        setOtpStatus(Array(6).fill("error")); // Set all inputs to red
+        setOtpStatus(Array(6).fill("error"));
+        throw new Error("Invalid OTP");
       }
     } catch (error) {
+      sessionStorage.removeItem("tempToken"); // Remove temp token on failure
       setStatus("error");
-      // sessionStorage.removeItem('authToken')
-      // navigate("/")
       setOtpStatus(Array(6).fill("error"));
-      toast.error(error.response?.data?.message || "Login failed!");
+      toast.error(error.response?.data?.message || "OTP Verification failed!");
+      navigate("/"); 
     }
   };
 
@@ -171,6 +176,7 @@ const OTP = () => {
           </button>
         </div>
       </div>
+      <ToastContainer/>
     </>
   );
 };
