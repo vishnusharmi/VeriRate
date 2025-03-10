@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { User, Star, Check, Filter, ArrowDown, ArrowUp, ChevronLeft, ChevronRight } from 'lucide-react';
-import axios from 'axios';
+// import axios from 'axios';
 import axiosInstance from '../../../../middleware/axiosInstance';
+import { ToastContainer, toast } from 'react-toastify';
 
 const EmployeeRatingsFeedback = () => {
   const [employees, setEmployees] = useState([]);
@@ -13,6 +14,8 @@ const EmployeeRatingsFeedback = () => {
   const [filterVerified, setFilterVerified] = useState(false);
   const [loading, setLoading] = useState(true);
   const [ratingAndFeedbackUpdate, setRatingAndFeedbackUpdate] = useState(false);
+  const [autoRefresh, setAutoRefresh] = useState(false);
+
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -34,7 +37,7 @@ const EmployeeRatingsFeedback = () => {
     const fetchEmployees = async () => {
       try {
 
-        const response = await axiosInstance.get('/employee/all');
+        const response = await axiosInstance.get('/employee/all', {signal: controller.signal});
         
         // console.log(response.data,"employees");
         const formattedEmployees = response.data.employees.data.map(emp => ({
@@ -66,7 +69,9 @@ const EmployeeRatingsFeedback = () => {
     };
 
     fetchEmployees();
-  }, [setRatingAndFeedbackUpdate]);
+
+    return () => controller.abort();
+  }, [setRatingAndFeedbackUpdate,autoRefresh]);
 
   // Calculate average rating for an employee
   const getAverageRating = (Ratings) => {
@@ -174,59 +179,45 @@ const EmployeeRatingsFeedback = () => {
     });
   };
 
-  // Save new feedback
+  // // Save new feedback
   const saveFeedback = async () => {
     if (
-      feedbackData.rating === 0 ||
-      !feedbackData.feedback ||
-      !feedbackData.reviewer
-    ) {
-      alert("Please complete all required fields");
-      return;
-    }
-
+          feedbackData.rating === 0 ||
+          !feedbackData.feedback ||
+          !feedbackData.reviewer
+        ) {
+          toast.info("Please complete all required fields");
+          return;
+        }
     try {
-      // Format data for the API request
-      const ratingData = {
+      const response = await axiosInstance.post('/rating-post', {
         employee_id: selectedEmployee.id,
         rating: feedbackData.rating,
         feedback: feedbackData.feedback,
         is_verified: feedbackData.verified.toString(),
         name: feedbackData.reviewer,
-      };
-
-
-      // Send POST request to API
-      await axiosInstance.post('/ratings-post', ratingData);
-
-      // // Fetch updated employee data after adding new rating
-      // const response = await axiosInstance.get('employee/all');
-
-      // // Map the API response to match our component's data structure
-      // const formattedEmployees = response.data.employees.data.map(emp => ({
-      //   id: emp.id,
-      //   name: `${emp.first_name} ${emp.last_name}`,
-      //   email: emp.User ? emp.User.email : '',  // Get email from User object
-      //   role: emp.User ? emp.User.role : '',    // Get role from User object
-      //   position: emp.position,
-      //   Ratings: emp.Ratings ? emp.Ratings.map(rating => ({
-      //     id: rating.id,
-      //     rating: rating.rating,
-      //     feedback: rating.feedback,
-      //     date: rating.created_at ? new Date(rating.created_at).toISOString().slice(0, 10) : '',
-      //     verified: rating.is_verified,
-      //     reviewer: rating.reviewer || feedbackData.reviewer
-      //   })) : []
-      // }));
-
-      // setEmployees(formattedEmployees);
-      // setShowFeedbackForm(false);
+      });
       setRatingAndFeedbackUpdate(!ratingAndFeedbackUpdate);
+      setShowFeedbackForm(false);
+      setAutoRefresh(!autoRefresh);
+
+    // ✅ Show success notification
+    toast.success("✅ Feedback Submitted Successfully!", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+      console.log("Feedback saved successfully:", response.data);
+      
     } catch (error) {
       console.error("Error saving feedback:", error);
-      alert("Failed to save feedback. Please try again.");
+      // Show error notification
+      toast.error("❌ Failed to save feedback. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
     }
   };
+
 
   // Render star rating display
   const renderStarRating = (rating) => {
@@ -283,6 +274,7 @@ const EmployeeRatingsFeedback = () => {
   // Feedback form modal
   const renderFeedbackForm = () => (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+       <ToastContainer />
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
         <h2 className="text-xl font-semibold mb-4">
           Add Performance Rating for {selectedEmployee?.name}
@@ -342,14 +334,14 @@ const EmployeeRatingsFeedback = () => {
             <button
               type="button"
               onClick={() => setShowFeedbackForm(false)}
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={saveFeedback}
-              className="px-4 py-2 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
             >
               Submit Feedback
             </button>
@@ -684,7 +676,7 @@ const EmployeeRatingsFeedback = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button
                           onClick={() => handleAddFeedback(employee)}
-                          className="text-indigo-600 hover:text-indigo-900 bg-indigo-100 hover:bg-indigo-200 px-3 py-2 rounded"
+                          className="text-indigo-600 hover:text-indigo-900 bg-indigo-100 hover:bg-indigo-200 px-3 py-2 rounded cursor-pointer"
                         >
                           Rate Performance
                         </button>

@@ -122,14 +122,14 @@ exports.registerUser = async (adminId, data, files) => {
     // If everything succeeds, commit the transaction
     // await transaction.commit();
 
-    await logActivity({
-      userId: userData.id,
-      action: `New ${data.role || "User"} created`,
-      details: userData.username,
-      type: "User",
-      entity: "User Management",
-      entityId: userData.id,
-    });
+    // await logActivity({
+    //   userId: userData.id,
+    //   action: `New ${data.role || "User"} created`,
+    //   details: userData.username,
+    //   type: "User",
+    //   entity: "User Management",
+    //   entityId: userData.id,
+    // });
 
     return {
       message: "User created successfully",
