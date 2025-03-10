@@ -12,7 +12,7 @@ const Header = () => {
   const [toggleMenu, setToggleMenu] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showProfileEdit, setShowProfileEdit] = useState(false);
-  const [userName, setUserName] = useState("Narendra Modi"); 
+  const [userName, setUserName] = useState("Rasagna"); 
   const [email, setEmail] = useState("chitti@example.com");
   const [profilePic, setProfilePic] = useState(null);
   const dropdownRef = useRef(null);
@@ -86,7 +86,7 @@ const Header = () => {
   }, []);
 
   return (
-    <header className="flex items-center justify-between p-4 bg-[#dbecff] text-black h-15 relative">
+    <header className="flex items-center justify-between p-4 bg-[#1a148b] text-white h-15 relative">
       <div className="flex items-center gap-2">
         <div className="md:hidden mr-2 cursor-pointer" onClick={handleToggle}>
           {toggleMenu ? <CloseIcon /> : <MenuIcon />}
@@ -98,27 +98,27 @@ const Header = () => {
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={handleDropdown}
-          className="hover:scale-[1.04] hover:bg-[#D7E1E3] font-bold text-black px-3 py-2 rounded-md cursor-pointer transition-all flex items-center justify-center gap-2"
+          className="hover:scale-[1.04] hover:bg-[#3f51b5] font-bold text-white px-3 py-2 rounded-md cursor-pointer transition-all flex items-center justify-center gap-2"
         >
           <Avatar src={profilePic} sx={{ width: "30px", height: "30px" }} />
           <span className="hidden md:block">{userName || "User"}</span>
         </button>
 
         {showDropdown && (
-          <div className="absolute right-0 mt-2 w-56  bg-white shadow-lg rounded-md py-2 z-50 border border-gray-200 transition ease-out duration-300 ">
+          <div className="absolute right-0 mt-2 w-56 bg-[#2196f3] shadow-lg rounded-md py-2 z-100  transition ease-out duration-300 ">
             {!showProfileEdit ? (
               <>
-                <button className="flex items-center font-semibold gap-2 px-4 py-2 w-full hover:bg-gray-100 cursor-pointer" onClick={handleProfileEdit}>
+                <button className="flex items-center font-semibold gap-2 px-4 py-2 w-full text-white hover:bg-[#3f51b5] cursor-pointer" onClick={handleProfileEdit}>
                   <AccountCircleIcon fontSize="small" /> Your Profile
                 </button>
 
-                <button className="flex items-center gap-2 font-semibold px-4 py-2 w-full text-red-500 hover:bg-gray-100 cursor-pointer" onClick={handleSignOut}>
+                <button className="flex items-center gap-2 font-bold px-4 py-2 w-full text-red-500 hover:bg-[#3f51b5] cursor-pointer" onClick={handleSignOut}>
                   <ExitToAppIcon fontSize="small" /> Sign Out
                 </button>
               </>
             ) : (
               <div className="absolute right-0 top-0 w-auto md:w-72 sm:w-56 h-auto md:h-86 sm:h-70 bg-white shadow-lg rounded-lg z-50 border border-gray-200 transition ease-out duration-300 ">
-                <div className="bg-green-300 text-center py-4 rounded-t-lg">
+                <div className="bg-[#3f51b5] text-center py-4 rounded-t-lg">
                   <span className="text-lg font-semibold">{userName}</span>
                 </div>
                 <div className="flex flex-col items-center p-6 relative">

@@ -10,6 +10,15 @@ const AdminSettings = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
+    superAdminId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: User,
+        key: "id",
+      },
+      onDelete: "CASCADE",
+    },
     adminId: {
       type: DataTypes.INTEGER,
       allowNull: false,

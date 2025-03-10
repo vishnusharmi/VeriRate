@@ -26,31 +26,31 @@ const validateEmployeeId = [
 
 // Protected Routes (Require JWT)
 router.post(
-  "/create",
+  "/employee/create",
   // verifyToken,
   validateEmployee,
   employeeController.createEmployee
 );
 router.get(
-  "/all",
+  "/employee/all",
   // verifyToken,
   employeeController.getAllEmployees
 );
 router.get(
-  "/single/:id",
+  "/employee/single/:id",
   // verifyToken,
   validateEmployeeId,
   employeeController.getEmployeeById
 );
 router.put(
-  "/update/:id",
+  "/employee/update/:id",
   // verifyToken,
   validateEmployeeId,
   validateEmployee,
   employeeController.updateEmployee
 );
 router.delete(
-  "/delete/:id",
+  "/employee/delete/:id",
   // verifyToken,
   validateEmployeeId,
   employeeController.deleteEmployee
