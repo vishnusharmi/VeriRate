@@ -49,6 +49,7 @@ const Ratings = sequelize.define(
     },
     name: {
       type: DataTypes.STRING,
+      allowNull: false,
     },
   },
   {

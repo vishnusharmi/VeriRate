@@ -3,7 +3,7 @@ const disputeService = require("../Services/disputes-service");
 
 const createDispute = async (req, res) => {
     try {
-        const dispute = await disputeService.createDispute(req.body);
+        const dispute = await disputeService.createDispute(req.body,req);
         return res.status(200).json({ message: "Dispute Created Successfully", data: dispute })
     } catch (error) {
         return res.status(400).json({ message: error.message })
@@ -27,14 +27,9 @@ const getDisputeById = async (req, res) => {
     }
 }
 const updateDisputes = async (req, res) => {
-    console.log('hi')
     const id = req.params.id;
-    // console.log(id);
-    // console.log(req.body);
-
     try {
-
-        const dispute = await disputeService.updateDispute(id, req.body);
+        const dispute = await disputeService.updateDispute(id, req.body,req);
         return res.status(200).json({ message: "Dispute Updated Successfully", data: dispute })
     } catch (error) {
         return res.status(400).json({ message: error.message })
@@ -42,7 +37,7 @@ const updateDisputes = async (req, res) => {
 }
 const deleteDispute = async (req, res) => {
     try {
-        const dispute = await disputeService.deleteDispute(req.params.id);
+        const dispute = await disputeService.deleteDispute(req.params.id,req);
         return res.status(200).json({ message: "Dispute Deleted Successfully", dispute })
     } catch (error) {
         return res.status(400).json({ message: error.message })

@@ -1,6 +1,9 @@
 const { Op } = require("sequelize");
 const ActivityLog = require("../Models/activityModel");
 const Employee = require("../Models/EmployeeModel");
+const Disputes = require("../Models/disputes");
+const sequelize = require("../Config/DBconnection");
+
 // Service to log an activity
 exports.logActivity = async ({
     type,
@@ -87,6 +90,51 @@ exports.getRecentActivities = async ({ entity, period, page, limit }) => {
 };
 
 // Service to fetch active employee count
-exports.getActiveEmployeeCount = async () => {
-    return await Employee.count({ where: { status: "active" } });
+exports.getActiveEmployeeCount = async (id) => {
+    const result = await Employee.findAll({
+        attributes: [
+            [sequelize.fn("COUNT", sequelize.col("id")), "totalEmployees"],
+        ],
+        where: {
+            createdBy: id,
+        },
+        group: ["createdBy"],
+    });
+
+    // console.log(result[0].totalEmployees+'totalcount');
+
+    const admin = await Employee.findOne({
+        attributes: ["first_name", "last_name"],
+        raw: false, // CHANGED TO FALSE FROM TRUE. TRUE WILL RETURN RAW DATA ONLY AND get() WILL NOT WORK
+        where: { createdBy: id }, // Fetching the Employee Admin using req.userId
+    });
+    // console.log(admin+'admin')
+
+    if (admin) {
+        console.log("Admin Name:", admin.first_name, admin.last_name);
+    }
+    return { result, admin };
+};
+
+exports.getActiveDisputes = async () => {
+    const activeDisputesCount = await Disputes.count({
+        where: {
+            status: {
+                [Op.in]: ["pending", "info_requested"],
+            },
+        },
+    });
+    return activeDisputesCount;
+};
+
+exports.getResolvedDisputes = async () => {
+    const solvedDisputesCount = await Disputes.count({
+        where: {
+            status: {
+                [Op.in]: ["approved", "rejected"],
+            },
+        },
+    });
+
+    return solvedDisputesCount;
 };

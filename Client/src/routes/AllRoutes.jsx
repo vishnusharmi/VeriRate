@@ -1,4 +1,8 @@
-import { Route, Routes } from "react-router";
+import { Route, Routes,Navigate } from "react-router";
+import { useContext } from "react";
+import { AuthContext } from "../components/Context/Contextapi.jsx";
+import PrivateRoutes from "./ProtectedRoutes.jsx";
+import ErrorPage from "../components/Error.jsx"; 
 
 import Layout from "../pages/Layout/Layout.jsx";
 import Login from "../components/Auth/Login/Login.jsx";
@@ -29,18 +33,26 @@ import AdminSettings from "../pages/adminDashboard/pages/Settings/AdminSettings.
 import EmployeeAdminSettings from "../pages/employerDashboard/pages/Settings/EmployeeAdminSettings.jsx";
 import OTP from "../components/Auth/Login/Otp.jsx";
 
-import AppTest from "../components/Sample/AppTest.jsx";
 import DepartmentManagement from "../pages/adminDashboard/pages/DepartmentManagement/DepartmentManagement.jsx";
+import Register from "../components/Auth/register/Register.jsx";
 
 const AllRoutes = () => {
+  const {auth,token} = useContext(AuthContext);
+
   return (
     <Routes>
-      <Route index path="/" element={<Login />} />
+      <Route index path="/" element={token ? <Navigate to={auth.role === "Super Admin" ? "/admin":"/company"} replace /> : <Login />} />
       <Route path="/otp" element={<OTP />} />
+      <Route path="/register" element={<Register/>}/>
 
+{/* Secure Admin Routes */}
+<Route element={<PrivateRoutes allowedRoles={["Super Admin"]} />}>
       <Route path="/admin" element={<Layout />}>
         <Route index element={<AdminDashboard />} />
-        <Route path="/admin/company-management" element={<CompanyManagement />} />
+        <Route
+          path="/admin/company-management"
+          element={<CompanyManagement />}
+        />
         <Route path="/admin/disputes" element={<Disputes />} />
         <Route path="/admin/records" element={<Records />} />
         <Route path="/admin/monitoring" element={<Monitoring />} />
@@ -53,7 +65,8 @@ const AllRoutes = () => {
         />
         <Route path="/admin/settings" element={<AdminSettings />} />
       </Route>
-
+      </Route>
+<Route element={<PrivateRoutes allowedRoles={["Employee Admin"]} />}>
       <Route path="/company" element={<Layout />}>
         <Route index element={<EmployerDashboard />} />
         <Route path="/company/analytics" element={<Analytics />} />
@@ -77,8 +90,8 @@ const AllRoutes = () => {
           element={<EmployeeAdminSettings />}
         />
       </Route>
-
-      <Route path="/custom" element={<AppTest />} />
+      </Route>
+      <Route path="*" element={<ErrorPage/>}/>
     </Routes>
   );
 };

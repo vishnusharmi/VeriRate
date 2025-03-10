@@ -1,5 +1,5 @@
 //disputes frontend code //
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 
 import {
@@ -29,23 +29,14 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 
-import {
-  Info,
-  AccessTime,
-  CheckCircle,
-  Cancel,
-  Delete as DeleteIcon,
-  Edit as EditIcon,
-} from "@mui/icons-material";
+import { Info, AccessTime, CheckCircle, Cancel } from "@mui/icons-material";
 import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
-import InsertInvitationOutlinedIcon from "@mui/icons-material/InsertInvitationOutlined";
-import ImportExportOutlinedIcon from "@mui/icons-material/ImportExportOutlined";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
 import RequestPageIcon from "@mui/icons-material/RequestPage";
 import axios from "axios";
+import axiosInstance from "../../../../middleware/axiosInstance";
 
 const API = "http://localhost:3000/api";
-const EMPLOYEE_API_URL = "http://localhost:3000/api/all"; 
 
 const style = {
   position: "absolute",
@@ -82,11 +73,6 @@ const Disputes = () => {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
 
-
-
- 
-
-
   const handleDateChange = (newDate) => {
     setSelectedDate(newDate);
   };
@@ -95,16 +81,14 @@ const Disputes = () => {
     setFilterStatus(status);
   };
 
-
-
-  //fetch employees 
+  //fetch employees
   const fetchEmployees = async () => {
     try {
       const response = await axios.get("http://localhost:3000/api/all");
       console.log("Full API response:", response.data); // Debugging
-  
+
       if (response.status === 200 && Array.isArray(response.data.employees)) {
-        setEmployees(response.data.employees); // Fix: Extract employees from response 
+        setEmployees(response.data.employees); // Fix: Extract employees from response
       } else {
         throw new Error("Invalid response format");
       }
@@ -113,19 +97,15 @@ const Disputes = () => {
       setLoading(false);
     }
   };
-  
-  
 
-
-useEffect(() => {
+  useEffect(() => {
     fetchEmployees();
   }, []);
-  
 
   // Fetch disputes
   const fetchDisputes = async () => {
     try {
-      const response = await axios.get(`${API}/disputes`);
+      const response = await axiosInstance.get("/disputes");
       let allDisputes = response.data.data;
       console.log("All Disputes:", allDisputes);
 
@@ -180,11 +160,10 @@ useEffect(() => {
       reason: "",
       status: "pending",
       resolution_notes: "",
-      employee_id:""
+      employee_id: "",
     });
     setIsEditing(false);
   };
-
 
   // Handle form input change
   const handleInputChange = (e) => {
@@ -201,8 +180,7 @@ useEffect(() => {
     closeModal();
   };
 
-
-// Handle form submission
+  // Handle form submission
   const handleSubmit = async () => {
     const newErrors = {};
     if (!formData.dispute_type)
@@ -234,7 +212,7 @@ useEffect(() => {
 
       const response = await axios({
         method: isEditing ? "PUT" : "POST",
-        url: url,
+        url,
         headers: { "Content-Type": "application/json" },
         data: requestData,
       });
@@ -268,14 +246,12 @@ useEffect(() => {
     }
   };
 
-
-
   // Edit dispute
   const handleEdit = (dispute) => {
     setFormData({
-    ...dispute,
-    employee_id: dispute.employee_id ? Number(dispute.employee_id) : null
-  });
+      ...dispute,
+      employee_id: dispute.employee_id ? Number(dispute.employee_id) : null,
+    });
     setIsEditing(true);
     openModal();
   };
@@ -290,13 +266,10 @@ useEffect(() => {
     setDeleteId(null);
   };
 
-
-
-
   // Delete dispute
   const handleDeleteConfirm = async () => {
     try {
-      await axios.delete(`${API}/dispute/${deleteId}`);
+      await axiosInstance.delete("/dispute/${deleteId}");
       Swal.fire({
         position: "center",
         icon: "success",
@@ -311,9 +284,6 @@ useEffect(() => {
       console.error("Error deleting dispute:", error);
     }
   };
-
-
-
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -462,34 +432,31 @@ useEffect(() => {
         <Fade in={open}>
           <Box sx={style}>
             <div className="grid grid-cols-2 gap-5">
-
-
-            {employees.length > 0 ? ( 
-  <div>
-    <label htmlFor="employee_id" className="block text-gray-700 text-md font-bold mb-2">
-      Select Employee
-    </label>
-    <select
-      id="employee_id"
-      value={formData?.employee_id || ""}
-      onChange={handleInputChange}
-      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-    >
-      <option value="">Select Employee</option>
-      {employees.map((emp) => (
-        <option key={emp.id} value={emp.id}>
-          {emp.first_name} {emp.last_name}
-        </option>
-      ))}
-    </select>
-  </div>
-) : (
-  <p className="text-gray-500">Loading employees...</p>
-)}
-
-
-
-
+              {employees.length > 0 ? (
+                <div>
+                  <label
+                    htmlFor="employee_id"
+                    className="block text-gray-700 text-md font-bold mb-2"
+                  >
+                    Select Employee
+                  </label>
+                  <select
+                    id="employee_id"
+                    value={formData?.employee_id || ""}
+                    onChange={handleInputChange}
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  >
+                    <option value="">Select Employee</option>
+                    {employees.map((emp) => (
+                      <option key={emp.id} value={emp.id}>
+                        {emp.first_name} {emp.last_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <p className="text-gray-500">Loading employees...</p>
+              )}
 
               <div>
                 <label
@@ -582,13 +549,6 @@ useEffect(() => {
                   <p className="text-red-500 text-xs mt-1">{errors.status}</p>
                 )}
               </div>
-
-
-
-
-              
-
-
             </div>
 
             <div className="mt-4 flex justify-end">
@@ -646,16 +606,23 @@ useEffect(() => {
       <Paper>
         <TableContainer component={Paper} className="shadow-xl">
           <Table>
-            <TableHead className="bg-gray-200 px-2 py-2"  sx={{
-    background: "linear-gradient(45deg, #3f51b5,rgb(99, 179, 244))" // Gradient background
-  }}>
+            <TableHead
+              className="bg-gray-200 px-2 py-2"
+              sx={{
+                background: "linear-gradient(45deg, #3f51b5,rgb(99, 179, 244))", // Gradient background
+              }}
+            >
               <TableRow>
                 {/* <TableCell className="px-2 py-1 font-bold text-white" >ID</TableCell> */}
                 <TableCell className="px-2 py-5 font-bold text-white">
                   Dispute Type
                 </TableCell>
-                <TableCell className="px-2 py-1 font-bold text-white">Reason</TableCell>
-                <TableCell className="px-2 py-1  font-bold text-white">Status</TableCell>
+                <TableCell className="px-2 py-1 font-bold text-white">
+                  Reason
+                </TableCell>
+                <TableCell className="px-2 py-1  font-bold text-white">
+                  Status
+                </TableCell>
                 <TableCell className="px-2 py-1 font-bold text-white">
                   Resolution Notes
                 </TableCell>
@@ -665,7 +632,9 @@ useEffect(() => {
                 {/* <TableCell className="px-3 py-2 font-bold">
                 Employee ID 
                 </TableCell> */}
-                <TableCell className="px-2 py-1  font-bold text-white">Actions</TableCell>
+                <TableCell className="px-2 py-1  font-bold text-white">
+                  Actions
+                </TableCell>
               </TableRow>
             </TableHead>
 
@@ -674,7 +643,7 @@ useEffect(() => {
                 disputes
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
-                    <TableRow key={row.id} className="hover:bg-gray-200" >
+                    <TableRow key={row.id} className="hover:bg-gray-200">
                       {/* <TableCell className="px-5 py-1 font-medium">
                         {row.id}
                       </TableCell> */}
@@ -706,7 +675,6 @@ useEffect(() => {
                         {row.resolution_notes}
                       </TableCell>
 
-                     
                       <TableCell className="px-3 py-1 font-medium">
                         {new Date(row.createdAt).toLocaleDateString("en-IN", {
                           day: "numeric",
@@ -715,13 +683,11 @@ useEffect(() => {
                         })}
                       </TableCell>
 
-
                       {/* <TableCell className="px-3 py-2 font-medium">
                     {row.employee_id}
                   </TableCell> */}
 
                       <TableCell className="px-2 py-1">
-                       
                         <IconButton
                           onClick={() => handleEdit(row)}
                           sx={{
@@ -742,7 +708,6 @@ useEffect(() => {
                         >
                           <FiTrash2 />
                         </IconButton>
-                        
                       </TableCell>
                     </TableRow>
                   ))
@@ -769,9 +734,6 @@ useEffect(() => {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
-
-
-
     </div>
   );
 };

@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import Swal from "sweetalert2";
-import axios from "axios";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import BlacklistForm from "./BlacklistForm";
 import BlacklistTable from "./BlacklistTable";
-import { Button, Modal, Box, Typography, CircularProgress } from "@mui/material";
-
-const API_URL = "http://localhost:3000/api/blacklists";
-const USERS_API = "http://localhost:3000/api/users";
+import {
+  Button,
+  Modal,
+  Box,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
+import axiosInstance from "../../../../middleware/axiosInstance";
 
 const blacklistSchema = z.object({
   fullname: z.string().min(1, "Full name is required"),
   email: z.string().email("Invalid email address"),
   contact_number: z.string().min(1, "Contact number is required"),
   position: z.string().min(1, "Position is required"),
-  reason_for_blacklist: z.string().min(1, "Reason for blacklist is required"), 
+  reason_for_blacklist: z.string().min(1, "Reason for blacklist is required"),
   report_by: z.string().min(1, "Reported by is required"),
   status: z.string().min(1, "Status is required"),
   company_name: z.string().min(1, "Company name is required"),
@@ -48,47 +51,47 @@ const BlacklistManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [openDelete, setOpenDelete] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); 
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     control,
     handleSubmit,
     reset,
     setValue,
-    formState: { errors,isSubmitting },
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(blacklistSchema),
   });
 
-console.log("form errors",errors)
+  console.log("form errors", errors);
 
   const getData = async () => {
-    setIsLoading(true); 
+    setIsLoading(true);
     try {
-      const token = sessionStorage.getItem("authToken")
-      const response = await axios.get(API_URL,{ headers: {
-        "authorization": `Bearer ${token}`, 
-      }});
+      const response = await axiosInstance.get("/blacklists");
       setEmployees(response.data.data);
     } catch (err) {
       console.error("Error fetching data:", err);
     } finally {
-      setIsLoading(false); 
+      setIsLoading(false);
     }
   };
 
   const fetchEmployees = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(USERS_API);
+      const response = await axiosInstance.get("/users");
+      console.log(response.data);
       const employees = response.data?.data?.data || [];
-      const filteredEmployees = employees.filter((emp) => emp.role === "Employee");
+      const filteredEmployees = employees.filter(
+        (emp) => emp.role === "Employee"
+      );
       setEmployeeList(filteredEmployees);
       console.log(filteredEmployees, "filtered employees data");
     } catch (err) {
       console.error("Error fetching employees:", err);
     } finally {
-      setIsLoading(false); 
+      setIsLoading(false);
     }
   };
 
@@ -98,25 +101,17 @@ console.log("form errors",errors)
   }, []);
 
   const handleSave = async (data) => {
-    console.log("Data being sent to the API:", editEmployee); 
+    console.log("Data being sent to the API:", editEmployee);
 
-    try { 
-      const token = sessionStorage.getItem("authToken")
-      const url = editEmployee ? `${API_URL}/${editEmployee}` : API_URL;
-      console.log("URL:", url); 
+    try {
+      const token = sessionStorage.getItem("authToken");
+      const url = editEmployee ? "/editEmployee" : "/blacklists";
+      console.log("URL:", url);
       const method = editEmployee ? "PUT" : "POST";
 
-      const response = await axios({
-        method,
-        url,
-        data,
-        headers: {
-          "Content-Type": "application/json",
-          "authorization": `Bearer ${token}`, 
-        },
-      });
+      const response = await axiosInstance(method, url, data);
 
-      console.log("API Response:", response); 
+      console.log("API Response:", response);
 
       if (response.status === 200 || response.status === 201) {
         Swal.fire({
@@ -138,7 +133,8 @@ console.log("form errors",errors)
         title: "Oops...",
         position: "center",
         text: error.response?.data?.message || "Something went wrong!",
-        footer: '<a href="#" onClick="location.reload()">Try reloading the page?</a>',
+        footer:
+          '<a href="#" onClick="location.reload()">Try reloading the page?</a>',
       });
       closeModal();
     }
@@ -150,11 +146,9 @@ console.log("form errors",errors)
   };
 
   const handleDelete = async () => {
-    try { 
-      const token = sessionStorage.getItem("authToken")
-      await axios.delete(`${API_URL}/${deleteId}`,{ headers: {
-        "authorization": `Bearer ${token}`, 
-      }});
+    try {
+      await axiosInstance.delete(`/blacklists/${deleteId}`);
+
       Swal.fire({
         position: "center",
         icon: "success",
@@ -170,7 +164,8 @@ console.log("form errors",errors)
         title: "Oops...",
         position: "center",
         text: "Something went wrong!",
-        footer: '<a href="#" onClick="location.reload()">Try reloading the page?</a>',
+        footer:
+          '<a href="#" onClick="location.reload()">Try reloading the page?</a>',
       });
       console.error("Error deleting data:", err);
     }
@@ -204,19 +199,19 @@ console.log("form errors",errors)
 
   const handleEmployeeSelect = (selectedId) => {
     console.log("Selected Employee ID:", selectedId);
-  
+
     const selectedEmployee = employeeList.find((emp) => emp.id === selectedId);
-  
+
     if (!selectedEmployee) {
       console.warn("Employee not found in the list!");
       return;
     }
-  
+
     console.log(selectedEmployee, "selected employee");
-  
+
     const { Employee } = selectedEmployee;
     const fullName = `${Employee.first_name} ${Employee.last_name}`;
-  
+
     const employmentHistory = Employee.employment_history?.previous_jobs || [];
     const lastJob = employmentHistory.reduce((latest, job) => {
       if (!latest || new Date(job.start_date) > new Date(latest.start_date)) {
@@ -224,10 +219,10 @@ console.log("form errors",errors)
       }
       return latest;
     }, null);
-  
+
     const lastCompanyName = lastJob ? lastJob.company : "N/A";
     const lastPosition = lastJob ? lastJob.position : "N/A";
-  
+
     // Ensure all values are set correctly
     setValue("employee_id", Employee.id || "");
     setValue("company_id", Employee.company_id || "");
@@ -236,10 +231,9 @@ console.log("form errors",errors)
     setValue("fullname", fullName);
     setValue("email", selectedEmployee.email || "");
     setValue("contact_number", Employee.phone_number || "");
-  
+
     console.log("Updated form values");
   };
-  
 
   const filteredEmployees = employees?.filter((emp) =>
     emp.fullname?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -252,7 +246,12 @@ console.log("form errors",errors)
       </h2>
 
       {isLoading ? ( // Show loading spinner if data is being fetched
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          minHeight="200px"
+        >
           <CircularProgress />
         </Box>
       ) : (
