@@ -90,7 +90,7 @@ const Employee = database.define(
     },
     created_by: {
       type: DataTypes.INTEGER,
-      allowNull: false, // Set to false if it's required
+      allowNull: false, 
       references: {
         model: User,
         key: "id",

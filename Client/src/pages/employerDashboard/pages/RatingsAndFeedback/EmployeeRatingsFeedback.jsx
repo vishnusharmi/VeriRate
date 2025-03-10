@@ -1,16 +1,8 @@
-import React, { useState, useEffect } from "react";
-import {
-  User,
-  Star,
-  Check,
-  Filter,
-  ArrowDown,
-  ArrowUp,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
-import axios from "axios";
-import axiosInstance from "../../../../middleware/axiosInstance";
+import React, { useState, useEffect } from 'react';
+import { User, Star, Check, Filter, ArrowDown, ArrowUp, ChevronLeft, ChevronRight } from 'lucide-react';
+// import axios from 'axios';
+import axiosInstance from '../../../../middleware/axiosInstance';
+import { ToastContainer, toast } from 'react-toastify';
 
 const EmployeeRatingsFeedback = () => {
   const [employees, setEmployees] = useState([]);
@@ -21,9 +13,10 @@ const EmployeeRatingsFeedback = () => {
   const [sortDirection, setSortDirection] = useState("asc");
   const [filterVerified, setFilterVerified] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [ratingsAndFeedbackUpdated, setRatingsAndFeedbackUpdated] =
-    useState(false);
+  const [ratingAndFeedbackUpdate, setRatingAndFeedbackUpdate] = useState(false);
+  const [autoRefresh, setAutoRefresh] = useState(false);
 
+  
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
@@ -43,16 +36,15 @@ const EmployeeRatingsFeedback = () => {
 
     const fetchEmployees = async () => {
       try {
-        const response = await axiosInstance.get("/employee/all", {
-          signal: controller.signal,
-        });
 
-        // console.log(response.data.employees);
-        const formattedEmployees = response.data.employees.data.map((emp) => ({
+        const response = await axiosInstance.get('/employee/all', {signal: controller.signal});
+        
+        // console.log(response.data,"employees");
+        const formattedEmployees = response.data.employees.data.map(emp => ({
           id: emp.id,
           name: `${emp.first_name} ${emp.last_name}`,
-          email: emp.User ? emp.User.email : "", // Get email from User object
-          role: emp.User ? emp.User.role : "", // Get role from User object
+          email: emp.User ? emp.User.email : '',  
+          role: emp.User ? emp.User.role : '',    
           position: emp.position,
           Ratings: emp.Ratings
             ? emp.Ratings.map((rating) => ({
@@ -79,7 +71,7 @@ const EmployeeRatingsFeedback = () => {
     fetchEmployees();
 
     return () => controller.abort();
-  }, [ratingsAndFeedbackUpdated]);
+  }, [setRatingAndFeedbackUpdate,autoRefresh]);
 
   // Calculate average rating for an employee
   const getAverageRating = (Ratings) => {
@@ -187,35 +179,45 @@ const EmployeeRatingsFeedback = () => {
     });
   };
 
-  // Save new feedback
+  // // Save new feedback
   const saveFeedback = async () => {
     if (
-      feedbackData.rating === 0 ||
-      !feedbackData.feedback ||
-      !feedbackData.reviewer
-    ) {
-      alert("Please complete all required fields");
-      return;
-    }
-
+          feedbackData.rating === 0 ||
+          !feedbackData.feedback ||
+          !feedbackData.reviewer
+        ) {
+          toast.info("Please complete all required fields");
+          return;
+        }
     try {
-      // Format data for the API request
-      const ratingData = {
+      const response = await axiosInstance.post('/rating-post', {
         employee_id: selectedEmployee.id,
         rating: feedbackData.rating,
         feedback: feedbackData.feedback,
         is_verified: feedbackData.verified.toString(),
         name: feedbackData.reviewer,
-      };
+      });
+      setRatingAndFeedbackUpdate(!ratingAndFeedbackUpdate);
+      setShowFeedbackForm(false);
+      setAutoRefresh(!autoRefresh);
 
-      // Send POST request to API
-      await axiosInstance.post("/ratings-post", ratingData);
-      setRatingsAndFeedbackUpdated(!ratingsAndFeedbackUpdated); // Updating the state; triggers useEffect to re-run for get request
+    // ✅ Show success notification
+    toast.success("✅ Feedback Submitted Successfully!", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+      console.log("Feedback saved successfully:", response.data);
+      
     } catch (error) {
       console.error("Error saving feedback:", error);
-      alert("Failed to save feedback. Please try again.");
+      // Show error notification
+      toast.error("❌ Failed to save feedback. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
     }
   };
+
 
   // Render star rating display
   const renderStarRating = (rating) => {
@@ -272,6 +274,7 @@ const EmployeeRatingsFeedback = () => {
   // Feedback form modal
   const renderFeedbackForm = () => (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+       <ToastContainer />
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
         <h2 className="text-xl font-semibold mb-4">
           Add Performance Rating for {selectedEmployee?.name}
@@ -293,7 +296,7 @@ const EmployeeRatingsFeedback = () => {
               value={feedbackData.feedback}
               onChange={handleInputChange}
               placeholder="Provide detailed feedback about the employee's performance..."
-              className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
               required
             />
           </div>
@@ -306,7 +309,7 @@ const EmployeeRatingsFeedback = () => {
               name="reviewer"
               value={feedbackData.reviewer}
               onChange={handleInputChange}
-              className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
               required
             />
           </div>
@@ -331,14 +334,14 @@ const EmployeeRatingsFeedback = () => {
             <button
               type="button"
               onClick={() => setShowFeedbackForm(false)}
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={saveFeedback}
-              className="px-4 py-2 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
             >
               Submit Feedback
             </button>
@@ -542,8 +545,8 @@ const EmployeeRatingsFeedback = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <div className="flex justify-between items-center mb-6 sticky fixed top-5 z-50">
+    <div className="bg-white rounded-lg shadow p-4">
+      <div className="flex justify-between items-center mb-3 sticky fixed top-2 z-50">
         <h2 className="text-xl font-semibold">Employee Ratings & Feedback</h2>
         <div className="flex items-center space-x-2">
           <div className="flex items-center">
@@ -581,7 +584,7 @@ const EmployeeRatingsFeedback = () => {
           <p>Loading employee data...</p>
         </div>
       ) : (
-        <div className="relative max-w-7xl min-h-[75dvh] bg-white p-6 rounded-lg shadow-md z-10 content-scrollbar">
+        <div className="relative max-w-7xl min-h-[70dvh] bg-white p-6 rounded-lg shadow-md z-10 content-scrollbar">
           <div className="absolute inset-0 px-2 overflow-y-auto">
             <table className="min-w-full bg-white">
               <thead className="bg-gradient-to-br from-[#3f51b5] to-[#2196f3] h-8 w-full text-white rounded-lg text-base p-6 sticky top-0">
@@ -673,7 +676,7 @@ const EmployeeRatingsFeedback = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button
                           onClick={() => handleAddFeedback(employee)}
-                          className="text-indigo-600 hover:text-indigo-900 bg-indigo-100 hover:bg-indigo-200 px-3 py-2 rounded"
+                          className="text-indigo-600 hover:text-indigo-900 bg-indigo-100 hover:bg-indigo-200 px-3 py-2 rounded cursor-pointer"
                         >
                           Rate Performance
                         </button>
@@ -698,13 +701,16 @@ const EmployeeRatingsFeedback = () => {
                 )}
               </tbody>
             </table>
-
-            {/* Add pagination component */}
-            {filteredEmployees.length > 0 && <Pagination />}
+            
+            
           </div>
         </div>
+        
       )}
-
+        {/* Add pagination component */}
+        {filteredEmployees.length > 0 && (
+              <Pagination />
+            )}
       {showFeedbackForm && renderFeedbackForm()}
     </div>
   );

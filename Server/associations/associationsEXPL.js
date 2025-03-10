@@ -130,7 +130,6 @@ const Disputes = require("../Models/disputes");
 const Employee = require("../Models/EmployeeModel");
 const AdminSettings = require("../Models/adminSettings");
 const Department = require("../Models/department");
-const User = require("../Models/user");
 
 const Associations = () => {
   // user to employee relation
