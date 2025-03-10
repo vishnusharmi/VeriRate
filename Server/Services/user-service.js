@@ -1,15 +1,12 @@
-
 const userModel = require("../Models/user");
 const Documents = require("../Models/documents");
 const employeeModel = require("../Models/EmployeeModel");
-const logActivity  = require("../Activity/activityFunction");
+const logActivity = require("../Activity/activityFunction");
 const AdminSettings = require("../Models/adminSettings");
 
 const bcrypt = require("bcryptjs");
 
-
-
-exports.registerUser = async (adminId,data, files) => {
+exports.registerUser = async (adminId, data, files) => {
   const transaction = await userModel.sequelize.transaction(); // Start transaction
   // console.log("employment_history", data.employment_history);
   // console.log(`*************************************${files}`)
@@ -17,7 +14,7 @@ exports.registerUser = async (adminId,data, files) => {
     // Validate required fields
     if (!data.email || !data.password || !data.role) {
       // return { statusCode: 404, message: "Missing required fields" };
-      throw new Error("Missing required fields")
+      throw new Error("Missing required fields");
     }
 
     // Check if user already exists
@@ -33,17 +30,17 @@ exports.registerUser = async (adminId,data, files) => {
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
     // Create user inside transaction
-    const userData = await userModel.create(
-      {
-        email: data.email,
-        password: hashedPassword,
-        role: data.role,
-        username: !(data.username)
-          ? `${data.first_name} ${data.last_name} `
-          : data.username,
-      },
-      { transaction }
-    );
+    const userData = await userModel.create({
+      email: data.email,
+      password: hashedPassword,
+      role: data.role,
+      username: !data.username
+        ? `${data.first_name} ${data.last_name} `
+        : data.username,
+    }); // Create user inside transaction
+    // ,
+    //   { transaction }
+    console.log(userData, "user data");
 
     let additionalData = null;
 
@@ -96,65 +93,42 @@ exports.registerUser = async (adminId,data, files) => {
 
     }
 
-
-    // let documentResponse = null;
-
-    // if (files && files.path) {
-    //   documentResponse = await Documents.create(
-    //     {
-    //       empId: userData.id,
-    //       documentType: files.mimetype,
-    //       file_path: files.path,
-    //     },
-    //     { transaction }
-    //   );
-    // }
-
-
-
-
-
     let documentResponses = [];
 
     if (files && Array.isArray(files)) {
       for (const file of files) {
-
         if (file.path) {
           const document = await Documents.create({
             empId: userData.id,
             documentType: file.mimetype,
             file_path: file.path,
-          }, { transaction });
+          });
 
           documentResponses.push(document);
         }
-
       }
     } else if (files && files.path) {
-
       // console.log(`***************************************${files} *******************${files.path} ****************`);
       const document = await Documents.create({
         empId: userData.id,
         documentType: files.mimetype,
         file_path: files.path,
-      }, { transaction });
+      });
 
       documentResponses.push(document);
     }
 
-
-
     // If everything succeeds, commit the transaction
-    await transaction.commit();
+    // await transaction.commit();
 
-    await logActivity({
-      userId : userData.id,
-      action : `New ${data.role || "User"} created`,
-      details : userData.username,
-      type : "User",
-      entity : "User Management",
-      entityId : userData.id
-    })
+    // await logActivity({
+    //   userId: userData.id,
+    //   action: `New ${data.role || "User"} created`,
+    //   details: userData.username,
+    //   type: "User",
+    //   entity: "User Management",
+    //   entityId: userData.id,
+    // });
 
     return {
       message: "User created successfully",
@@ -170,14 +144,11 @@ exports.registerUser = async (adminId,data, files) => {
     // console.error("Error in registerUser:", error);
     throw error;
   }
-
-
 };
 
-
 exports.getAllusers = async () => {
-  console.log('errrrrrrrrrrr');
-  
+  console.log("errrrrrrrrrrr");
+
   try {
     const getUsers = await userModel.findAll({
       include: [Documents, employeeModel],
@@ -189,7 +160,6 @@ exports.getAllusers = async () => {
   }
 };
 
-
 exports.getUserbyid = async (id) => {
   try {
     const getuser = await userModel.findByPk(id, {
@@ -200,54 +170,47 @@ exports.getUserbyid = async (id) => {
     }
     return { data: getuser };
   } catch (error) {
-    console.error('Error fetching user by id:', error);
+    console.error("Error fetching user by id:", error);
     return { message: "Internal Server Error", error: error.message };
   }
 };
 
-
 exports.updateUserById = async (id, data, documentPath) => {
-  console.log(data, '*************************88');
+  console.log(data, "*************************88");
   try {
     const getuser = await userModel.findByPk(id, {
       include: [
         {
           model: Documents,
-        
         },
         {
-          model: employeeModel
-        }
+          model: employeeModel,
+        },
       ],
     });
 
-    console.log(getuser.Employee.id,'get users');
-    
+    console.log(getuser.Employee.id, "get users");
 
     if (!getuser) {
       throw new Error("User not found");
     }
 
     if (getuser.Documents) {
-
       let docId = getuser.Documents[0].id;
 
       if (documentPath) {
         await Documents.update(
-          { file_path: documentPath }, 
+          { file_path: documentPath },
           { where: { id: docId } }
         );
       }
-    };
-
-    if(getuser.Employee){
-      let id = getuser.Employee.id
-      console.log(id,'idddddddddd');
-      await employeeModel.update(data,{where:{id}})
-      
     }
 
-   
+    if (getuser.Employee) {
+      let id = getuser.Employee.id;
+      console.log(id, "idddddddddd");
+      await employeeModel.update(data, { where: { id } });
+    }
 
     const [rowsUpdated] = await userModel.update(data, { where: { id } });
 
@@ -255,28 +218,25 @@ exports.updateUserById = async (id, data, documentPath) => {
       throw new Error("User update failed");
     }
     const updatedUser = await userModel.findByPk(id, {
-      include: [{ model: Documents} ,  { model: employeeModel }],
+      include: [{ model: Documents }, { model: employeeModel }],
     });
     // console.log(docResponse, "responss");
 
     // log Activity
     await logActivity({
-      userId : updatedUser.id,
-      action : `New ${updatedUser.role || "User"} Updated`,
-      details : updatedUser.username,
-      type : "User",
-      entity : "User Management",
-      entityId : updatedUser.id
-    })
+      userId: updatedUser.id,
+      action: `New ${updatedUser.role || "User"} Updated`,
+      details: updatedUser.username,
+      type: "User",
+      entity: "User Management",
+      entityId: updatedUser.id,
+    });
 
     return updatedUser;
   } catch (error) {
     throw error;
   }
 };
-
-
-
 
 exports.deleteUser = async (id) => {
   try {
@@ -288,13 +248,13 @@ exports.deleteUser = async (id) => {
 
     // log Activity
     await logActivity({
-      userId : findUser.id,
-      action : `New ${findUser.role || "User"} Updated`,
-      details : findUser.username,
-      type : "User",
-      entity : "User Management",
-      entityId : findUser.id
-    })
+      userId: findUser.id,
+      action: `New ${findUser.role || "User"} Updated`,
+      details: findUser.username,
+      type: "User",
+      entity: "User Management",
+      entityId: findUser.id,
+    });
     return deletedUser;
   } catch (error) {
     console.log(error);

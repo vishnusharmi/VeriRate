@@ -31,9 +31,11 @@ router.post(
   validateEmployee,
   employeeController.createEmployee
 );
-router.get("/employee/all",
+router.get(
+  "/employee/all",
   // verifyToken,
-  employeeController.getAllEmployees);
+  employeeController.getAllEmployees
+);
 router.get(
   "/employee/single/:id",
   // verifyToken,
