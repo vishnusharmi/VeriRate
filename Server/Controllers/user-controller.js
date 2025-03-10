@@ -10,6 +10,7 @@ const registerServices = require("../Services/user-service.js");
 const register = async (req, res) => {
   const data = req.body;
   const files = req.files;
+  const adminId = req.userId;
 
   try {
 
@@ -17,7 +18,7 @@ const register = async (req, res) => {
     //   data.email = definedCrypto.encrypt(data.email);
     // }
 
-    const response = await registerServices.registerUser(data, files);
+    const response = await registerServices.registerUser(adminId,data, files);
     // const userData = response.data.user;
 
     // if (userData.role != "SuperAdmin") {
@@ -40,25 +41,25 @@ const register = async (req, res) => {
     // }
     return res.status(201).json({ response })
   } catch (error) {
-    console.error('Registration error:', error);
+    // console.error('Registration error:', error);
     return res.status(500).json({ message: error.message });
   }
 };
 
 const getAllUsers = async (req, res) => {
   try {
-    const users = await registerServices.getAllUsers();
+    const users = await registerServices.getAllusers();
 
     // Decrypt email before sending response
-    const decryptedUsers = users.map((user) => ({
-      ...user,
-      email: definedCrypto.decrypt(user.email),
-    }));
+    // const decryptedUsers = users.map((user) => ({
+    //   ...user,
+    //   email: definedCrypto.decrypt(user.email),
+    // }));
 
     return res.status(200).json({
       success: true,
       message: "Users retrieved successfully",
-      data: decryptedUsers,
+      data: users,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -84,15 +85,40 @@ const getUserByIdController = async (req, res) => {
   }
 };
 
+// const updateUserById = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     let data = req.body;
+//     if (data.email) {
+//       data.email = definedCrypto.encrypt(data.email);
+//     }
+
+//     const documentPath = req.file ? req.file : null;
+
+//     const updatedUser = await registerServices.updateUserById(id, data, documentPath);
+
+//     res.status(200).json(updatedUser);
+//   } catch (error) {
+//     res.status(500).json({ message: " failed to update user", error: error.message })
+//   }
+// };
+
+
+//delete user
+
+
 const updateUserById = async (req, res) => {
   try {
     const { id } = req.params;
     let data = req.body;
-    if (data.email) {
-      data.email = definedCrypto.encrypt(data.email);
-    }
+console.log(data,id,'ididididi');
 
-    const documentPath = req.file ? req.file : null;
+    // if (data.email) {
+    //   data.email = definedCrypto.encrypt(data.email);
+    // }
+
+    // Extract file path if a new file is uploaded
+    const documentPath = req.file ? req.file.path : null;
 
     const updatedUser = await registerServices.updateUserById(id, data, documentPath);
 
@@ -101,9 +127,6 @@ const updateUserById = async (req, res) => {
     return res.status(500).json({ message: " failed to update user", error: error.message })
   }
 };
-
-
-//delete user
 
 const deleteUserById = async (req, res) => {
   try {

@@ -23,12 +23,14 @@ const EmploymentVerificationSearch = () => {
   const [loading, setLoading] = useState(true);
   const [employees, setEmployees] = useState([]);
 
-  const apiUrl = "http://localhost:3000/api/employee/all";
-  const updateApiUrl = "http://localhost:3000/api/employee/update";
+  const apiUrl = "http://localhost:3000/api/all";
+  const updateApiUrl = "http://localhost:3000/api/update";
 
   useEffect(() => {
     fetchEmployees();
   }, []);
+
+
 
   const fetchEmployees = async () => {
     try {

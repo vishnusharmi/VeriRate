@@ -20,9 +20,10 @@ exports.createRating = async (req, res) => {
 
 //get all ratings
 exports.getAllRatings = async (req, res) => {
+  const {page,pageSize}=req.query;
   try {
-    const ratings = await ratingService.getAllRatings();
-    return res.status(200).json({
+    const ratings = await ratingService.getAllRatings(page,pageSize);
+    res.status(200).json({
       success: true,
       message: "Ratings of all retrieved",
       data: ratings,

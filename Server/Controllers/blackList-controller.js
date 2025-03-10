@@ -4,8 +4,11 @@ const { createAuditLog } = require('./audit-controller');
 
 //create
 const createBlackListUser = async (req, res) => {
+    const adminId = req.userId;
+    console.log(req.body, 'req.body');
+  
     try {
-        const response = await blackListServices.createBlackList(req.body,req)
+        // const response = await blackListServices.createBlackList(req.body,req)
         
         // const userData = response;
         // // console.log(response.data.user.dataValues)
@@ -22,11 +25,33 @@ const createBlackListUser = async (req, res) => {
         // const ipAddress = req.ip || "0.0.0.0";
         // const auditResponse = await createAuditLog({ action, entityType, entityId, performedBy, details, ipAddress });
 
-        return res.status(200).json({ message: " User Blacklisted succesfully", response});
+        // return res.status(200).json({ message: " User Blacklisted succesfully", response});
+      const response = await blackListServices.createBlackList(req.body, adminId);
+  
+      if (response.statusCode !== 201) {
+        return res.status(response.statusCode).json({ message: response.message });
+      }
+  
+      const { createBlackList } = response;
+  
+      // Create audit log
+      const auditResponse = await createAuditLog({
+        action: "BLACKLIST",
+        entityType: "Employee Admin",
+        entityId: createBlackList.createdBy || "Not available",
+        performedBy: createBlackList.createdBy,
+        details: `${createBlackList.createdBy} blacklisted ID: ${createBlackList.employee_id} in Company ID: ${createBlackList.company_id}`,
+        ipAddress: req.ip || "0.0.0.0"
+      });
+  
+      return res.status(201).json({ message: "User blacklisted successfully", response, auditResponse });
+  
     } catch (error) {
-        return res.status(404).json({ message: error.message });
+      console.error("Error creating blacklist:", error);
+      return res.status(500).json({ message: "Internal Server Error" });
     }
-};
+  };
+  
 
 // get
 const readBlackListUser = async (req, res) => {
@@ -55,9 +80,10 @@ const readAllBlackListUser = async (req, res) => {
 const updateBlackListUser = async (req, res) => {
     const { id } = req.params
     const data = req.body
+    const adminId = req.userId
     try {
-        const response = await blackListServices.updateBlackList(id, data);
-        // const userData = await blackListServices.readBlackList(id);
+        const response = await blackListServices.updateBlackList(id, data,adminId);
+        const userData = await blackListServices.readBlackList(id);
 
         // const action = "BLACKLIST";
         // const entityType = "Employee Admin";

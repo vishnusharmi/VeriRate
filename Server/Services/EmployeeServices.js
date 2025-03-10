@@ -68,7 +68,19 @@ exports.getAllEmployees = async (page, pageSize) => {
   const offset = (page - 1) * pageSize
   try {
     const { count, rows } = await Employee.findAndCountAll({
-      include: [Ratings,User,Company],
+      include: [
+        {
+          model: Ratings,
+        },
+        {
+          model: Company,
+        },
+        {
+          model: User,
+          attributes: ['role', 'email', 'id'], // Fetch only specific fields
+          where: { role: 'Employee' } // Condition to get only Employee role users
+        }
+      ],
       limit,
       offset,
       order: [["id", "DESC"]],

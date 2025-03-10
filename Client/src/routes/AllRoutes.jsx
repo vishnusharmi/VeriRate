@@ -31,14 +31,16 @@ import OTP from "../components/Auth/Login/Otp.jsx";
 
 import AppTest from "../components/Sample/AppTest.jsx";
 import DepartmentManagement from "../pages/adminDashboard/pages/DepartmentManagement/DepartmentManagement.jsx";
+import Register from "../components/Auth/register/Register.jsx";
 
 const AllRoutes = () => {
   return (
     <Routes>
       <Route index path="/" element={<Login />} />
       <Route path="/otp" element={<OTP />} />
+      <Route path="/register" element={<Register/>}/>
 
-      <Route path="/admin//" element={<Layout />}>
+      <Route path="/admin" element={<Layout />}>
         <Route index element={<AdminDashboard />} />
         <Route path="/admin/company-management" element={<CompanyManagement />} />
         <Route path="/admin/disputes" element={<Disputes />} />

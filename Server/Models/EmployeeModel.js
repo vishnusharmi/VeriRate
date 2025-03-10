@@ -125,6 +125,14 @@ const Employee = database.define(
         key: "id",
       },
     },
+    created_By: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: User,
+        key: "id",
+      },
+    },
     employment_history: {
       type: DataTypes.JSONB,
       allowNull: false,
@@ -169,9 +177,9 @@ const Employee = database.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
-    position:{
+    position: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     }
   },
 
