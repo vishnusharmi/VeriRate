@@ -1,19 +1,20 @@
-const cloudinaryUpload = require("../MiddleWares/Cloudinary");
 const userModel = require("../Models/user");
 const Documents = require("../Models/documents");
 const employeeModel = require("../Models/EmployeeModel");
+const logActivity = require("../Activity/activityFunction");
+const AdminSettings = require("../Models/adminSettings");
 
 const bcrypt = require("bcryptjs");
-const { accessSync } = require("fs");
 
-exports.registerUser = async (data, files) => {
+exports.registerUser = async (adminId, data, files) => {
   const transaction = await userModel.sequelize.transaction(); // Start transaction
   // console.log("employment_history", data.employment_history);
   // console.log(`*************************************${files}`)
   try {
     // Validate required fields
     if (!data.email || !data.password || !data.role) {
-      return { statusCode: 404, message: "Missing required fields" };
+      // return { statusCode: 404, message: "Missing required fields" };
+      throw new Error("Missing required fields");
     }
 
     // Check if user already exists
@@ -21,24 +22,25 @@ exports.registerUser = async (data, files) => {
       where: { email: data.email },
     });
     if (existingUser) {
-      return { statusCode: 400, message: "User already exists" };
+      // return { statusCode: 400, message: "User already exists" };
+      throw new Error("User already exists");
     }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
     // Create user inside transaction
-    const userData = await userModel.create(
-      {
-        email: data.email,
-        password: hashedPassword,
-        role: data.role,
-        username: !(data.username)
-          ? `${data.first_name} ${data.last_name} `
-          : data.username,
-      },
-      { transaction }
-    );
+    const userData = await userModel.create({
+      email: data.email,
+      password: hashedPassword,
+      role: data.role,
+      username: !data.username
+        ? `${data.first_name} ${data.last_name} `
+        : data.username,
+    }); // Create user inside transaction
+    // ,
+    //   { transaction }
+    console.log(userData, "user data");
 
     let additionalData = null;
 
@@ -71,77 +73,65 @@ exports.registerUser = async (data, files) => {
           permanent_address: data.permanent_address,
           current_address: data.current_address,
           UPI_Id: data.UPI_Id,
+          created_By: adminId,
         },
         { transaction }
       );
 
       if (data.role === "Employee Admin") {
-        await AdminSettings.create({
-          adminId: additionalData.userId, // TODO: SUPER ADMIN ID
-          accessControl: false,
-          complianceCheck: true,
-          blacklistControl: false,
-          twoFactorAuth: false,
-          systemMonitoring: true,
-          performanceTracking: true,
-        });
+        await AdminSettings.create(
+          {
+            adminId: userData.id, // TODO: SUPER ADMIN ID
+            accessControl: false,
+            complianceCheck: true,
+            blacklistControl: false,
+            twoFactorAuth: false,
+            systemMonitoring: true,
+            performanceTracking: true,
+          },
+          { transaction }
+        );
       }
-
     }
-
-
-    // let documentResponse = null;
-
-    // if (files && files.path) {
-    //   documentResponse = await Documents.create(
-    //     {
-    //       empId: userData.id,
-    //       documentType: files.mimetype,
-    //       file_path: files.path,
-    //     },
-    //     { transaction }
-    //   );
-    // }
-
-
-
-
 
     let documentResponses = [];
 
     if (files && Array.isArray(files)) {
       for (const file of files) {
-
         if (file.path) {
           const document = await Documents.create({
             empId: userData.id,
             documentType: file.mimetype,
             file_path: file.path,
-          }, { transaction });
+          });
 
           documentResponses.push(document);
         }
-
       }
     } else if (files && files.path) {
-
-      console.log(`***************************************${files} *******************${files.path} ****************`);
+      // console.log(`***************************************${files} *******************${files.path} ****************`);
       const document = await Documents.create({
         empId: userData.id,
         documentType: files.mimetype,
         file_path: files.path,
-      }, { transaction });
+      });
 
       documentResponses.push(document);
     }
 
-
-
     // If everything succeeds, commit the transaction
-    await transaction.commit();
+    // await transaction.commit();
+
+    await logActivity({
+      userId: userData.id,
+      action: `New ${data.role || "User"} created`,
+      details: userData.username,
+      type: "User",
+      entity: "User Management",
+      entityId: userData.id,
+    });
 
     return {
-      statusCode: 201,
       message: "User created successfully",
       data: {
         user: userData,
@@ -152,30 +142,14 @@ exports.registerUser = async (data, files) => {
   } catch (error) {
     // Rollback transaction if any error occurs
     await transaction.rollback();
-    console.error("Error in registerUser:", error);
-    return { statusCode: 500, message: error.message, error: error.message };
+    // console.error("Error in registerUser:", error);
+    throw error;
   }
-
-
 };
 
-// exports.getAllusers = async () => {
-//   try {
-//     const getUsers = await userModel.findAll({
-//       include: [
-//         {
-//           model: Documents,
-//         },
-//       ],
-//     });
-//     return getUsers;
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
-
 exports.getAllusers = async () => {
+  console.log("errrrrrrrrrrr");
+
   try {
     const getUsers = await userModel.findAll({
       include: [Documents, employeeModel],
@@ -187,28 +161,6 @@ exports.getAllusers = async () => {
   }
 };
 
-
-
-//get user by id
-
-// exports.getUserbyid = async (id) => {
-//   try {
-//     const getuser = await userModel.findByPk(id, {
-//       include: [
-//         {
-//           model: Documents,
-//         },
-//       ],
-//     });
-//     return getuser;
-//   } catch (error) {
-//     console.error("Error fetching user by id:", error);
-//     throw error;
-//   }
-// };
-
-
-
 exports.getUserbyid = async (id) => {
   try {
     const getuser = await userModel.findByPk(id, {
@@ -219,48 +171,67 @@ exports.getUserbyid = async (id) => {
     }
     return { data: getuser };
   } catch (error) {
-    console.error('Error fetching user by id:', error);
+    console.error("Error fetching user by id:", error);
     return { message: "Internal Server Error", error: error.message };
   }
 };
 
-
-//update user by id
-
 exports.updateUserById = async (id, data, documentPath) => {
+  console.log(data, "*************************88");
   try {
     const getuser = await userModel.findByPk(id, {
       include: [
         {
           model: Documents,
         },
+        {
+          model: employeeModel,
+        },
       ],
     });
 
-    console.log(getuser.Document.id, "docicici");
+    console.log(getuser.Employee.id, "get users");
 
-    let file_url = getuser.Document.id;
-
-    const result = await cloudinaryUpload.uploader.upload(documentPath, {
-      resource_type: "auto",
-      folder: "user_uploads",
-    });
-
-
-    console.log(result, "resultttt");
-
-    const updatedUser = await userModel.update(data, { where: { id } });
-
-    if (!updatedUser) {
-      throw new error(" user not found");
+    if (!getuser) {
+      throw new Error("User not found");
     }
 
-    const docResponse = await Documents.update(
-      { file_path: result.url },
-      { where: { id: file_url } }
-    );
+    if (getuser.Documents) {
+      let docId = getuser.Documents[0].id;
 
-    console.log(docResponse, "responss");
+      if (documentPath) {
+        await Documents.update(
+          { file_path: documentPath },
+          { where: { id: docId } }
+        );
+      }
+    }
+
+    if (getuser.Employee) {
+      let id = getuser.Employee.id;
+      console.log(id, "idddddddddd");
+      await employeeModel.update(data, { where: { id } });
+    }
+
+    const [rowsUpdated] = await userModel.update(data, { where: { id } });
+
+    if (rowsUpdated === 0) {
+      throw new Error("User update failed");
+    }
+    const updatedUser = await userModel.findByPk(id, {
+      include: [{ model: Documents }, { model: employeeModel }],
+    });
+    // console.log(docResponse, "responss");
+
+    // log Activity
+    await logActivity({
+      userId: updatedUser.id,
+      action: `New ${updatedUser.role || "User"} Updated`,
+      details: updatedUser.username,
+      type: "User",
+      entity: "User Management",
+      entityId: updatedUser.id,
+    });
 
     return updatedUser;
   } catch (error) {
@@ -268,12 +239,23 @@ exports.updateUserById = async (id, data, documentPath) => {
   }
 };
 
-//delete user
-
 exports.deleteUser = async (id) => {
   try {
+    const findUser = await userModel.findByPk(id);
+    if (!findUser) {
+      throw new Error("User not found");
+    }
     const deletedUser = await userModel.destroy({ where: { id } });
 
+    // log Activity
+    await logActivity({
+      userId: findUser.id,
+      action: `New ${findUser.role || "User"} Updated`,
+      details: findUser.username,
+      type: "User",
+      entity: "User Management",
+      entityId: findUser.id,
+    });
     return deletedUser;
   } catch (error) {
     console.log(error);

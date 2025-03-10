@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect, useContext } from "react";
-import axios from "axios";
 import { useLocation, useNavigate } from "react-router";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../../Context/Contextapi";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
-
+import axiosInstance from "../../../middleware/axiosInstance";
 
 const OTP = () => {
   const [otp, setOtp] = useState(Array(6).fill(""));
@@ -16,7 +15,7 @@ const OTP = () => {
   const inputRefs = useRef([]);
   const location = useLocation();
   const navigate = useNavigate();
-  const { login, auth } = useContext(AuthContext)
+  const { login, auth } = useContext(AuthContext);
   const email = location.state?.email;
 
   useEffect(() => {
@@ -74,12 +73,12 @@ const OTP = () => {
     setStatus("loading");
     try {
       const enteredOtp = otp.join("");
-      const response = await axios.post("http://localhost:3000/api/otp", {
+      const response = await axiosInstance.post("/otp", {
         email,
         otp: enteredOtp,
       });
       console.log(response);
-      toast.success("OTP Verified successfully")
+      toast.success("OTP Verified successfully");
       // setTimeout(() => {
       //   if (auth) {
       //     if (auth.existingUser?.role === "admin") {
@@ -111,7 +110,7 @@ const OTP = () => {
   };
 
   return (
-    <> <ToastContainer position="top-right" autoClose={3000} />
+    <>
       <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
         <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-xl">
           <h2 className="text-3xl font-bold text-gray-800 mb-3 text-center">
@@ -129,12 +128,13 @@ const OTP = () => {
                 onKeyDown={(e) => handleKeyDown(e, index)}
                 onPaste={handlePaste}
                 className={`w-12 h-14 text-xl font-bold text-center border-2 rounded-lg transition-all 
-                ${otpStatus[index] === "success"
+                ${
+                  otpStatus[index] === "success"
                     ? "border-green-500 bg-green-50"
                     : otpStatus[index] === "error"
-                      ? "border-red-500 bg-red-50"
-                      : "border-gray-300 focus:border-blue-500"
-                  }`}
+                    ? "border-red-500 bg-red-50"
+                    : "border-gray-300 focus:border-blue-500"
+                }`}
               />
             ))}
           </div>
@@ -147,7 +147,8 @@ const OTP = () => {
             <button
               onClick={resendOTP}
               disabled={isActive}
-              className="text-blue-600 hover:underline">
+              className="text-blue-600 hover:underline"
+            >
               Resend OTP
             </button>
           </div>

@@ -1,0 +1,973 @@
+{
+	"info": {
+		"_postman_id": "b85cf867-a2fa-4b43-b51e-3b12babc9936",
+		"name": "Verirate",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40670620"
+	},
+	"item": [
+		{
+			"name": "get all AuditLogs",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/auditlogs",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"auditlogs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"sankarsai2002@gmail.com\",\r\n    \"password\": \"123456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "blacklists",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"fullname\": \"John Doe\",\r\n  \"email\": \"john.doe@example.com\",\r\n  \"contact_number\": \"9876543210\",\r\n  \"position\": \"Software Engineer\",\r\n  \"reason_for_blacklist\": \"Violation of company policy\",\r\n  \"blackList_date\": \"2025-03-04\",\r\n  \"report_by\": \"HR Department\",\r\n  \"employee_id\": 10,\r\n  \"company_id\": 5,\r\n  \"company_name\": \"Tech Solutions Ltd\",\r\n  \"reason_code\": \"POLICY_VIOLATION\",\r\n  \"status\": \"Temporary\",\r\n  \"start_date\": \"2025-03-01\",\r\n  \"created_by\": 31,\r\n  \"end_date\": \"2025-06-01\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3007/api/blacklists",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3007",
+					"path": [
+						"api",
+						"blacklists"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updating blacklist",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"status\": \"Permanent\",\r\n  \"start_date\": \"2025-03-01\",\r\n  \"created_by\": 31,\r\n  \"end_date\": \"2025-06-01\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3007/api/blacklists/5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3007",
+					"path": [
+						"api",
+						"blacklists",
+						"5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Company",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"contact@techhhhinnovatorsss.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3007/api/update-company/35",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3007",
+					"path": [
+						"api",
+						"update-company",
+						"35"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete company",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3007/api/delete-company/31",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3007",
+					"path": [
+						"api",
+						"delete-company",
+						"31"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Super Admin registration",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "email",
+							"value": "rassol@gmail.com",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "123456",
+							"type": "text"
+						},
+						{
+							"key": "role",
+							"value": "Super Admin",
+							"type": "text"
+						},
+						{
+							"key": "company_id",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "document",
+							"type": "file",
+							"src": "/D:/my best pics/cloud-sky.jpg",
+							"disabled": true
+						},
+						{
+							"key": "first_name",
+							"value": "praveen",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "last_name",
+							"value": "vancharla",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "phone_number",
+							"value": "9090909090",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"register"
+					]
+				},
+				"description": "Generated from cURL: curl --location 'http://localhost:3000/api/register?=null' \\\n--form 'email=\"employee12@gmail.com\"' \\\n--form 'password=\"123456\"' \\\n--form 'role=\"employee\"' \\\n--form 'company_id=\"2\"' \\\n--form 'document=@\"/path/to/file\"' \\\n--form 'first_name=\"praveen\"' \\\n--form 'last_name=\"vancharla\"' \\\n--form 'phone_number=\"9090909090\"'"
+			},
+			"response": []
+		},
+		{
+			"name": "Company register",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "companyName",
+							"value": "NextGen Solutions Pvt Ltd.",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "dash@nextgensoasdalutiions.com",
+							"type": "text"
+						},
+						{
+							"key": "phonenumber",
+							"value": "9123456789",
+							"type": "text"
+						},
+						{
+							"key": "address",
+							"value": "456 Future Avenue, Silicon Valley",
+							"type": "text"
+						},
+						{
+							"key": "industry",
+							"value": "Software Development",
+							"type": "text"
+						},
+						{
+							"key": "createdBy",
+							"value": "8",
+							"type": "text"
+						},
+						{
+							"key": "country",
+							"value": "USA",
+							"type": "text"
+						},
+						{
+							"key": "state",
+							"value": "California",
+							"type": "text"
+						},
+						{
+							"key": "registerNum",
+							"value": "NGS987654321",
+							"type": "text"
+						},
+						{
+							"key": "founderYear",
+							"value": "2015",
+							"type": "text"
+						},
+						{
+							"key": "companyWebsite",
+							"value": "https://www.nextgensolutions.com",
+							"type": "text"
+						},
+						{
+							"key": "document",
+							"type": "file",
+							"src": "/D:/my best pics/IMG_0578.JPG"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/create-company",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"create-company"
+					]
+				},
+				"description": "Generated from cURL: curl --location 'http://localhost:3000/api/companies' \\\r\n--form 'companyName=\"NextGen Solutions Pvt Ltd.\"' \\\r\n--form 'email=\"info@nextgensolutions.com\"' \\\r\n--form 'phonenumber=\"9123456789\"' \\\r\n--form 'address=\"456 Future Avenue, Silicon Valley\"' \\\r\n--form 'industry=\"Software Development\"' \\\r\n--form 'createdBy=\"2\"' \\\r\n--form 'country=\"USA\"' \\\r\n--form 'state=\"California\"' \\\r\n--form 'registerNum=\"NGS987654321\"' \\\r\n--form 'founderYear=\"2015\"' \\\r\n--form 'companyWebsite=\"https://www.nextgensolutions.com\"' \\\r\n--form 'document=@\"path/to/updated/document.pdf\"'\r\n"
+			},
+			"response": []
+		},
+		{
+			"name": "Employee Admin registration",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "email",
+							"value": "demo12employeeAdmin@example.com",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "123456",
+							"type": "text"
+						},
+						{
+							"key": "role",
+							"value": "Employee Admin",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "Admin User",
+							"type": "text"
+						},
+						{
+							"key": "company_id",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "first_name",
+							"value": "Admin",
+							"type": "text"
+						},
+						{
+							"key": "last_name",
+							"value": "User",
+							"type": "text"
+						},
+						{
+							"key": "salary",
+							"value": "80000",
+							"type": "text"
+						},
+						{
+							"key": "dateOfBirth",
+							"value": "1990-05-15",
+							"type": "text"
+						},
+						{
+							"key": "dateOfJoin",
+							"value": "2020-06-01",
+							"type": "text"
+						},
+						{
+							"key": "phone_number",
+							"value": "9876543210",
+							"type": "text"
+						},
+						{
+							"key": "qualification",
+							"value": "MBA",
+							"type": "text"
+						},
+						{
+							"key": "address",
+							"value": "123 Admin Street, Cityville",
+							"type": "text"
+						},
+						{
+							"key": "panCard",
+							"value": "ABCDE1234F",
+							"type": "text"
+						},
+						{
+							"key": "aadharCard",
+							"value": "123456789012",
+							"type": "text"
+						},
+						{
+							"key": "bankAccount",
+							"value": "1234567890",
+							"type": "text"
+						},
+						{
+							"key": "bankName",
+							"value": "Admin Bank",
+							"type": "text"
+						},
+						{
+							"key": "IFSCcode",
+							"value": "ADMIN0012345",
+							"type": "text"
+						},
+						{
+							"key": "position",
+							"value": "HR Manager",
+							"type": "text"
+						},
+						{
+							"key": "department",
+							"value": "Human Resources",
+							"type": "text"
+						},
+						{
+							"key": "employment_history",
+							"value": "5 years in HR",
+							"type": "text"
+						},
+						{
+							"key": "employee_type",
+							"value": "Full-time",
+							"type": "text"
+						},
+						{
+							"key": "gender",
+							"value": "Female",
+							"type": "text"
+						},
+						{
+							"key": "pf_account",
+							"value": "PF12345678",
+							"type": "text"
+						},
+						{
+							"key": "father_or_husband_name",
+							"value": "John Doe",
+							"type": "text"
+						},
+						{
+							"key": "permanent_address",
+							"value": "123 Admin Street, Cityville",
+							"type": "text"
+						},
+						{
+							"key": "current_address",
+							"value": "456 Current Lane, Cityville",
+							"type": "text"
+						},
+						{
+							"key": "UPI_Id",
+							"value": "adminuser@upi",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"register"
+					]
+				},
+				"description": "Generated from cURL: curl --location 'http://localhost:3000/api/register' \\\r\n--form 'email=\"employee.admin@example.com\"' \\\r\n--form 'password=\"Admin@123\"' \\\r\n--form 'role=\"Employee Admin\"' \\\r\n--form 'username=\"Admin User\"' \\\r\n--form 'company_id=\"101\"' \\\r\n--form 'first_name=\"Admin\"' \\\r\n--form 'last_name=\"User\"' \\\r\n--form 'salary=\"80000\"' \\\r\n--form 'dateOfBirth=\"1990-05-15\"' \\\r\n--form 'dateOfJoin=\"2020-06-01\"' \\\r\n--form 'phone_number=\"9876543210\"' \\\r\n--form 'qualification=\"MBA\"' \\\r\n--form 'address=\"123 Admin Street, Cityville\"' \\\r\n--form 'panCard=\"ABCDE1234F\"' \\\r\n--form 'aadharCard=\"123456789012\"' \\\r\n--form 'bankAccount=\"1234567890\"' \\\r\n--form 'bankName=\"Admin Bank\"' \\\r\n--form 'IFSCcode=\"ADMIN0012345\"' \\\r\n--form 'position=\"HR Manager\"' \\\r\n--form 'department=\"Human Resources\"' \\\r\n--form 'employment_history=\"5 years in HR\"' \\\r\n--form 'employee_type=\"Full-time\"' \\\r\n--form 'gender=\"Female\"' \\\r\n--form 'pf_account=\"PF12345678\"' \\\r\n--form 'father_or_husband_name=\"John Doe\"' \\\r\n--form 'permanent_address=\"123 Admin Street, Cityville\"' \\\r\n--form 'current_address=\"456 Current Lane, Cityville\"' \\\r\n--form 'UPI_Id=\"adminuser@upi\"'\r\n"
+			},
+			"response": []
+		},
+		{
+			"name": "get all employees",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/all",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update Employee",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "salary",
+							"value": "900000",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/update/11",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"update",
+						"11"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get employee by ID",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/single/10",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"single",
+						"10"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get employees",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "create rating",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJzYW5rYXJzdHlsaXNoc3RhcjMxQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlciBBZG1pbiIsImlhdCI6MTc0MTUwMDYyOSwiZXhwIjoxNzQxNTg3MDI5fQ.lUZigWISFhDkoPmQTzZllx4d3YelksZh0HWHiMpZFL8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"employee_id\": 10,\r\n  \"rating\": 5,\r\n  \"feedback\": \"good work\",\r\n  \"is_verified\": true\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/rating-post",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"rating-post"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete Rating",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJzYW5rYXJzdHlsaXNoc3RhcjMxQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlciBBZG1pbiIsImlhdCI6MTc0MTUwMDYyOSwiZXhwIjoxNzQxNTg3MDI5fQ.lUZigWISFhDkoPmQTzZllx4d3YelksZh0HWHiMpZFL8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/rating/delete/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"rating",
+						"delete",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update ratings",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJzYW5rYXJzdHlsaXNoc3RhcjMxQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlciBBZG1pbiIsImlhdCI6MTc0MTUwMDYyOSwiZXhwIjoxNzQxNTg3MDI5fQ.lUZigWISFhDkoPmQTzZllx4d3YelksZh0HWHiMpZFL8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"rating\": 5\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/rating/update/5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"rating",
+						"update",
+						"5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get all ratings",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJzYW5rYXJzdHlsaXNoc3RhcjMxQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlciBBZG1pbiIsImlhdCI6MTc0MTUwMDYyOSwiZXhwIjoxNzQxNTg3MDI5fQ.lUZigWISFhDkoPmQTzZllx4d3YelksZh0HWHiMpZFL8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/ratings",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"ratings"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get Rating by ID",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJzYW5rYXJzdHlsaXNoc3RhcjMxQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlciBBZG1pbiIsImlhdCI6MTc0MTUwMDYyOSwiZXhwIjoxNzQxNTg3MDI5fQ.lUZigWISFhDkoPmQTzZllx4d3YelksZh0HWHiMpZFL8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/rating/5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"rating",
+						"5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create Disputes",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJzYW5rYXJzdHlsaXNoc3RhcjMxQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlciBBZG1pbiIsImlhdCI6MTc0MTUwMDYyOSwiZXhwIjoxNzQxNTg3MDI5fQ.lUZigWISFhDkoPmQTzZllx4d3YelksZh0HWHiMpZFL8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"dispute_type\":\"rating\",\r\n    \"reason\":\"not good company\",\r\n    \"status\":\"pending\",\r\n    \"resolution_notes\":\"note1234\",\r\n    \"employee_id\":10\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/dispute",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"dispute"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get all Disputes",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJzYW5rYXJzdHlsaXNoc3RhcjMxQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlciBBZG1pbiIsImlhdCI6MTc0MTUwMDYyOSwiZXhwIjoxNzQxNTg3MDI5fQ.lUZigWISFhDkoPmQTzZllx4d3YelksZh0HWHiMpZFL8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/disputes",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"disputes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get Dispute by ID",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJzYW5rYXJzdHlsaXNoc3RhcjMxQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlciBBZG1pbiIsImlhdCI6MTc0MTUwMDYyOSwiZXhwIjoxNzQxNTg3MDI5fQ.lUZigWISFhDkoPmQTzZllx4d3YelksZh0HWHiMpZFL8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/dispute/3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"dispute",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Disputes",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJzYW5rYXJzdHlsaXNoc3RhcjMxQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlciBBZG1pbiIsImlhdCI6MTc0MTUwMDYyOSwiZXhwIjoxNzQxNTg3MDI5fQ.lUZigWISFhDkoPmQTzZllx4d3YelksZh0HWHiMpZFL8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"reason\": \"other\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/dispute/update/3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"dispute",
+						"update",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete Dispute by ID",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJzYW5rYXJzdHlsaXNoc3RhcjMxQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlciBBZG1pbiIsImlhdCI6MTc0MTUwMDYyOSwiZXhwIjoxNzQxNTg3MDI5fQ.lUZigWISFhDkoPmQTzZllx4d3YelksZh0HWHiMpZFL8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/dispute/delete/4",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"dispute",
+						"delete",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get log Activity Analysis",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJzYW5rYXJzdHlsaXNoc3RhcjMxQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlciBBZG1pbiIsImlhdCI6MTc0MTUwMDYyOSwiZXhwIjoxNzQxNTg3MDI5fQ.lUZigWISFhDkoPmQTzZllx4d3YelksZh0HWHiMpZFL8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/activity-logs/analysis",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"activity-logs",
+						"analysis"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -70,17 +70,10 @@ const blackList = database.define(
         return value ? decrypt(value) : null;
       },
     },
-    blackList_date: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      set(value) {
-        this.setDataValue("blackList_date", encrypt(value));
-      },
-      get() {
-        const value = this.getDataValue("blackList_date");
-        return value ? decrypt(value) : null;
-      },
-    },
+    // blackList_date: {
+    //   type: DataTypes.STRING,
+    //   allowNull: true,
+    // },
     report_by: {
       type: DataTypes.STRING,
       allowNull: true,

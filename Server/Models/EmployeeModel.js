@@ -14,7 +14,7 @@ const Employee = database.define(
     },
     company_id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: Company,
         key: "id",
@@ -80,18 +80,22 @@ const Employee = database.define(
       allowNull: true,
       set(value) {
         if (value) {
-          this.setDataValue(
-            "employment_history",
-            crypto.encrypt(JSON.stringify(value))
-          );
+          this.setDataValue("panCard", crypto.encrypt(value)); // Corrected to "panCard"
         }
       },
       get() {
-        const encryptedValue = this.getDataValue("employment_history");
-        return encryptedValue
-          ? JSON.parse(crypto.decrypt(encryptedValue))
-          : null;
+        const encryptedValue = this.getDataValue("panCard"); // Corrected to "panCard"
+        return encryptedValue ? crypto.decrypt(encryptedValue) : null;
       },
+    },
+    created_by: {
+      type: DataTypes.INTEGER,
+      allowNull: false, // Set to false if it's required
+      references: {
+        model: User,
+        key: "id",
+      },
+      onDelete: "CASCADE",
     },
     aadharCard: {
       type: DataTypes.STRING,
@@ -169,6 +173,10 @@ const Employee = database.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    position: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    }
   },
 
   {
