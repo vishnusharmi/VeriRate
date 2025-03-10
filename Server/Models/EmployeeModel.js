@@ -112,11 +112,12 @@ const Employee = database.define(
 
     is_verified: {
       // type: DataTypes.BOOLEAN,
-      // allowNull: true,
-      type: DataTypes.ENUM("Pending", "Verified"),
+      type: DataTypes.ENUM("Pending","Verified"),
+      allowNull: true,
       defaultValue: "Pending",
     },
 
+  
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -127,7 +128,7 @@ const Employee = database.define(
     },
     employment_history: {
       type: DataTypes.JSONB,
-      allowNull: false,
+      allowNull: true,
     },
 
     created_at: {

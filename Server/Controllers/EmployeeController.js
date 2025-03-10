@@ -65,11 +65,11 @@ const updateEmployee = async (req, res) => {
 const deleteEmployee = async (req, res) => {
   try {
     const deleted = await employeeService.deleteEmployee(req.params.id);
-    res
+    return res
       .status(deleted ? 200 : 404)
       .json({ message: deleted ? "Employee deleted" : "Not found" });
   } catch (error) {
-    res.status(500).json({ message: "Error deleting", error: error.message });
+    return res.status(500).json({ message: "Error deleting", error: error.message });
   }
 };
 
