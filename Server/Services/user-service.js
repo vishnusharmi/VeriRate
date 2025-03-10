@@ -76,23 +76,23 @@ exports.registerUser = async (adminId,data, files) => {
           permanent_address: data.permanent_address,
           current_address: data.current_address,
           UPI_Id: data.UPI_Id,
-          created_By:adminId
+          createdBy:adminId
         },
         { transaction }
       );
 
-      if (data.role === "Employee Admin") {
+      // if (data.role === "Employee Admin") {
         
-        await AdminSettings.create({
-          adminId: userData.id, // TODO: SUPER ADMIN ID
-          accessControl: false,
-          complianceCheck: true,
-          blacklistControl: false,
-          twoFactorAuth: false,
-          systemMonitoring: true,
-          performanceTracking: true,
-        },{transaction});
-      }
+      //   await AdminSettings.create({
+      //     adminId: userData.id, // TODO: SUPER ADMIN ID
+      //     accessControl: false,
+      //     complianceCheck: true,
+      //     blacklistControl: false,
+      //     twoFactorAuth: false,
+      //     systemMonitoring: true,
+      //     performanceTracking: true,
+      //   },{transaction});
+      // }
 
     }
 
@@ -285,8 +285,6 @@ exports.deleteUser = async (id) => {
       throw new Error("User not found");
     }
     const deletedUser = await userModel.destroy({ where: { id } });
-
-
 
     // log Activity
     await logActivity({

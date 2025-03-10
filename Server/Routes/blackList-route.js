@@ -6,11 +6,11 @@ const verifyToken = require('../MiddleWares/verifyToken');
 const blackListRoute = express.Router()
 
 // api/blacklists
-blackListRoute.post("/blacklists",verifyToken, createBlackListUser)
-blackListRoute.get("/blacklists/:id",verifyToken, readBlackListUser)
+blackListRoute.post("/blacklist/create",verifyToken, createBlackListUser)
+blackListRoute.get("/blacklist/:id",verifyToken, readBlackListUser)
 blackListRoute.get("/blacklists",verifyToken, readAllBlackListUser)
-blackListRoute.put("/blacklists/:id",verifyToken, updateBlackListUser)
-blackListRoute.delete("/blacklists/:id",verifyToken, deleteBlackListUser)
+blackListRoute.put("/blacklist/update/:id",verifyToken, updateBlackListUser)
+blackListRoute.delete("/blacklist/delete/:id",verifyToken, deleteBlackListUser)
 
 
 module.exports = blackListRoute

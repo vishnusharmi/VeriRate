@@ -7,12 +7,7 @@ const userRouter = express.Router();
 
 userRouter.post(
   "/register",
-  (req, res, next) => {
-    if (req.body.role === "Super Admin") {
-      return userControllers.register(req, res);
-    }
-    verifyToken(req, res, next);
-  },
+  verifyToken,
   upload.array("document",10),
   userControllers.register
 );

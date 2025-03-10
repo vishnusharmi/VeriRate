@@ -4,7 +4,6 @@ const helmet = require("helmet");
 const companiesRouter = require("./Routes/companies-route.js");
 const cors = require("cors");
 const blackListRoute = require("./Routes/blackList-route.js");
-const auditLogsRouter = require("./Routes/audit-logs-route.js");
 const sequelize = require("./Config/DBconnection.js");
 const ratingRoutes = require("./Routes/ratingRoutes.js");
 const EmployeeRoutes = require("./Routes/EmployeeRoutes.js");
@@ -32,7 +31,6 @@ const PORT = process.env.PORT || 3005;
 
 app.use("/api", blackListRoute);
 app.use("/api", loginRoutes);
-app.use("/api", auditLogsRouter);
 app.use("/api", userRouters);
 app.use("/api", ratingRoutes);
 app.use("/api", companiesRouter);

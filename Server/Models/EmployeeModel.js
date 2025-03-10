@@ -125,7 +125,7 @@ const Employee = database.define(
         key: "id",
       },
     },
-    created_By: {
+    createdBy: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {

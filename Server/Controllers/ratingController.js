@@ -23,7 +23,7 @@ exports.getAllRatings = async (req, res) => {
   const {page,pageSize}=req.query;
   try {
     const ratings = await ratingService.getAllRatings(page,pageSize);
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Ratings of all retrieved",
       data: ratings,
@@ -59,19 +59,13 @@ exports.getRatingById = async (req, res) => {
 exports.updateRating = async (req, res) => {
   try {
     const rating = await ratingService.updateRating(req.params.id, req.body,req);
-    if (!rating) {
-      return res.status(404).json({
-        success: false,
-        message: "Rating not found",
-      });
-    }
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Rating updated successfully",
       data: rating,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Internal server error",
       error: error.message,

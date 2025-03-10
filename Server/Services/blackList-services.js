@@ -1,88 +1,81 @@
-const { Model } = require("sequelize");
 const blackList = require("../Models/blackList-model");
-const employee = require("../Models/EmployeeModel");
-const company = require("../Models/companies");
 const logActivity = require("../Activity/activityFunction.js");
+const User = require("../Models/user.js");
+const Company = require("../Models/companies");
+const Employee = require("../Models/EmployeeModel");
 //create
-exports.createBlackList = async (data,req) => {
+exports.createBlackList = async (data, adminId) => {
   try {
-    let user = await blackList.findByPk({where: {email: data.email}});
-    if(user){
-      throw new Error(`user with email ${user.email} already exists`);
+    // fetching the Employee admin user data 
+    const employeeAdminUser = await User.findByPk(adminId);
+    if (!employeeAdminUser) {
+      throw new Error(`User with ID ${adminId} does not exist.`);
     }
 
-    user = await blackList.create({created_by: req.userId,...data});
-
-    const employeeUser = await User.findByPk({where: {id: req.userId}})
-    if(!employeeUser){
-      throw new Error(`Employee User with ID ${req.userId} does not exist.`);
+    // fetching the blacklist based on id(checking whether employee is blacklisted or not)
+    let blackListUserExist = await blackList.findOne({ where: { employee_id: data.employee_id } });
+    if (blackListUserExist) {
+      throw new Error(`user with ID ${data.employee_id} is already blacklisted`);
     }
+
+    // fetching employee User information
+    const employeeInfo = await Employee.findByPk(data.employee_id);
+    if (!employeeInfo) {
+      throw new Error(`Employee User with ID ${data.employee_id} does not exist.`);
+    }
+
+
+    const employeeUser = await User.findByPk(employeeInfo.userId);
+    if (!employeeUser) {
+      throw new Error(`Employee User with ID ${employeeInfo.userId} does not exist.`);
+    }
+
+
+    const companyInfo = await Company.findByPk(employeeInfo.company_id);
+    if (!companyInfo) {
+      throw new Error(`Company with ID ${employeeInfo.company_id} does not exist.`);
+    }
+
+
+    const payload = {
+      created_by: adminId,
+      fullname: employeeUser.username,
+      email: employeeUser.email,
+      contact_number: employeeInfo.phone_number,
+      position: employeeInfo.position,
+      company_id: employeeInfo.company_id,
+      company_name: companyInfo.companyName,
+      ...data
+    };
+
+    const user = await blackList.create(payload);
 
     await logActivity({
-      userId : employeeUser.id,
-      action : `New Blacklist created by ${employeeUser.username} of ID: ${employeeUser.id} for ${data.email}`,
-      details : employeeUser.username,
-      type : "Blacklist",
-      entity : "Blacklist Management",
-      entityId : employeeUser.id
+      userId: employeeUser.id,
+      action: `Employee ${employeeUser.username} blackListed by ${employeeAdminUser.username}`,
+      details: employeeUser.username,
+      type: "Blacklist",
+      entity: "Blacklist Management",
+      entityId: employeeAdminUser.id
     })
 
     return user;
   } catch (error) {
-    console.error("Error occured", error.message);
     throw error;
   }
-//create
-// exports.createBlackList = async (data, adminId) => {
-//   console.log(data, 'hdhdhdhhdh');
-  
-//   try {
-//     // Check if employee is already blacklisted
-//     const existedData = await blackList.findOne({ where: { employee_id: data.employee_id } });
-
-//     if (existedData) {
-//       return { statusCode: 400, message: "Employee is already in the blacklist" };
-//     }
-
-//     // Create blacklist entry
-//     const createBlackList = await blackList.create({ ...data, createdBy: adminId });
-
-//     // Log activity
-//     await logActivity(
-//       createBlackList.id,
-//       "BlackList Added",
-//       `Blacklisted by: ${ createBlackList.name} | Blacklisted User: ${user.name}`,
-//       "Blacklist Management"
-//     );
-
-//     return { statusCode: 201, message: "Blacklist created successfully", createBlackList };
-
-//   } catch (error) {
-//     console.error("Error occurred:", error.message);
-//     return { statusCode: 500, message: "Internal Server Error" };
-//   }
 };
 
 
 //read
 exports.readBlackList = async (id) => {
   try {
-    const user = await blackList.findByPk(id, {
-      include: [
-        {
-          model: employee,
-        },
-        {
-          model: company,
-        },
-      ],
-    });
+    const user = await blackList.findByPk(id);
     if (!user) {
-      return "Id not available";
+      throw new Error(`BlackList with ID ${id} does not exist.`);
     }
     return user;
   } catch (error) {
-    console.error("Error occured", error.message);
+    throw error;
   }
 };
 
@@ -91,40 +84,22 @@ exports.readBlackList = async (id) => {
 //read all
 exports.readAllBlackList = async () => {
   try {
-    const users = await blackList.findAll({ raw: true });
-    // if (!user){
-    //     return 'Id not available'
-    // }
+    // const users = await blackList.findAll({ raw: true });
+    const users = await blackList.findAll();
+
     return users;
   } catch (error) {
-    console.error("Error occured", error.message);
+    throw error;
   }
 };
 
 //update
-exports.updateBlackList = async (id, data,adminId) => {
+exports.updateBlackList = async (id, data, adminId) => {
   try {
     const user = await blackList.findByPk(id);
     if (!user) {
       return "User id not available";
     }
-
-    // const updateUser = await blackList.update(data, { where: { id } });
-    // await logActivity(
-    //   user.id,
-    //   " BlackList User Updated ",
-    //   "Temporary blacklist for 90 days - Code: Misconduct",
-    //   `${user.name}`,
-    //   "Blacklist Management"
-    // );
-    // await logActivity({
-    //   userId : userData.id,
-    //   action : `New ${data.role || "User"} created`,
-    //   details : userData.username,
-    //   type : "Blacklist",
-    //   entity : "Blacklist Management",
-    //   entityId : userData.id
-    // })
     const updateUser = await blackList.update({ ...data, createdBy: adminId }, { where: { id } });
     await logActivity(
       user.id,
@@ -135,7 +110,7 @@ exports.updateBlackList = async (id, data,adminId) => {
     );
     return updateUser;
   } catch (error) {
-    console.error("Error occured", error.message);
+    throw error;
   }
 };
 
@@ -144,19 +119,20 @@ exports.deleteBlackList = async (id) => {
   try {
     const user = await blackList.findByPk(id);
     if (!user) {
-      return new Promise((_, reject) => reject({ message: "User not found!" }));
+      throw new Error(`Couldn not find BlackList with ID ${id}`);
     }
 
     const deletedUser = await blackList.destroy({ where: { id } });
-    await logActivity(
-      user.id,
-      " BlackList User Deleted",
-      "Temporary blacklist for 90 days - Code: Misconduct",
-      `${user.name}`,
-      "Blacklist Management"
-    );
+    // await logActivity(
+    //   user.id,
+    //   " BlackList User Deleted",
+    //   "Temporary blacklist for 90 days - Code: Misconduct",
+    //   `${user.name}`,
+    //   "Blacklist Management"
+    // );
+
     return deletedUser;
   } catch (error) {
-    console.error("Error occured", error.message);
+    throw error;
   }
 };
