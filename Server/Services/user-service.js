@@ -2,6 +2,7 @@
 const userModel = require("../Models/user");
 const Documents = require("../Models/documents");
 const employeeModel = require("../Models/EmployeeModel");
+const logActivity  = require("../Activity/activityFunction");
 const AdminSettings = require("../Models/adminSettings");
 
 const bcrypt = require("bcryptjs");
@@ -75,7 +76,7 @@ exports.registerUser = async (adminId,data, files) => {
           permanent_address: data.permanent_address,
           current_address: data.current_address,
           UPI_Id: data.UPI_Id,
-          created_By:data.created_By
+          created_By:adminId
         },
         { transaction }
       );
@@ -146,15 +147,14 @@ exports.registerUser = async (adminId,data, files) => {
     // If everything succeeds, commit the transaction
     await transaction.commit();
 
-    await logActivity(
-      userData.id,
-      `New ${data.role || "User"} created`,
-      `${userData.username ||
-      `${userData.first_name || ""} ${userData.last_name || ""}`.trim()
-      }`,
-      "User",
-      "User Management"
-    );
+    await logActivity({
+      userId : userData.id,
+      action : `New ${data.role || "User"} created`,
+      details : userData.username,
+      type : "User",
+      entity : "User Management",
+      entityId : userData.id
+    })
 
     return {
       message: "User created successfully",
@@ -174,21 +174,6 @@ exports.registerUser = async (adminId,data, files) => {
 
 };
 
-// exports.getAllusers = async () => {
-//   try {
-//     const getUsers = await userModel.findAll({
-//       include: [
-//         {
-//           model: Documents,
-//         },
-//       ],
-//     });
-//     return getUsers;
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
 
 exports.getAllusers = async () => {
   console.log('errrrrrrrrrrr');
@@ -203,27 +188,6 @@ exports.getAllusers = async () => {
     return { message: "Internal Server Error", error: error.message };
   }
 };
-
-
-
-//get user by id
-
-// exports.getUserbyid = async (id) => {
-//   try {
-//     const getuser = await userModel.findByPk(id, {
-//       include: [
-//         {
-//           model: Documents,
-//         },
-//       ],
-//     });
-//     return getuser;
-//   } catch (error) {
-//     console.error("Error fetching user by id:", error);
-//     throw error;
-//   }
-// };
-
 
 
 exports.getUserbyid = async (id) => {
@@ -295,15 +259,15 @@ exports.updateUserById = async (id, data, documentPath) => {
     });
     // console.log(docResponse, "responss");
 
-    await logActivity(
-      this.updateUserById.id,
-      `${this.updateUserById.role || "User"} updated`,
-      `${this.updateUserById.username ||
-      `${updatedUser.first_name || ""} ${updatedUser.last_name || ""}`.trim()
-      }`,
-      "User",
-      "User Management"
-    );
+    // log Activity
+    await logActivity({
+      userId : updatedUser.id,
+      action : `New ${updatedUser.role || "User"} Updated`,
+      details : updatedUser.username,
+      type : "User",
+      entity : "User Management",
+      entityId : updatedUser.id
+    })
 
     return updatedUser;
   } catch (error) {
@@ -321,15 +285,18 @@ exports.deleteUser = async (id) => {
       throw new Error("User not found");
     }
     const deletedUser = await userModel.destroy({ where: { id } });
-    await logActivity(
-      findUser.id,
-      `${findUser.role || "User"} Deleted`,
-      `${findUser.username ||
-      `${findUser.first_name || ""} ${findUser.last_name || ""}`.trim()
-      }`,
-      "User",
-      "User Management"
-    );
+
+
+
+    // log Activity
+    await logActivity({
+      userId : findUser.id,
+      action : `New ${findUser.role || "User"} Updated`,
+      details : findUser.username,
+      type : "User",
+      entity : "User Management",
+      entityId : findUser.id
+    })
     return deletedUser;
   } catch (error) {
     console.log(error);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { BarChart, Star } from "@mui/icons-material";
 import { Line } from "react-chartjs-2";
 import {
@@ -31,10 +31,10 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/api/ratings"); 
+        const response = await axios.get("http://localhost:3000/api/ratings");
 
         if (response.data.success) {
-          const ratings = response.data.data; 
+          const ratings = response.data.data;
 
           const trendLabels = [];
           const trendData = [];
@@ -49,7 +49,7 @@ const Dashboard = () => {
               trendLabels.push(month);
               trendData.push(1);
             } else {
-              trendData[existingIndex] += 1; 
+              trendData[existingIndex] += 1;
             }
           });
 

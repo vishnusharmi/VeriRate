@@ -3,12 +3,12 @@ const employeeService = require("../Services/EmployeeServices");
 const createEmployee = async (req, res) => {
   try {
     const employee = await employeeService.createEmployee(req.body);
-    res
+    return res
       .status(201)
       .json({ message: "Employee created successfully", employee });
   } catch (error) {
     console.error("Error creating employee:", error);
-    res
+    return res
       .status(500)
       .json({ message: "Error creating employee", error: error.message });
   }

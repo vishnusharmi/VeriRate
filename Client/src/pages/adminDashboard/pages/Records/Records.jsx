@@ -90,7 +90,7 @@ const Records = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await axios.get(STATS_ENDPOINT);
+      const response = await axios.get("http://localhost:3000/api/activity-logs/analysis");
       const data = response.data;
 
       setEmployees(data.totalEmployees.toLocaleString());

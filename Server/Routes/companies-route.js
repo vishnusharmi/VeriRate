@@ -2,14 +2,14 @@ const express = require("express");
 const companiesController = require("../Controllers/companies-controller");
 const companiesRouter = express.Router();
 const upload = require("../Multer/multer");
-const verifyToken=require('../MiddleWares/verifyToken')
+const verifyToken = require("../MiddleWares/verifyToken");
 
 companiesRouter
   .get("/get-companies", verifyToken, companiesController.getAll)
   .post(
     "/create-company",
-    verifyToken,
     // upload.single("document"),
+    verifyToken,
     companiesController.createCompany
   )
   .get("/get-company/:id", verifyToken, companiesController.getById)

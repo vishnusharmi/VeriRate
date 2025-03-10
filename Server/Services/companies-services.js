@@ -22,14 +22,19 @@ exports.createCompany = async (company,createdBy) => {
         })
         const departmentResponse = await departmentModel.bulkCreate(finalDepartments);
 
-        await logActivity(
-            companyCreated.id,
-            " New company profile created",
-            `${companyCreated.companyName}`,
-            "Company",
-            "Company Management"
-        );
-
+        try {
+            await logActivity({
+                type: "Company",
+                action: "New company profile created",
+                userId: adminId,
+                entity: "Company Management",
+                details: `${company.companyName}`,
+            });
+            // console.log("After logging activity...");
+        } catch (error) {
+            console.error("Log Activity Error:", error);
+            throw error;
+        }
         return { companyCreated, departmentResponse };
     } catch (error) {
         console.error("error:", error);
