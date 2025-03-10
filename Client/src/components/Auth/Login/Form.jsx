@@ -54,6 +54,8 @@ const Form = () => {
       });
       if (res.status === 200) {
         const token = res.data.loginUser.jwtToken;
+        console.log(token,'token');
+        
         if (token && typeof token === "string") {
           sessionStorage.setItem("tempToken", token); 
          toast.success("OTP sent to your mail");

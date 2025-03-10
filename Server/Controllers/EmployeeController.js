@@ -14,10 +14,23 @@ const createEmployee = async (req, res) => {
   }
 };
 
+// const getAllEmployees = async (req, res) => {
+//   try {
+//     const employees = await employeeService.getAllEmployees();
+//     res
+//       .status(200)
+//       .json({ message: "Employees fetched successfully", employees });
+//   } catch (error) {
+//     console.error("Error fetching employees:", error);
+//     res
+//       .status(500)
+//       .json({ message: "Error fetching employees", error: error.message });
+//   }
+// };
 const getAllEmployees = async (req, res) => {
-  const {page,pageSize}=req.query;
+  const { page, pageSize } = req.query;
   try {
-    const employees = await employeeService.getAllEmployees(page,pageSize);
+    const employees = await employeeService.getAllEmployees(page, pageSize);
     console.log(employees);
     return res
       .status(200)
@@ -71,7 +84,9 @@ const deleteEmployee = async (req, res) => {
       .status(deleted ? 200 : 404)
       .json({ message: deleted ? "Employee deleted" : "Not found" });
   } catch (error) {
-    return res.status(500).json({ message: "Error deleting", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Error deleting", error: error.message });
   }
 };
 
