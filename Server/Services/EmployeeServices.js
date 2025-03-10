@@ -5,7 +5,6 @@ const Activity = require("../Models/activityModel.js");
 const User = require("../Models/user.js");
 const Company = require("../Models/companies.js");
 
-
 exports.createEmployee = async (data) => {
   try {
     const employee = await Employee.create(data);
@@ -31,7 +30,8 @@ exports.updateEmployee = async (data, id) => {
       throw new Error("Employee not found");
     }
 
-    const isVerified = data.is_verified === "Verified" && employee.is_verified !== "Verified";
+    const isVerified =
+      data.is_verified === "Verified" && employee.is_verified !== "Verified";
 
     const result = await Employee.update(data, {
       where: { id: id },
@@ -65,8 +65,8 @@ exports.updateEmployee = async (data, id) => {
 exports.getAllEmployees = async (page, pageSize) => {
   page = page || 1;
   pageSize = pageSize || 10;
-  const limit = pageSize
-  const offset = (page - 1) * pageSize
+  const limit = pageSize;
+  const offset = (page - 1) * pageSize;
   try {
     const { count, rows } = await Employee.findAndCountAll({
       include: [
@@ -78,9 +78,9 @@ exports.getAllEmployees = async (page, pageSize) => {
         },
         {
           model: User,
-          attributes: ['role', 'email', 'id'], // Fetch only specific fields
-          where: { role: 'Employee' } // Condition to get only Employee role users
-        }
+          attributes: ["role", "email", "id"], // Fetch only specific fields
+          where: { role: "Employee" }, // Condition to get only Employee role users
+        },
       ],
       limit,
       offset,
@@ -93,14 +93,12 @@ exports.getAllEmployees = async (page, pageSize) => {
       currentPage: page,
       pageSize: pageSize,
       data: rows, // Current page data
-    }
+    };
   } catch (error) {
     console.error("Error occured", error.message);
     throw error;
   }
 };
-
-
 
 exports.getEmployeeById = async (id) => {
   try {
@@ -143,6 +141,5 @@ exports.deleteEmployee = async (id) => {
     throw new Error(`Error deleting employee: ${error.message}`);
   }
 };
-
 
 //DID BY RASAGNA

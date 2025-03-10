@@ -46,9 +46,9 @@ const Disputes = sequelize.define('Disputes', {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
-          model: User, 
-          key: "id",
-        }, 
+            model: User,
+            key: "id",
+        },
     },
 
 });

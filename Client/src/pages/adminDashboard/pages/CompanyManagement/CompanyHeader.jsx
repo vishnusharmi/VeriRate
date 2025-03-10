@@ -44,7 +44,7 @@ const CompanyHeader = ({ searchTerm, setSearchTerm, companies, setShowAddModal, 
                                 companyWebsite: "",
                                 role: "Employee Admin",
                                 
-                                document: null,
+                                // document: null,
                                 departments: [{ name: '',departmentCode:""}]
                             });
                         }}
