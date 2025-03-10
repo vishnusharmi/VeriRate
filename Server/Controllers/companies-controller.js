@@ -4,9 +4,10 @@ const companiesService = require("../Services/companies-services");
 const createCompany = async (req, res) => {
 
     const data = req.body;
+    const adminId = req.userId;
 
     try {
-        const userData = await companiesService.createCompany(data);
+        const userData = await companiesService.createCompany({...data,adminId});
         return res.json({ message: "Company Updated successfully", userData });
     } catch (error) {
         return res.status(500).json({ error: error.message });

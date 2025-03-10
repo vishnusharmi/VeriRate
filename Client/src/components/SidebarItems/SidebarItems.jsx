@@ -19,7 +19,7 @@ import RateReviewIcon from "@mui/icons-material/RateReview";
 import SettingsIcon  from "@mui/icons-material/Settings";
 
 const SidebarItems = () => {
-  const role = "admin/";
+  const role = "admin";
 
   const adminMenuItems = [
     {

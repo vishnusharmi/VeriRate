@@ -4,21 +4,33 @@ const employee = require("../Models/EmployeeModel");
 const company = require("../Models/companies");
 const logActivity = require("../Activity/activityFunction.js");
 //create
-exports.createBlackList = async (data) => {
+exports.createBlackList = async (data,req) => {
   try {
-    const user = await blackList.create(data);
+    let user = await blackList.findByPk({where: {email: data.email}});
+    if(user){
+      throw new Error(`user with email ${user.email} already exists`);
+    }
 
-    await logActivity(
-      user.id,
-      "Blacklist Added",
-      `Blacklisted by: ${createdByUser.name} | Blacklisted User: ${user.name}`,
-      "Blacklist Management"
-    );
+    user = await blackList.create({created_by: req.userId,...data});
 
-    console.log(user);
+    const employeeUser = await User.findByPk({where: {id: req.userId}})
+    if(!employeeUser){
+      throw new Error(`Employee User with ID ${req.userId} does not exist.`);
+    }
+
+    await logActivity({
+      userId : employeeUser.id,
+      action : `New Blacklist created by ${employeeUser.username} of ID: ${employeeUser.id} for ${data.email}`,
+      details : employeeUser.username,
+      type : "Blacklist",
+      entity : "Blacklist Management",
+      entityId : employeeUser.id
+    })
+
     return user;
   } catch (error) {
     console.error("Error occured", error.message);
+    throw error;
   }
 };
 
@@ -68,13 +80,21 @@ exports.updateBlackList = async (id, data) => {
     }
 
     const updateUser = await blackList.update(data, { where: { id } });
-    await logActivity(
-      user.id,
-      " BlackList User Updated ",
-      "Temporary blacklist for 90 days - Code: Misconduct",
-      `${user.name}`,
-      "Blacklist Management"
-    );
+    // await logActivity(
+    //   user.id,
+    //   " BlackList User Updated ",
+    //   "Temporary blacklist for 90 days - Code: Misconduct",
+    //   `${user.name}`,
+    //   "Blacklist Management"
+    // );
+    await logActivity({
+      userId : userData.id,
+      action : `New ${data.role || "User"} created`,
+      details : userData.username,
+      type : "Blacklist",
+      entity : "Blacklist Management",
+      entityId : userData.id
+    })
     return updateUser;
   } catch (error) {
     console.error("Error occured", error.message);

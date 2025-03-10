@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 export const AuthContext = createContext();
 
 function AuthProvider({ children }) {
+  
   const [auth, setAuth] = useState(() => {
     const token = sessionStorage.getItem("authToken");
     return token ? jwtDecode(token) : null;

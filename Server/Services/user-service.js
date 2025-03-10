@@ -2,6 +2,7 @@ const cloudinaryUpload = require("../MiddleWares/Cloudinary");
 const userModel = require("../Models/user");
 const Documents = require("../Models/documents");
 const employeeModel = require("../Models/EmployeeModel");
+const logActivity  = require("../Activity/activityFunction");
 
 const bcrypt = require("bcryptjs");
 const { accessSync } = require("fs");
@@ -71,6 +72,7 @@ exports.registerUser = async (data, files) => {
           permanent_address: data.permanent_address,
           current_address: data.current_address,
           UPI_Id: data.UPI_Id,
+          createdBy: data.createdBy || 0,
         },
         { transaction }
       );
@@ -140,15 +142,14 @@ exports.registerUser = async (data, files) => {
     // If everything succeeds, commit the transaction
     await transaction.commit();
 
-    await logActivity(
-      userData.id,
-      `New ${data.role || "User"} created`,
-      `${userData.username ||
-      `${userData.first_name || ""} ${userData.last_name || ""}`.trim()
-      }`,
-      "User",
-      "User Management"
-    );
+    await logActivity({
+      userId : userData.id,
+      action : `New ${data.role || "User"} created`,
+      details : userData.username,
+      type : "User",
+      entity : "User Management",
+      entityId : userData.id
+    })
 
     return {
       statusCode: 201,
@@ -169,21 +170,6 @@ exports.registerUser = async (data, files) => {
 
 };
 
-// exports.getAllusers = async () => {
-//   try {
-//     const getUsers = await userModel.findAll({
-//       include: [
-//         {
-//           model: Documents,
-//         },
-//       ],
-//     });
-//     return getUsers;
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
 
 exports.getAllusers = async () => {
   try {
@@ -196,27 +182,6 @@ exports.getAllusers = async () => {
     return { message: "Internal Server Error", error: error.message };
   }
 };
-
-
-
-//get user by id
-
-// exports.getUserbyid = async (id) => {
-//   try {
-//     const getuser = await userModel.findByPk(id, {
-//       include: [
-//         {
-//           model: Documents,
-//         },
-//       ],
-//     });
-//     return getuser;
-//   } catch (error) {
-//     console.error("Error fetching user by id:", error);
-//     throw error;
-//   }
-// };
-
 
 
 exports.getUserbyid = async (id) => {
@@ -262,7 +227,7 @@ exports.updateUserById = async (id, data, documentPath) => {
     const updatedUser = await userModel.update(data, { where: { id } });
 
     if (!updatedUser) {
-      throw new error(" user not found");
+      throw new Error(" user not found");
     }
 
     const docResponse = await Documents.update(
@@ -272,15 +237,15 @@ exports.updateUserById = async (id, data, documentPath) => {
 
     // console.log(docResponse, "responss");
 
-    await logActivity(
-      this.updateUserById.id,
-      `${this.updateUserById.role || "User"} updated`,
-      `${this.updateUserById.username ||
-      `${updatedUser.first_name || ""} ${updatedUser.last_name || ""}`.trim()
-      }`,
-      "User",
-      "User Management"
-    );
+    // log Activity
+    await logActivity({
+      userId : updatedUser.id,
+      action : `New ${updatedUser.role || "User"} Updated`,
+      details : updatedUser.username,
+      type : "User",
+      entity : "User Management",
+      entityId : updatedUser.id
+    })
 
     return updatedUser;
   } catch (error) {
@@ -297,15 +262,18 @@ exports.deleteUser = async (id) => {
       throw new Error("User not found");
     }
     const deletedUser = await userModel.destroy({ where: { id } });
-    await logActivity(
-      findUser.id,
-      `${findUser.role || "User"} Deleted`,
-      `${findUser.username ||
-      `${findUser.first_name || ""} ${findUser.last_name || ""}`.trim()
-      }`,
-      "User",
-      "User Management"
-    );
+
+
+
+    // log Activity
+    await logActivity({
+      userId : findUser.id,
+      action : `New ${findUser.role || "User"} Updated`,
+      details : findUser.username,
+      type : "User",
+      entity : "User Management",
+      entityId : findUser.id
+    })
     return deletedUser;
   } catch (error) {
     console.log(error);

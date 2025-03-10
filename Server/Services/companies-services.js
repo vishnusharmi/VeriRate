@@ -7,8 +7,8 @@ const logActivity = require("../Activity/activityFunction.js");
 exports.createCompany = async (company) => {
     try {
 
-        const { departments, ...companyData } = company
-        const companyCreated = await Company.create(companyData);
+        const { departments, adminId, ...companyData } = company
+        const companyCreated = await Company.create({ createdBy: adminId, ...companyData });
         if (!companyCreated) {
             return { statusCode: 404, message: "Error While creating Company" }
         }
@@ -21,14 +21,19 @@ exports.createCompany = async (company) => {
         })
         const departmentResponse = await departmentModel.bulkCreate(finalDepartments);
 
-        await logActivity(
-            companyCreated.id,
-            " New company profile created",
-            `${companyCreated.companyName}`,
-            "Company",
-            "Company Management"
-        );
-
+        try {
+            await logActivity({
+                type: "Company",
+                action: "New company profile created",
+                userId: adminId,
+                entity: "Company Management",
+                details: `${company.companyName}`,
+            });
+            // console.log("After logging activity...");
+        } catch (error) {
+            console.error("Log Activity Error:", error);
+            throw error;
+        }
         return { companyCreated, departmentResponse };
     } catch (error) {
         console.error("error:", error);
@@ -40,7 +45,7 @@ exports.createCompany = async (company) => {
 //get all compamies
 exports.getCompanies = async () => {
     try {
-        const companies = await Company.findAll( );
+        const companies = await Company.findAll();
         return companies
     } catch (error) {
         console.error("error:", error)
