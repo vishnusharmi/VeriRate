@@ -12,16 +12,6 @@ const Employee = database.define(
       primaryKey: true,
       autoIncrement: true,
     },
-
-    // created_by: {
-    //   type: DataTypes.INTEGER,
-    //   allowNull: false,
-    //   references: {
-    //     model: User,
-    //     key: "id",
-    //   },
-    //   onDelete: "CASCADE",
-    // },
     company_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
@@ -132,14 +122,6 @@ const Employee = database.define(
     },
 
     userId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: User,
-        key: "id",
-      },
-    },
-    created_By: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
