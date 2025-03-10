@@ -2,6 +2,7 @@ const Company = require("../Models/companies");
 const document = require('../Models/documents');
 const departmentModel = require("../Models/department");
 const cloudinaryUpload = require("../MiddleWares/Cloudinary");
+const Employee = require('../Models/EmployeeModel')
 
 exports.createCompany = async (company) => {
     try {
@@ -29,23 +30,27 @@ exports.createCompany = async (company) => {
 
 
 //get all compamies
-exports.getCompanies = async () => {
+exports.getCompanies = async (page = 1, pageSize = 10) => {
     try {
-        const companies = await Company.findAll(
-            {
-                include: [
-                    {
-                        model: document
-                    }
-                ]
-            }
-        );
-        return companies
+        const { count, rows } = await Company.findAndCountAll({
+            include: [{ model: Employee }],
+            limit: pageSize,
+            offset: (page - 1) * pageSize
+        });
+
+
+        return {
+            totalRecords: count, // Total number of records
+            totalPages: Math.ceil(count / pageSize), // Total pages
+            currentPage: page,
+            pageSize: pageSize,
+            data: rows, // Current page data
+          }
     } catch (error) {
-        console.error("error:", error)
+        console.error("Error fetching companies:", error);
         throw error;
     }
-}
+};
 
 
 

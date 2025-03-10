@@ -26,14 +26,21 @@ const createCompany = async (req, res) => {
     }
 }
 
-const getAll = async(req,res)=>{
+//get all companies
+const getAll = async (req, res) => {
     try {
-        const companies = await companiesService.getCompanies();
-       return res.status(200).json({message: "All companies successfully", companies});
+    
+
+        const {page , pageSize} = req.query
+
+        const result = await companiesService.getCompanies(page, pageSize);
+
+        return res.status(200).json({
+            message: "All companies fetched successfully",  data: result });
     } catch (error) {
-        return res.status(500).json({error: error.message});
+        return res.status(500).json({ error: error.message });
     }
-}
+};
 
 const getById = async(req,res)=>{
     try {

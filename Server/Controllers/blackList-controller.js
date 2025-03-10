@@ -41,13 +41,14 @@ const readBlackListUser = async (req, res) => {
 }
 // get all users
 const readAllBlackListUser = async (req, res) => {
+    const {page,pageSize}=req.query;
     try {
-        const users = await blackListServices.readAllBlackList();
+        const users = await blackListServices.readAllBlackList(page,pageSize);
         console.log(users);
 
-        return res.status(200).json({ message: "Data retrived successfully", data: users })
+        res.status(200).json({message :"Blacklist users fetched successfully..." , data:users });
     } catch (error) {
-        return res.status(404).json({ message: error.message })
+        res.status(404).json({ message: error.message })
     }
 }
 

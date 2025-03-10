@@ -173,13 +173,13 @@ import RateReviewIcon from "@mui/icons-material/RateReview";
 import SettingsIcon  from "@mui/icons-material/Settings";
 
 const SidebarItems = () => {
-  const role = "admin";
+  const role = "admin//";
 
   const adminMenuItems = [
     {
       name: "Dashboard",
       icon: <Dashboard className="w-5 h-5 cb1:w-6 cb1:h-6" />,
-      path: "/admin",
+      path: "/admin//",
     },
     {
       name: "Companies",

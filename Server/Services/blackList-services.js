@@ -46,13 +46,23 @@ exports.readBlackList = async (id) => {
 //get employees by id only name
 
 //read all
-exports.readAllBlackList = async () => {
+exports.readAllBlackList = async (page=1,pageSize=10) => {
+  const limit = pageSize 
+  const offset = (page - 1) * pageSize
   try {
-    const users = await blackList.findAll({ raw: true });
-    // if (!user){
-    //     return 'Id not available'
-    // }
-    return users;
+    const { count, rows } = await blackList.findAndCountAll({
+      limit,
+      offset,
+      order: [["id", "DESC"]],
+    });
+  
+   return {
+    totalRecords: count, // Total number of records
+    totalPages: Math.ceil(count / pageSize), // Total pages
+    currentPage: page,
+    pageSize: pageSize,
+    data: rows, // Current page data
+  }
   } catch (error) {
     console.error("Error occured", error.message);
   }
