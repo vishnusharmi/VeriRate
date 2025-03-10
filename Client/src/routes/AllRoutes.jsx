@@ -29,7 +29,6 @@ import AdminSettings from "../pages/adminDashboard/pages/Settings/AdminSettings.
 import EmployeeAdminSettings from "../pages/employerDashboard/pages/Settings/EmployeeAdminSettings.jsx";
 import OTP from "../components/Auth/Login/Otp.jsx";
 
-import AppTest from "../components/Sample/AppTest.jsx";
 import DepartmentManagement from "../pages/adminDashboard/pages/DepartmentManagement/DepartmentManagement.jsx";
 
 const AllRoutes = () => {
@@ -40,7 +39,10 @@ const AllRoutes = () => {
 
       <Route path="/admin" element={<Layout />}>
         <Route index element={<AdminDashboard />} />
-        <Route path="/admin/company-management" element={<CompanyManagement />} />
+        <Route
+          path="/admin/company-management"
+          element={<CompanyManagement />}
+        />
         <Route path="/admin/disputes" element={<Disputes />} />
         <Route path="/admin/records" element={<Records />} />
         <Route path="/admin/monitoring" element={<Monitoring />} />
@@ -77,8 +79,6 @@ const AllRoutes = () => {
           element={<EmployeeAdminSettings />}
         />
       </Route>
-
-      <Route path="/custom" element={<AppTest />} />
     </Routes>
   );
 };

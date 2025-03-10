@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
 import { FiEdit, FiTrash2, FiPlus } from "react-icons/fi";
-import axios from "axios";
-
-const API_URL = "http://localhost:3000/api/blacklists";
-const EMPLOYEE_API_URL = "http://localhost:3000/api/get-employees";
+import axiosInstance from "../../../../middleware/axiosInstance";
 
 const BlacklistManagement = () => {
   const [employees, setEmployees] = useState([]);
@@ -26,7 +23,7 @@ const BlacklistManagement = () => {
   // Fetch Blacklist Data
   const getData = async () => {
     try {
-      const response = await axios.get(API_URL);
+      const response = await axiosInstance.get("/blacklists");
       setEmployees(response.data.data);
     } catch (err) {
       console.error("Error fetching data:", err);
@@ -34,9 +31,9 @@ const BlacklistManagement = () => {
   };
 
   // Fetch Employee List
-  const fetchEmployees = async () => {
+  const fetchEmployees = async (signal) => {
     try {
-      const response = await axios.get(EMPLOYEE_API_URL);
+      const response = await axiosInstance.get("/get-employees", { signal });
       setEmployeeList(response.data?.employees);
     } catch (err) {
       console.error("Error fetching employees:", err);
@@ -46,8 +43,12 @@ const BlacklistManagement = () => {
   console.log(employeeList);
 
   useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
     getData();
-    fetchEmployees(); // Fetch employees when component loads
+    fetchEmployees(signal); // Fetch employees when component loads
+
+    return () => controller.abort();
   }, []);
 
   const handleSave = async () => {
@@ -68,9 +69,9 @@ const BlacklistManagement = () => {
       };
 
       if (editEmployee) {
-        await axios.put(`${API_URL}/${editEmployee}`, payload);
+        await axiosInstance.put(`blacklists/${editEmployee}`, payload);
       } else {
-        await axios.post(API_URL, payload);
+        await axiosInstance.post("/blacklists", payload);
       }
 
       getData();
@@ -83,7 +84,7 @@ const BlacklistManagement = () => {
   // Handle Delete Employee
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${API_URL}/${id}`);
+      await blacklists.delete(`blacklists/${id}`);
       getData();
     } catch (err) {
       console.error("Error deleting data:", err);

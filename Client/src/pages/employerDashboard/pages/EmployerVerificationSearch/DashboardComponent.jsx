@@ -21,7 +21,7 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-import axios from "axios";
+import axiosInstance from "../../../../middleware/axiosInstance";
 
 const Dashboard = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
@@ -31,10 +31,10 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/api/ratings"); 
+        const response = await axiosInstance.get("/ratings");
 
         if (response.data.success) {
-          const ratings = response.data.data; 
+          const ratings = response.data.data;
 
           const trendLabels = [];
           const trendData = [];
@@ -49,7 +49,7 @@ const Dashboard = () => {
               trendLabels.push(month);
               trendData.push(1);
             } else {
-              trendData[existingIndex] += 1; 
+              trendData[existingIndex] += 1;
             }
           });
 
