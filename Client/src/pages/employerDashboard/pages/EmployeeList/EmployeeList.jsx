@@ -1,21 +1,11 @@
-
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { FaRegEdit, FaTrashAlt, FaPlusCircle } from "react-icons/fa";
 import { FiUser, FiFileText } from "react-icons/fi";
 import { LuHistory } from "react-icons/lu";
 import Modal from "react-modal";
-import axios from "axios";
+import axiosInstance from "../../../../middleware/axiosInstance";
 
 Modal.setAppElement("#root");
-
-// Create axios instance with auth header
-const api = axios.create({
-  baseURL: "http://localhost:3000/api",
-  headers: {
-    Authorization: `Bearer ${sessionStorage.getItem("authToken")}`, // Replace with your actual token
-    "Content-Type": "application/json",
-  },
-});
 
 const EmployeeManagement = () => {
   const [activeTab, setActiveTab] = useState("employees");
@@ -24,8 +14,18 @@ const EmployeeManagement = () => {
   const [employeeToDelete, setEmployeeToDelete] = useState(null);
   const [editableEmployee, setEditableEmployee] = useState(null);
   const [files, setFiles] = useState([
-    { id: 1, name: "passport_copy.pdf", type: "ID Proof", employee: "John Doe" },
-    { id: 2, name: "certification_java.pdf", type: "Certification", employee: "John Doe" },
+    {
+      id: 1,
+      name: "passport_copy.pdf",
+      type: "ID Proof",
+      employee: "John Doe",
+    },
+    {
+      id: 2,
+      name: "certification_java.pdf",
+      type: "Certification",
+      employee: "John Doe",
+    },
   ]);
   const [employees, setEmployees] = useState([]);
   const [companies, setCompanies] = useState([]); // Add state for companies
@@ -69,7 +69,7 @@ const EmployeeManagement = () => {
   const fetchEmployees = async () => {
     setIsLoading(true);
     try {
-      const response = await api.get("/all");
+      const response = await axiosInstance.get("/all");
       setEmployees(response.data.employees);
       setError(null);
     } catch (error) {
@@ -83,7 +83,7 @@ const EmployeeManagement = () => {
 
   const fetchCompanies = async () => {
     try {
-      const response = await api.get("/companies"); // Replace with your API endpoint to fetch companies
+      const response = await axiosInstance.get("/companies"); // Replace with your API endpoint to fetch companies
       setCompanies(response.data);
     } catch (error) {
       console.error("Error fetching companies:", error);
@@ -144,8 +144,10 @@ const EmployeeManagement = () => {
   const confirmDelete = async () => {
     if (employeeToDelete) {
       try {
-        await api.delete(`/delete/${employeeToDelete.id}`);
-        setEmployees(employees.filter((employee) => employee.id !== employeeToDelete.id));
+        await axiosInstance.delete(`/delete/${employeeToDelete.id}`);
+        setEmployees(
+          employees.filter((employee) => employee.id !== employeeToDelete.id)
+        );
         toggleDeleteConfirm();
       } catch (error) {
         console.error("Error deleting employee:", error);
@@ -160,26 +162,38 @@ const EmployeeManagement = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-  
+
     // Validate integer fields
     const employeeDataForSubmission = {
       ...employeeData,
       salary: employeeData.salary ? parseInt(employeeData.salary, 10) : null,
-      company_id: employeeData.company_id ? parseInt(employeeData.company_id, 10) : null, // Ensure company_id is included
-      pf_account: employeeData.pf_account ? parseInt(employeeData.pf_account, 10) : null,
-      userId: employeeData.userId && employeeData.userId.trim() !== "" ? parseInt(employeeData.userId, 10) : null,
+      company_id: employeeData.company_id
+        ? parseInt(employeeData.company_id, 10)
+        : null, // Ensure company_id is included
+      pf_account: employeeData.pf_account
+        ? parseInt(employeeData.pf_account, 10)
+        : null,
+      userId:
+        employeeData.userId && employeeData.userId.trim() !== ""
+          ? parseInt(employeeData.userId, 10)
+          : null,
     };
-  
+
     // Log the data being submitted for debugging
     console.log("Submitting employee data:", employeeDataForSubmission);
-  
+
     try {
       let response;
       if (editableEmployee) {
-        response = await api.put(`/update/${editableEmployee.id}`, employeeDataForSubmission);
-        setEmployees(employees.map((employee) =>
-          employee.id === editableEmployee.id ? response.data : employee
-        ));
+        response = await axiosInstance.put(
+          `/update/${editableEmployee.id}`,
+          employeeDataForSubmission
+        );
+        setEmployees(
+          employees.map((employee) =>
+            employee.id === editableEmployee.id ? response.data : employee
+          )
+        );
       } else {
         const token = sessionStorage.getItem("authToken");
         const config = {
@@ -188,7 +202,11 @@ const EmployeeManagement = () => {
             "Content-Type": "application/json",
           },
         };
-        response = await api.post("/create", employeeDataForSubmission, config);
+        response = await axiosInstance.post(
+          "/create",
+          employeeDataForSubmission,
+          config
+        );
         setEmployees([...employees, response.data]);
       }
       toggleModal();
@@ -196,7 +214,7 @@ const EmployeeManagement = () => {
       console.error("Error saving employee:", error);
       setError(
         error.response?.data?.message ||
-        "Failed to save employee. Please check the input data and try again."
+          "Failed to save employee. Please check the input data and try again."
       );
     }
   };
@@ -206,13 +224,21 @@ const EmployeeManagement = () => {
       ...prevData,
       employment_history: [
         ...prevData.employment_history,
-        { company: "", jobTitle: "", startDate: "", endDate: "", description: "" },
+        {
+          company: "",
+          jobTitle: "",
+          startDate: "",
+          endDate: "",
+          description: "",
+        },
       ],
     }));
   };
 
   const removeExperience = (index) => {
-    const updatedExperience = employeeData.employment_history.filter((_, i) => i !== index);
+    const updatedExperience = employeeData.employment_history.filter(
+      (_, i) => i !== index
+    );
     setEmployeeData({ ...employeeData, employment_history: updatedExperience });
   };
 
@@ -278,7 +304,9 @@ const EmployeeManagement = () => {
       <div className="container mx-auto p-6">
         {/* Header and Add Employee Button */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800">Employee Management</h1>
+          <h1 className="text-4xl font-bold text-gray-800">
+            Employee Management
+          </h1>
           <div className="flex gap-3">
             <button
               className="px-5 py-3 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-colors flex items-center"
@@ -343,14 +371,20 @@ const EmployeeManagement = () => {
         {activeTab === "employees" && (
           <div className="bg-white rounded-xl shadow-md overflow-hidden">
             <div className="p-6 border-b border-gray-200">
-              <h2 className="text-2xl font-semibold text-gray-800">Employee Directory</h2>
-              <p className="text-gray-600 mt-1">Manage all employee information</p>
+              <h2 className="text-2xl font-semibold text-gray-800">
+                Employee Directory
+              </h2>
+              <p className="text-gray-600 mt-1">
+                Manage all employee information
+              </p>
             </div>
             <div className="p-6">
               {employees.length === 0 ? (
                 <div className="text-center py-12 bg-gray-50 rounded-lg">
                   <FiUser className="mx-auto text-4xl text-gray-400 mb-3" />
-                  <p className="text-gray-600">No employees found. Add your first employee!</p>
+                  <p className="text-gray-600">
+                    No employees found. Add your first employee!
+                  </p>
                   <button
                     className="mt-4 px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                     onClick={() => toggleModal()}
@@ -363,22 +397,47 @@ const EmployeeManagement = () => {
                   <table className="min-w-full bg-white rounded-lg overflow-hidden">
                     <thead className="bg-gray-100">
                       <tr>
-                        <th className="py-3 px-4 text-left text-gray-700 font-semibold">Employee Name</th>
-                        <th className="py-3 px-4 text-left text-gray-700 font-semibold">Role</th>
-                        <th className="py-3 px-4 text-left text-gray-700 font-semibold">Email</th>
-                        <th className="py-3 px-4 text-left text-gray-700 font-semibold">Phone</th>
-                        <th className="py-3 px-4 text-left text-gray-700 font-semibold">Joined On</th>
-                        <th className="py-3 px-4 text-center text-gray-700 font-semibold">Actions</th>
+                        <th className="py-3 px-4 text-left text-gray-700 font-semibold">
+                          Employee Name
+                        </th>
+                        <th className="py-3 px-4 text-left text-gray-700 font-semibold">
+                          Role
+                        </th>
+                        <th className="py-3 px-4 text-left text-gray-700 font-semibold">
+                          Email
+                        </th>
+                        <th className="py-3 px-4 text-left text-gray-700 font-semibold">
+                          Phone
+                        </th>
+                        <th className="py-3 px-4 text-left text-gray-700 font-semibold">
+                          Joined On
+                        </th>
+                        <th className="py-3 px-4 text-center text-gray-700 font-semibold">
+                          Actions
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                       {employees.map((employee) => (
-                        <tr key={employee.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="py-4 px-4 text-gray-800">{employee.first_name} {employee.last_name}</td>
-                          <td className="py-4 px-4 text-gray-700">{employee.User.role || "No Role"}</td>
-                          <td className="py-4 px-4 text-gray-700">{employee.User.email || "No Email"}</td>
-                          <td className="py-4 px-4 text-gray-700">{employee.phone_number || "No Phone"}</td>
-                          <td className="py-4 px-4 text-gray-700">{employee.dateOfJoin || "N/A"}</td>
+                        <tr
+                          key={employee.id}
+                          className="hover:bg-gray-50 transition-colors"
+                        >
+                          <td className="py-4 px-4 text-gray-800">
+                            {employee.first_name} {employee.last_name}
+                          </td>
+                          <td className="py-4 px-4 text-gray-700">
+                            {employee.User.role || "No Role"}
+                          </td>
+                          <td className="py-4 px-4 text-gray-700">
+                            {employee.User.email || "No Email"}
+                          </td>
+                          <td className="py-4 px-4 text-gray-700">
+                            {employee.phone_number || "No Phone"}
+                          </td>
+                          <td className="py-4 px-4 text-gray-700">
+                            {employee.dateOfJoin || "N/A"}
+                          </td>
                           <td className="py-4 px-4 text-center">
                             <div className="flex justify-center space-x-2">
                               <button
@@ -417,7 +476,10 @@ const EmployeeManagement = () => {
             <h2 className="text-2xl font-bold text-gray-800">
               {editableEmployee ? "Edit Employee" : "Add New Employee"}
             </h2>
-            <button onClick={() => toggleModal()} className="text-gray-500 hover:text-gray-700">
+            <button
+              onClick={() => toggleModal()}
+              className="text-gray-500 hover:text-gray-700"
+            >
               &times;
             </button>
           </div>
@@ -433,9 +495,15 @@ const EmployeeManagement = () => {
                 </div>
               </div>
               <div className="flex justify-between text-sm text-gray-600">
-                <span className={step >= 1 ? "text-blue-600 font-medium" : ""}>Personal Info</span>
-                <span className={step >= 2 ? "text-blue-600 font-medium" : ""}>Employment Details</span>
-                <span className={step >= 3 ? "text-blue-600 font-medium" : ""}>Documents & Banking</span>
+                <span className={step >= 1 ? "text-blue-600 font-medium" : ""}>
+                  Personal Info
+                </span>
+                <span className={step >= 2 ? "text-blue-600 font-medium" : ""}>
+                  Employment Details
+                </span>
+                <span className={step >= 3 ? "text-blue-600 font-medium" : ""}>
+                  Documents & Banking
+                </span>
               </div>
             </div>
 
@@ -444,7 +512,9 @@ const EmployeeManagement = () => {
                 <>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">First Name*</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        First Name*
+                      </label>
                       <input
                         type="text"
                         name="first_name"
@@ -456,7 +526,9 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Last Name*</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Last Name*
+                      </label>
                       <input
                         type="text"
                         name="last_name"
@@ -468,7 +540,9 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Gender*</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Gender*
+                      </label>
                       <select
                         name="gender"
                         value={employeeData.gender}
@@ -483,7 +557,9 @@ const EmployeeManagement = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth*</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Date of Birth*
+                      </label>
                       <input
                         type="date"
                         name="dateOfBirth"
@@ -494,7 +570,9 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number*</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Phone Number*
+                      </label>
                       <input
                         type="tel"
                         name="phone_number"
@@ -506,7 +584,9 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Qualification*</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Qualification*
+                      </label>
                       <input
                         type="text"
                         name="qualification"
@@ -518,7 +598,9 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Address*</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Address*
+                      </label>
                       <textarea
                         name="address"
                         value={employeeData.address}
@@ -529,7 +611,9 @@ const EmployeeManagement = () => {
                       ></textarea>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Permanent Address</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Permanent Address
+                      </label>
                       <textarea
                         name="permanent_address"
                         value={employeeData.permanent_address}
@@ -540,7 +624,9 @@ const EmployeeManagement = () => {
                       ></textarea>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Current Address</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Current Address
+                      </label>
                       <textarea
                         name="current_address"
                         value={employeeData.current_address}
@@ -551,7 +637,9 @@ const EmployeeManagement = () => {
                       ></textarea>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Father/Husband Name</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Father/Husband Name
+                      </label>
                       <input
                         type="text"
                         name="father_or_husband_name"
@@ -562,7 +650,9 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Employee Type*</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Employee Type*
+                      </label>
                       <select
                         name="employee_type"
                         value={employeeData.employee_type}
@@ -576,7 +666,6 @@ const EmployeeManagement = () => {
                         <option value="Full-time">Full-time</option>
                       </select>
                     </div>
-                    
                   </div>
                 </>
               )}
@@ -585,7 +674,9 @@ const EmployeeManagement = () => {
                 <>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Salary*</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Salary*
+                      </label>
                       <input
                         type="number"
                         name="salary"
@@ -597,7 +688,9 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Date of Joining*</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Date of Joining*
+                      </label>
                       <input
                         type="date"
                         name="dateOfJoin"
@@ -608,7 +701,9 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">PF Account</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        PF Account
+                      </label>
                       <input
                         type="text"
                         name="pf_account"
@@ -619,7 +714,9 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">UPI ID</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        UPI ID
+                      </label>
                       <input
                         type="text"
                         name="UPI_Id"
@@ -633,59 +730,81 @@ const EmployeeManagement = () => {
 
                   {/* Employment History Section */}
                   <div className="mt-6">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">Employment History</h3>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                      Employment History
+                    </h3>
                     {employeeData.employment_history.map((exp, index) => (
                       <div key={index} className="border p-4 rounded-lg mb-4">
                         <div className="mb-2">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Company Name*</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Company Name*
+                          </label>
                           <input
                             type="text"
                             name={`company_${index}`}
                             value={exp.company}
-                            onChange={(e) => handleExperienceChange(e, index, "company")}
+                            onChange={(e) =>
+                              handleExperienceChange(e, index, "company")
+                            }
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                             placeholder="Previous Company Name"
                           />
                         </div>
                         <div className="mb-2">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Job Title*</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Job Title*
+                          </label>
                           <input
                             type="text"
                             name={`jobTitle_${index}`}
                             value={exp.jobTitle}
-                            onChange={(e) => handleExperienceChange(e, index, "jobTitle")}
+                            onChange={(e) =>
+                              handleExperienceChange(e, index, "jobTitle")
+                            }
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                             placeholder="e.g., Senior Developer"
                           />
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Start Date*</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Start Date*
+                            </label>
                             <input
                               type="date"
                               name={`startDate_${index}`}
                               value={exp.startDate}
-                              onChange={(e) => handleExperienceChange(e, index, "startDate")}
+                              onChange={(e) =>
+                                handleExperienceChange(e, index, "startDate")
+                              }
                               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">End Date*</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              End Date*
+                            </label>
                             <input
                               type="date"
                               name={`endDate_${index}`}
                               value={exp.endDate}
-                              onChange={(e) => handleExperienceChange(e, index, "endDate")}
+                              onChange={(e) =>
+                                handleExperienceChange(e, index, "endDate")
+                              }
                               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                             />
                           </div>
                         </div>
                         <div className="mb-2">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Description
+                          </label>
                           <textarea
                             name={`description_${index}`}
                             value={exp.description}
-                            onChange={(e) => handleExperienceChange(e, index, "description")}
+                            onChange={(e) =>
+                              handleExperienceChange(e, index, "description")
+                            }
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                             placeholder="Briefly describe your responsibilities and achievements"
                           />
@@ -715,7 +834,9 @@ const EmployeeManagement = () => {
                 <>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">PAN Card*</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        PAN Card*
+                      </label>
                       <input
                         type="text"
                         name="panCard"
@@ -727,7 +848,9 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Aadhar Card*</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Aadhar Card*
+                      </label>
                       <input
                         type="text"
                         name="aadharCard"
@@ -739,7 +862,9 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Bank Account Number*</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Bank Account Number*
+                      </label>
                       <input
                         type="text"
                         name="bankAccount"
@@ -751,7 +876,9 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Bank Name*</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Bank Name*
+                      </label>
                       <input
                         type="text"
                         name="bankName"
@@ -763,7 +890,9 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">IFSC Code*</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        IFSC Code*
+                      </label>
                       <input
                         type="text"
                         name="IFSCcode"
@@ -810,9 +939,12 @@ const EmployeeManagement = () => {
         >
           <div className="text-center">
             <FaTrashAlt className="mx-auto text-4xl text-red-500 mb-4" />
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Delete Employee</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+              Delete Employee
+            </h2>
             <p className="text-gray-600 mb-6">
-              Are you sure you want to delete this employee? This action cannot be undone.
+              Are you sure you want to delete this employee? This action cannot
+              be undone.
             </p>
             <div className="flex justify-center space-x-4">
               <button

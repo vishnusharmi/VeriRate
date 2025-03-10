@@ -1,15 +1,15 @@
-import axios from 'axios';
-import React, { useState } from 'react';
-import { useLocation } from 'react-router';
+import { useState } from "react";
+import { useLocation } from "react-router";
+import axiosInstance from "../../../middleware/axiosInstance";
 
 const ResetPassword = () => {
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const location = useLocation();
-  const email = location.state?.email || '';
+  const email = location.state?.email || "";
 
   const handleOtpChange = (e, index) => {
     const value = e.target.value;
@@ -24,45 +24,48 @@ const ResetPassword = () => {
     }
   };
 
-  const handleSubmit = async (e) => {`  `
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
-    
-    const otpValue = otp.join('');
-    
+    setError("");
+    setSuccess("");
+
+    const otpValue = otp.join("");
+
     if (otpValue.length !== 6) {
-      setError('Please enter a valid 6-digit OTP');
+      setError("Please enter a valid 6-digit OTP");
       return;
     }
-    
+
     if (newPassword.length < 8) {
-      setError('Password must be at least 8 characters long');
+      setError("Password must be at least 8 characters long");
       return;
     }
-    
+
     if (newPassword !== confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return;
     }
 
     try {
-      const response = await axios.post('http://localhost:3000/api/reset-password', {
+      const response = await axiosInstance.post("/reset-password", {
         email,
         otp: otpValue,
-        password: newPassword
+        password: newPassword,
       });
 
       if (response.data.statusCode === 201) {
         setSuccess(response.data.message);
-        setOtp(['', '', '', '', '', '']);
-        setNewPassword('');
-        setConfirmPassword('');
+        setOtp(["", "", "", "", "", ""]);
+        setNewPassword("");
+        setConfirmPassword("");
       } else {
         setError(response.data.message);
       }
     } catch (error) {
-      setError(error.response?.data?.message || 'Something went wrong. Please try again.');
+      setError(
+        error.response?.data?.message ||
+          "Something went wrong. Please try again."
+      );
     }
   };
 
@@ -72,7 +75,9 @@ const ResetPassword = () => {
         <h2 className="text-2xl font-bold text-center mb-6">Reset Password</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2 text-start">Enter OTP Code</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2 text-start">
+              Enter OTP Code
+            </label>
             <div className="flex space-x-2 justify-center">
               {otp.map((digit, index) => (
                 <input
@@ -90,7 +95,9 @@ const ResetPassword = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              New Password
+            </label>
             <input
               type="password"
               value={newPassword}
@@ -102,7 +109,9 @@ const ResetPassword = () => {
           </div>
 
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Confirm Password
+            </label>
             <input
               type="password"
               value={confirmPassword}
@@ -114,7 +123,9 @@ const ResetPassword = () => {
           </div>
 
           {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-          {success && <p className="text-green-500 text-center mb-4">{success}</p>}
+          {success && (
+            <p className="text-green-500 text-center mb-4">{success}</p>
+          )}
 
           <button
             type="submit"

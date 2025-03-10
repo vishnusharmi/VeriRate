@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import DashboardStats from "./DashboardStats";
 import ActivityFilter from "./ActivityFilter";
 import ActivityList from "./ActivityList";
 import PaginationControls from "./PaginationControls";
+import axiosInstance from "../../../../middleware/axiosInstance";
 
 const Records = () => {
   // Dashboard stats
   const [employees, setEmployees] = useState("0");
   const [disputes, setDisputes] = useState("0");
   const [health, setHealth] = useState("0");
-  const [employePercent, setEmployePercent] = useState("0");
+  const [employeePercent, setEmployeePercent] = useState("0");
   const [disputePercent, setDisputePercent] = useState("0");
   const [solvedPercent, setSolvedPercent] = useState("0");
 
@@ -30,8 +30,6 @@ const Records = () => {
     pageSize: 10,
   });
 
-  const API = "http://localhost:3000/api/activity-logs";
-
   useEffect(() => {
     fetchActivities();
     fetchStats();
@@ -45,7 +43,7 @@ const Records = () => {
   const fetchActivities = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(API, {
+      const response = await axiosInstance.get("/activity-logs", {
         params: {
           entity:
             activityFilter !== "All Activities" ? activityFilter : undefined,
@@ -90,13 +88,13 @@ const Records = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/api/activity-logs/analysis");
+      const response = await axiosInstance.get("/activity-logs/recent-cards");
       const data = response.data;
 
       setEmployees(data.totalEmployees.toLocaleString());
       setDisputes(data.activeDisputes.toLocaleString());
       setHealth(data.solvedDisputePercentage.toFixed(1));
-      setEmployePercent(data.employeeGrowthPercentage.toString());
+      setEmployeePercent(data.employeeGrowthPercentage.toString());
       setDisputePercent(data.disputeChangePercentage.toString());
       setSolvedPercent(data.solvedDisputeGrowthPercentage.toString());
     } catch (err) {
@@ -129,7 +127,7 @@ const Records = () => {
         employees={employees}
         disputes={disputes}
         health={health}
-        employePercent={employePercent}
+        employeePercent={employeePercent}
         disputePercent={disputePercent}
         solvedPercent={solvedPercent}
       />

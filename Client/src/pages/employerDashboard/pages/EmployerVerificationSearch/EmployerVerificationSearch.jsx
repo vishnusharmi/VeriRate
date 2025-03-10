@@ -7,6 +7,7 @@ import Tabs from "./TabsComponent";
 import CardsComponent from "./CardsComponent";
 import VerificationDialog from "./VerificationDialog";
 import { toast } from "react-toastify";
+import axiosInstance from "../../../../middleware/axiosInstance";
 
 // ENUM Definition
 const VerificationStatus = {
@@ -23,19 +24,18 @@ const EmploymentVerificationSearch = () => {
   const [loading, setLoading] = useState(true);
   const [employees, setEmployees] = useState([]);
 
-  const apiUrl = "http://localhost:3000/api/all";
-  const updateApiUrl = "http://localhost:3000/api/update";
-
   useEffect(() => {
-    fetchEmployees();
+    const controller = new AbortController();
+    const signal = controller.signal;
+    fetchEmployees(signal);
+
+    return () => controller.abort();
   }, []);
 
-
-
-  const fetchEmployees = async () => {
+  const fetchEmployees = async (signal) => {
     try {
       setLoading(true);
-      const response = await axios.get(apiUrl);
+      const response = await axiosInstance.get("/all", { signal });
       const formattedEmployees =
         response?.data?.employees?.data?.map((employee) => ({
           id: employee.id || "N/A",
@@ -75,8 +75,8 @@ const EmploymentVerificationSearch = () => {
         is_verified: VerificationStatus.VERIFIED,
       };
 
-      const response = await axios.put(
-        `${updateApiUrl}/${employeeId}`,
+      const response = await axiosInstance.put(
+        `"/update"/${employeeId}`,
         updatePayload
       );
 
