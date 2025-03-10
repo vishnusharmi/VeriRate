@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import DashboardStats from "./DashboardStats";
 import ActivityFilter from "./ActivityFilter";
 import ActivityList from "./ActivityList";

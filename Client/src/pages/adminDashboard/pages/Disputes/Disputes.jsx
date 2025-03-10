@@ -1,5 +1,7 @@
+//disputes frontend code //
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
+
 import {
   Card,
   CardContent,
@@ -17,19 +19,17 @@ import {
   Box,
   Modal,
   Fade,
+  IconButton,
 } from "@mui/material";
+
 import dayjs from "dayjs";
+import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import {
-  Info,
-  AccessTime,
-  CheckCircle,
-  Cancel,
-  Delete as DeleteIcon,
-  Edit as EditIcon,
-} from "@mui/icons-material";
+import { FiEdit, FiTrash2 } from "react-icons/fi";
+
+import { Info, AccessTime, CheckCircle, Cancel } from "@mui/icons-material";
 import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
 import RequestPageIcon from "@mui/icons-material/RequestPage";
@@ -58,7 +58,9 @@ const Disputes = () => {
     reason: "",
     status: "pending",
     resolution_notes: "",
+    employee_id: "",
   });
+
   const [isEditing, setIsEditing] = useState(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -68,6 +70,8 @@ const Disputes = () => {
 
   const [selectedDate, setSelectedDate] = useState(null);
   const [filterStatus, setFilterStatus] = useState("all");
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const handleDateChange = (newDate) => {
     setSelectedDate(newDate);
@@ -77,6 +81,28 @@ const Disputes = () => {
     setFilterStatus(status);
   };
 
+  //fetch employees
+  const fetchEmployees = async () => {
+    try {
+      const response = await axios.get("http://localhost:3000/api/all");
+      console.log("Full API response:", response.data); // Debugging
+
+      if (response.status === 200 && Array.isArray(response.data.employees)) {
+        setEmployees(response.data.employees); // Fix: Extract employees from response
+      } else {
+        throw new Error("Invalid response format");
+      }
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
+
+  // Fetch disputes
   const fetchDisputes = async () => {
     try {
       const response = await axiosInstance.get("/disputes");
@@ -96,7 +122,6 @@ const Disputes = () => {
             dispute.status.toLowerCase() === filterStatus.toLowerCase()
         );
       }
-
       setDisputes(allDisputes);
       console.log("Fetched disputes:", response.data);
     } catch (error) {
@@ -105,8 +130,8 @@ const Disputes = () => {
   };
 
   useEffect(() => {
-    // fetchDisputes();
-  }, [filterStatus, selectedDate, disputes]);
+    fetchDisputes();
+  }, [filterStatus, selectedDate, page, rowsPerPage]);
 
   useEffect(() => {
     if (open) {
@@ -135,10 +160,12 @@ const Disputes = () => {
       reason: "",
       status: "pending",
       resolution_notes: "",
+      employee_id: "",
     });
     setIsEditing(false);
   };
 
+  // Handle form input change
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData({ ...formData, [id]: value });
@@ -153,6 +180,7 @@ const Disputes = () => {
     closeModal();
   };
 
+  // Handle form submission
   const handleSubmit = async () => {
     const newErrors = {};
     if (!formData.dispute_type)
@@ -161,6 +189,7 @@ const Disputes = () => {
     if (!formData.resolution_notes)
       newErrors.resolution_notes = "Resolution notes is required";
     if (!formData.status) newErrors.status = "Status is required";
+    // if (!formData.employee_id) newErrors.employee_id = "Employee ID  is required";
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -174,6 +203,7 @@ const Disputes = () => {
             reason: formData.reason,
             status: formData.status,
             resolution_notes: formData.resolution_notes,
+            employee_id: formData.employee_id,
           };
 
       const url = isEditing
@@ -216,8 +246,12 @@ const Disputes = () => {
     }
   };
 
+  // Edit dispute
   const handleEdit = (dispute) => {
-    setFormData(dispute);
+    setFormData({
+      ...dispute,
+      employee_id: dispute.employee_id ? Number(dispute.employee_id) : null,
+    });
     setIsEditing(true);
     openModal();
   };
@@ -232,6 +266,7 @@ const Disputes = () => {
     setDeleteId(null);
   };
 
+  // Delete dispute
   const handleDeleteConfirm = async () => {
     try {
       await axiosInstance.delete("/dispute/${deleteId}");
@@ -397,6 +432,32 @@ const Disputes = () => {
         <Fade in={open}>
           <Box sx={style}>
             <div className="grid grid-cols-2 gap-5">
+              {employees.length > 0 ? (
+                <div>
+                  <label
+                    htmlFor="employee_id"
+                    className="block text-gray-700 text-md font-bold mb-2"
+                  >
+                    Select Employee
+                  </label>
+                  <select
+                    id="employee_id"
+                    value={formData?.employee_id || ""}
+                    onChange={handleInputChange}
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  >
+                    <option value="">Select Employee</option>
+                    {employees.map((emp) => (
+                      <option key={emp.id} value={emp.id}>
+                        {emp.first_name} {emp.last_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <p className="text-gray-500">Loading employees...</p>
+              )}
+
               <div>
                 <label
                   htmlFor="dispute_type"
@@ -545,21 +606,35 @@ const Disputes = () => {
       <Paper>
         <TableContainer component={Paper} className="shadow-xl">
           <Table>
-            <TableHead className="bg-gray-200 p-2 m-2">
+            <TableHead
+              className="bg-gray-200 px-2 py-2"
+              sx={{
+                background: "linear-gradient(45deg, #3f51b5,rgb(99, 179, 244))", // Gradient background
+              }}
+            >
               <TableRow>
-                <TableCell className="px-3 py-2 font-bold">ID</TableCell>
-                <TableCell className="px-3 py-2 font-bold">
+                {/* <TableCell className="px-2 py-1 font-bold text-white" >ID</TableCell> */}
+                <TableCell className="px-2 py-5 font-bold text-white">
                   Dispute Type
                 </TableCell>
-                <TableCell className="px-3 py-2 font-bold">Reason</TableCell>
-                <TableCell className="px-3 py-2 font-bold">Status</TableCell>
-                <TableCell className="px-3 py-2 font-bold">
+                <TableCell className="px-2 py-1 font-bold text-white">
+                  Reason
+                </TableCell>
+                <TableCell className="px-2 py-1  font-bold text-white">
+                  Status
+                </TableCell>
+                <TableCell className="px-2 py-1 font-bold text-white">
                   Resolution Notes
                 </TableCell>
-                <TableCell className="px-3 py-2 font-bold">
+                <TableCell className="px-2 py-1  font-bold text-white">
                   Created At
                 </TableCell>
-                <TableCell className="px-3 py-2 font-bold">Actions</TableCell>
+                {/* <TableCell className="px-3 py-2 font-bold">
+                Employee ID 
+                </TableCell> */}
+                <TableCell className="px-2 py-1  font-bold text-white">
+                  Actions
+                </TableCell>
               </TableRow>
             </TableHead>
 
@@ -569,16 +644,16 @@ const Disputes = () => {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <TableRow key={row.id} className="hover:bg-gray-200">
-                      <TableCell className="px-5 py-2 font-medium">
+                      {/* <TableCell className="px-5 py-1 font-medium">
                         {row.id}
-                      </TableCell>
-                      <TableCell className="px-3 py-2 font-medium">
+                      </TableCell> */}
+                      <TableCell className="px-3 py-1 font-medium">
                         {row.dispute_type}
                       </TableCell>
-                      <TableCell className="px-3 py-2 font-medium">
+                      <TableCell className="px-3 py-1 font-medium">
                         {row.reason}
                       </TableCell>
-                      <TableCell className="px-3 py-2 font-medium">
+                      <TableCell className="px-3 py-1 font-medium">
                         <span
                           className={`px-2 py-1 rounded ${
                             row.status.toLowerCase() === "pending"
@@ -596,29 +671,43 @@ const Disputes = () => {
                             .replace(/\b\w/g, (char) => char.toUpperCase())}
                         </span>
                       </TableCell>
-                      <TableCell className="px-3 py-2 font-medium">
+                      <TableCell className="px-3 py-1 font-medium">
                         {row.resolution_notes}
                       </TableCell>
-                      <TableCell className="px-3 py-2 font-medium">
+
+                      <TableCell className="px-3 py-1 font-medium">
                         {new Date(row.createdAt).toLocaleDateString("en-IN", {
                           day: "numeric",
                           month: "numeric",
                           year: "numeric",
                         })}
                       </TableCell>
-                      <TableCell className="px-3 py-2">
-                        <Button
-                          onClick={() => handleDeleteOpen(row.id)}
-                          style={{ minWidth: 0 }}
-                        >
-                          <DeleteIcon color="error" />
-                        </Button>
-                        <Button
+
+                      {/* <TableCell className="px-3 py-2 font-medium">
+                    {row.employee_id}
+                  </TableCell> */}
+
+                      <TableCell className="px-2 py-1">
+                        <IconButton
                           onClick={() => handleEdit(row)}
-                          style={{ minWidth: 0 }}
+                          sx={{
+                            color: "primary.main",
+                            "&:hover": { backgroundColor: "action.hover" },
+                            transition: "background-color 0.3s ease",
+                          }}
                         >
-                          <EditIcon color="primary" />
-                        </Button>
+                          <FiEdit />
+                        </IconButton>
+                        <IconButton
+                          onClick={() => handleDeleteOpen(row.id)}
+                          sx={{
+                            color: "error.main",
+                            "&:hover": { backgroundColor: "action.hover" },
+                            transition: "background-color 0.3s ease",
+                          }}
+                        >
+                          <FiTrash2 />
+                        </IconButton>
                       </TableCell>
                     </TableRow>
                   ))

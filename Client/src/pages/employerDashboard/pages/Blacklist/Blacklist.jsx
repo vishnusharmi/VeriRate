@@ -1,46 +1,100 @@
 import { useEffect, useState } from "react";
-import { FiEdit, FiTrash2, FiPlus } from "react-icons/fi";
-import axiosInstance from "../../../../middleware/axiosInstance";
+import { FiPlus } from "react-icons/fi";
+import Swal from "sweetalert2";
+import axios from "axios";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import BlacklistForm from "./BlacklistForm";
+import BlacklistTable from "./BlacklistTable";
+import {
+  Button,
+  Modal,
+  Box,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
+
+const API_URL = "http://localhost:3000/api/blacklists";
+
+const blacklistSchema = z.object({
+  fullname: z.string().min(1, "Full name is required"),
+  email: z.string().email("Invalid email address"),
+  contact_number: z.string().min(1, "Contact number is required"),
+  position: z.string().min(1, "Position is required"),
+  reason_for_blacklist: z.string().min(1, "Reason for blacklist is required"),
+  report_by: z.string().min(1, "Reported by is required"),
+  status: z.string().min(1, "Status is required"),
+  company_name: z.string().min(1, "Company name is required"),
+  reason_code: z.string().min(1, "Reason code is required"),
+  employee_id: z.number().min(1, "Employee ID is required"),
+  company_id: z.number().min(1, "Company ID is required"),
+  start_date: z.string().min(1, "Start date is required"),
+  end_date: z.string().nullable(),
+});
+
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 800,
+  bgcolor: "background.paper",
+  boxShadow: 24,
+  p: 4,
+  borderRadius: "10px",
+};
 
 const BlacklistManagement = () => {
   const [employees, setEmployees] = useState([]);
-  const [employeeList, setEmployeeList] = useState([]); // Store employees for dropdown
+  const [employeeList, setEmployeeList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [editEmployee, setEditEmployee] = useState(null);
-  const [formData, setFormData] = useState({
-    employee_id: "",
-    reason_code: "",
-    status: "",
-    start_date: "",
-    end_date: "",
-    name: "",
-    company_id: "",
-  });
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+  const [openDelete, setOpenDelete] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  console.log(formData, "data");
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(blacklistSchema),
+  });
 
-  // Fetch Blacklist Data
+  console.log("form errors", errors);
+
   const getData = async () => {
+    setIsLoading(true);
     try {
       const response = await axiosInstance.get("/blacklists");
       setEmployees(response.data.data);
     } catch (err) {
       console.error("Error fetching data:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Fetch Employee List
   const fetchEmployees = async (signal) => {
+    setIsLoading(true);
     try {
-      const response = await axiosInstance.get("/get-employees", { signal });
-      setEmployeeList(response.data?.employees);
+      const response = await axiosInstance.get("/users", { signal });
+      const employees = response.data?.data?.data || [];
+      const filteredEmployees = employees.filter(
+        (emp) => emp.role === "Employee"
+      );
+      setEmployeeList(filteredEmployees);
+      console.log(filteredEmployees, "filtered employees data");
     } catch (err) {
       console.error("Error fetching employees:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  console.log(employeeList);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -51,11 +105,39 @@ const BlacklistManagement = () => {
     return () => controller.abort();
   }, []);
 
-  const handleSave = async () => {
+  const handleSave = async (data) => {
+    console.log("Data being sent to the API:", editEmployee);
+
     try {
-      if (!formData.employee_id) {
-        alert("Please select an employee!");
-        return;
+      const token = sessionStorage.getItem("authToken");
+      const url = editEmployee ? `${API_URL}/${editEmployee}` : API_URL;
+      console.log("URL:", url);
+      const method = editEmployee ? "PUT" : "POST";
+
+      const response = await axios({
+        method,
+        url,
+        data,
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log("API Response:", response);
+
+      if (response.status === 200 || response.status === 201) {
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: editEmployee
+            ? "Blacklist entry updated successfully!"
+            : "Blacklist entry created successfully!",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        getData();
+        closeModal();
       }
 
       const payload = {
@@ -75,222 +157,210 @@ const BlacklistManagement = () => {
       }
 
       getData();
+    } catch (error) {
+      console.error("Submission error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        position: "center",
+        text: error.response?.data?.message || "Something went wrong!",
+        footer:
+          '<a href="#" onClick="location.reload()">Try reloading the page?</a>',
+      });
       closeModal();
-    } catch (err) {
-      console.error("Error saving data:", err);
     }
   };
 
-  // Handle Delete Employee
-  const handleDelete = async (id) => {
+  const onSubmit = (data) => {
+    console.log("Form data:", data);
+    handleSave(data);
+  };
+
+  const handleDelete = async () => {
     try {
-      await blacklists.delete(`blacklists/${id}`);
+      const token = sessionStorage.getItem("authToken");
+      await axios.delete(`${API_URL}/${deleteId}`, {
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      });
+      Swal.fire({
+        position: "center",
+        icon: "success",
+        title: "Blacklist entry deleted successfully!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
       getData();
+      handleDeleteClose();
     } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        position: "center",
+        text: "Something went wrong!",
+        footer:
+          '<a href="#" onClick="location.reload()">Try reloading the page?</a>',
+      });
       console.error("Error deleting data:", err);
     }
   };
 
-  // Handle Edit Click
+  const handleDeleteClose = () => {
+    setOpenDelete(false);
+    setDeleteId(null);
+  };
+
+  const handleDeleteOpen = (id) => {
+    setDeleteId(id);
+    setOpenDelete(true);
+  };
+
   const handleEdit = (employee) => {
     setEditEmployee(employee.id);
-    setFormData(employee);
+    Object.keys(employee).forEach((key) => setValue(key, employee[key]));
     setIsModalOpen(true);
   };
 
-  // Open Add Employee Modal
   const handleAddEmployee = () => {
-    setEditEmployee(null);
-    setFormData({
-      employee_id: "",
-      reason_code: "",
-      status: "",
-      start_date: "",
-      end_date: "",
-      name: "",
-      company_id: "",
-    });
     setIsModalOpen(true);
   };
 
-  // Close Modal
   const closeModal = () => {
     setIsModalOpen(false);
     setEditEmployee(null);
-    setFormData({
-      employee_id: "",
-      reason_code: "",
-      status: "",
-      start_date: "",
-      end_date: "",
-      company_id: "",
-    });
+    reset();
   };
 
-  // Handle Input Change
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const handleEmployeeSelect = (selectedId) => {
+    console.log("Selected Employee ID:", selectedId);
 
-  const handleChangeOption = (e) => {
-    const selectedEmployee = employeeList.find(
-      (emp) => emp.id === parseInt(e.target.value, 10)
-    );
-    console.log(selectedEmployee, "data coming");
+    const selectedEmployee = employeeList.find((emp) => emp.id === selectedId);
 
-    if (selectedEmployee) {
-      setFormData((prev) => ({
-        ...prev,
-        employee_id: selectedEmployee.id,
-        company_id: selectedEmployee.company_id,
-        name: `${selectedEmployee.first_name} ${selectedEmployee.last_name}`,
-      }));
+    if (!selectedEmployee) {
+      console.warn("Employee not found in the list!");
+      return;
     }
+
+    console.log(selectedEmployee, "selected employee");
+
+    const { Employee } = selectedEmployee;
+    const fullName = `${Employee.first_name} ${Employee.last_name}`;
+
+    const employmentHistory = Employee.employment_history?.previous_jobs || [];
+    const lastJob = employmentHistory.reduce((latest, job) => {
+      if (!latest || new Date(job.start_date) > new Date(latest.start_date)) {
+        return job;
+      }
+      return latest;
+    }, null);
+
+    const lastCompanyName = lastJob ? lastJob.company : "N/A";
+    const lastPosition = lastJob ? lastJob.position : "N/A";
+
+    // Ensure all values are set correctly
+    setValue("employee_id", Employee.id || "");
+    setValue("company_id", Employee.company_id || "");
+    setValue("company_name", lastCompanyName);
+    setValue("position", lastPosition);
+    setValue("fullname", fullName);
+    setValue("email", selectedEmployee.email || "");
+    setValue("contact_number", Employee.phone_number || "");
+
+    console.log("Updated form values");
   };
 
-  // Search Filter
-  const filteredEmployees = searchTerm.trim()
-    ? employees?.filter(
-        (emp) =>
-          emp?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          emp?.employeeId?.toLowerCase().includes(searchTerm.toLowerCase())
-      ) || []
-    : employees;
+  const filteredEmployees = employees?.filter((emp) =>
+    emp.fullname?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="max-w-7xl mx-auto min-h-screen bg-white p-6 rounded-3xl shadow-2xl">
+    <div className="mx-auto bg-white p-6 rounded-3xl">
       <h2 className="text-2xl font-bold mb-4 text-gray-800">
         Employee Blacklist Management
       </h2>
 
-      <div className="flex justify-between mb-4">
-        <input
-          type="text"
-          placeholder="Search by name or ID..."
-          className="w-2/3 p-3 border rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <button
-          className="flex items-center bg-black text-white px-4 py-2 rounded-lg shadow-md"
-          onClick={handleAddEmployee}
+      {isLoading ? ( // Show loading spinner if data is being fetched
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          minHeight="200px"
         >
-          <FiPlus className="mr-2" /> Add Employee
-        </button>
-      </div>
-
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-[rgba(0,0,0,50%)] bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h3 className="text-lg font-bold mb-4">
-              {editEmployee ? "Edit Blacklist Entry" : "Add Blacklist Entry"}
-            </h3>
-
-            {/* Employee Dropdown */}
-
-            <select
-              onChange={handleChangeOption}
-              className="w-full p-2 border rounded-lg mb-2"
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1fr_auto] gap-4 mb-4">
+            <input
+              type="text"
+              placeholder="Search by name or ID..."
+              className="w-full p-3 border rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <Button
+              className="flex items-center justify-center bg-blue text-white px-4 py-2 rounded-lg shadow-md w-full sm:w-auto"
+              onClick={handleAddEmployee}
+              color="primary"
+              variant="contained"
             >
-              <option value="">Select Employee</option>
-              {employeeList.map((emp) => (
-                <option key={emp.id} value={emp.id}>
-                  {emp.first_name} {emp.last_name}
-                </option>
-              ))}
-            </select>
-
-            {["reason_code", "status"].map((field) => (
-              <input
-                key={field}
-                type="text"
-                name={field}
-                placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-                value={formData[field]}
-                onChange={handleChange}
-                className="w-full p-2 border rounded-lg mb-2"
-              />
-            ))}
-            {["start_date", "end_date"].map((field) => (
-              <input
-                key={field}
-                type="date"
-                name={field}
-                value={formData[field]}
-                onChange={handleChange}
-                className="w-full p-2 border rounded-lg mb-2"
-              />
-            ))}
-
-            <div className="flex justify-end space-x-2">
-              <button
-                className="bg-gray-400 text-white px-4 py-2 rounded-lg"
-                onClick={closeModal}
-              >
-                Cancel
-              </button>
-              <button
-                className="bg-blue-500 text-white px-4 py-2 rounded-lg"
-                onClick={handleSave}
-              >
-                {editEmployee ? "Update" : "Save"}
-              </button>
-            </div>
+              <FiPlus className="mr-2" /> Add Blacklist
+            </Button>
           </div>
-        </div>
-      )}
 
-      <div className="border-collapse shadow-md rounded-lg mt-4">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-black text-white text-center">
-              {[
-                "Employee",
-                "ID",
-                "Reason",
-                "Status",
-                "Start Date",
-                "End Date",
-                "Actions",
-              ].map((header) => (
-                <th key={header} className="p-3">
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {filteredEmployees.length > 0 ? (
-              filteredEmployees.map((employee) => (
-                <tr key={employee.id} className="border-b hover:bg-gray-100">
-                  <td className="p-3">{employee.name || "N/A"}</td>
-                  <td className="p-3">{employee.employee_id || "N/A"}</td>
-                  <td className="p-3">{employee.reason_code || "N/A"}</td>
-                  <td className="p-3">{employee.status || "N/A"}</td>
-                  <td className="p-3">{employee.start_date || "N/A"}</td>
-                  <td className="p-3">{employee.end_date || "N/A"}</td>
-                  <td className="p-3 flex space-x-2">
-                    <FiEdit
-                      className="text-blue-500 cursor-pointer"
-                      onClick={() => handleEdit(employee)}
-                    />
-                    <FiTrash2
-                      className="text-red-500 cursor-pointer"
-                      onClick={() => handleDelete(employee.id)}
-                    />
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" className="p-4 text-center text-gray-500">
-                  No employees found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+          {isModalOpen && (
+            <BlacklistForm
+              control={control}
+              handleSubmit={handleSubmit}
+              onSubmit={onSubmit}
+              closeModal={closeModal}
+              employeeList={employeeList}
+              handleEmployeeSelect={handleEmployeeSelect}
+              editEmployee={editEmployee}
+              isSubmitting={isSubmitting}
+            />
+          )}
+
+          <Modal
+            open={openDelete}
+            onClose={handleDeleteClose}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+          >
+            <Box sx={style}>
+              <Typography id="modal-modal-title" variant="h6" component="h2">
+                Confirm Delete
+              </Typography>
+              <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                Are you sure you want to delete this blacklist entry?
+              </Typography>
+              <div className="mt-4 flex justify-end">
+                <Button
+                  onClick={handleDeleteClose}
+                  style={{ marginRight: "10px" }}
+                  variant="outlined"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={handleDelete}
+                >
+                  Delete
+                </Button>
+              </div>
+            </Box>
+          </Modal>
+
+          <BlacklistTable
+            filteredEmployees={filteredEmployees}
+            handleEdit={handleEdit}
+            handleDeleteOpen={handleDeleteOpen}
+          />
+        </>
+      )}
     </div>
   );
 };

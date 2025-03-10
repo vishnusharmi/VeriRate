@@ -1,36 +1,43 @@
 const Rating = require("../Models/ratingsModel");
 const logActivity = require("../Activity/activityFunction.js");
-exports.createRating = async (data) => {
+const User = require("../Models/user.js");
+const Employee = require("../Models/EmployeeModel.js");
+exports.createRating = async (data,req) => {
   try {
     // 🔍 Step 1: Check if Employee exists
     const employeeExists = await Employee.findByPk(data.employee_id);
     if (!employeeExists) {
       throw new Error(`Employee with ID ${data.employee_id} does not exist.`);
     }
-    // 🔍 Step 2: Fetch User Name (Who Gave the Rating)
-    const user = await User.findByPk(data.created_by);
-    if (!user) {
-      throw new Error(`User with ID ${data.created_by} does not exist.`);
+
+    const employeeUser = await User.findByPk(employeeExists.userId);
+    if(!employeeUser) {
+      throw new Error(`Employee User with ID ${employeeExists.userId} does not exist.`);
     }
-    const rating = await Rating.create(data);
+    // 🔍 Step 2: Fetch User Name (Who Gave the Rating)
+    const user = await User.findByPk(req.userId);
+    if (!user) {
+      throw new Error(`User with ID ${req.userId} does not exist.`);
+    }
+    const rating = await Rating.create({created_by: req.userId,name:employeeUser.username || "Unknown",...data});
     try {
-      await logActivity(
-        rating.id,
-        "New Rating Created",
-        `Given by User: ${user.username} to ${data.name}`, // ✅ Fetching actual user name
-        `Rating: ${rating.rating}`,
-        "Rating Management"
-      );
-      console.log("Activity logged successfully");
+      await logActivity({
+        userId : user.id,
+        action : `New rating given by user ${user.username} to ${data.name}`,
+        details : user.username,
+        type : "Rating",
+        entity : "Rating Management",
+        entityId : user.id
+      })
     } catch (logErr) {
-      console.error("Error logging activity:", logErr);
+      // console.error("Error logging activity:", logErr);
       throw error;
     }
 
     return rating;
-  } catch (err) {
-    console.error("Error creating rating:", err);
-    throw new Error(err.message);
+  } catch (error) {
+    // console.error("Error creating rating:", err);
+    throw new Error(error.message);
   }
 };
 
@@ -57,40 +64,89 @@ exports.getAllRatings = async (page=1,pageSize=10) => {
 
 exports.getRatingById = async (id) => {
   try {
-    return await Rating.findByPk(id);
-  } catch (err) {
-    throw new Error(err.message);
+    const ratingById = await Rating.findByPk(id);
+    if(!ratingById){
+      throw new Error(`Rating with ID ${id} does not exist`);
+    }
+    return ratingById;
+  } catch (error) {
+    throw new Error(error.message);
   }
 };
 
-exports.updateRating = async (id, data) => {
+exports.updateRating = async (id, data, req) => {
   try {
+    const user = await User.findByPk(req.userId);
+    if (!user) {
+      throw new Error(`User with ID ${req.userId} does not exist.`);
+    }
+
     const rating = await Rating.findByPk(id);
-    const updated = await rating.update(data);
-    await logActivity(
-      rating.id,
-      "Rating Updated",
-      rating.rating,
-      rating.name,
-      "Rating Management"
-    );
+    if (!rating) {
+      throw new Error(`Rating with ID ${id} does not exist.`);
+    }
+
+    const employee = await Employee.findByPk(rating.employee_id);
+    if (!employee) {
+      throw new Error(`Employee with ID ${rating.employee_id} does not exist.`);
+    }
+
+    const employeeUser = await User.findByPk(employee.userId);
+    if (!employeeUser) {
+      throw new Error(`Employee User with ID ${employee.userId} does not exist.`);
+    }
+    const updated = await Rating.update(data, { where: { id } });
+
+
+    await logActivity({
+      userId : user.id,
+      action : `Rating Updated by user ${user.username} to ${employeeUser.username}`,
+      details : user.username,
+      type : "Rating",
+      entity : "Rating Management",
+      entityId : user.id
+    })
+
     return updated;
-  } catch (err) {
-    throw new Error(err.message);
+  } catch (error) {
+    throw new Error(error.message);
   }
 };
 
-exports.deleteRating = async (id) => {
+
+exports.deleteRating = async (id, req) => {
   try {
+    const user = await User.findByPk(req.userId);
+    if (!user) {
+      throw new Error(`User with ID ${req.userId} does not exist.`);
+    }
+
     const rating = await Rating.findByPk(id);
-    const deleted = await rating.destroy();
-    await logActivity(
-      rating.id,
-      "Rating Deleted",
-      rating.rating,
-      rating.name,
-      "Rating Management"
-    );
+    if (!rating) {
+      throw new Error(`Rating with ID ${id} does not exist.`);
+    }
+
+    const employee = await Employee.findByPk(rating.employee_id);
+    if (!employee) {
+      throw new Error(`Employee with ID ${rating.employee_id} does not exist.`);
+    }
+
+    const employeeUser = await User.findByPk(employee.userId);
+    if (!employeeUser) {
+      throw new Error(`Employee User with ID ${employee.userId} does not exist.`);
+    }
+
+    const deleted = await Rating.destroy({ where: { id } });
+
+    await logActivity({
+      userId: user.id,
+      action: `rating of user: ${employeeUser.username} ID:${rating.id} is deleted by ${user.username} of ID: ${user.id}`,
+      details: user.username,
+      type: "Rating",
+      entity: "Rating Management",
+      entityId: user.id
+    });
+    
     return deleted;
   } catch (error) {
     throw new Error(error.message);

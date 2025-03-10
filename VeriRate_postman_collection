@@ -79,7 +79,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3000/api/blacklists",
+					"raw": "http://localhost:3007/api/blacklists",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -111,7 +111,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3000/api/blacklists/5",
+					"raw": "http://localhost:3007/api/blacklists/5",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -121,39 +121,6 @@
 						"api",
 						"blacklists",
 						"5"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "delete blog",
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "DELETE",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:3000/api/blacklists/10",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3007",
-					"path": [
-						"api",
-						"blacklists",
-						"10"
 					]
 				}
 			},
@@ -177,7 +144,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3000/api/update-company/35",
+					"raw": "http://localhost:3007/api/update-company/35",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -198,7 +165,7 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:3000/api/delete-company/31",
+					"raw": "http://localhost:3007/api/delete-company/31",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -612,6 +579,391 @@
 						"api",
 						"single",
 						"10"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get employees",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "create rating",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJzYW5rYXJzdHlsaXNoc3RhcjMxQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlciBBZG1pbiIsImlhdCI6MTc0MTUwMDYyOSwiZXhwIjoxNzQxNTg3MDI5fQ.lUZigWISFhDkoPmQTzZllx4d3YelksZh0HWHiMpZFL8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"employee_id\": 10,\r\n  \"rating\": 5,\r\n  \"feedback\": \"good work\",\r\n  \"is_verified\": true\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/rating-post",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"rating-post"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete Rating",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJzYW5rYXJzdHlsaXNoc3RhcjMxQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlciBBZG1pbiIsImlhdCI6MTc0MTUwMDYyOSwiZXhwIjoxNzQxNTg3MDI5fQ.lUZigWISFhDkoPmQTzZllx4d3YelksZh0HWHiMpZFL8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/rating/delete/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"rating",
+						"delete",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update ratings",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJzYW5rYXJzdHlsaXNoc3RhcjMxQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlciBBZG1pbiIsImlhdCI6MTc0MTUwMDYyOSwiZXhwIjoxNzQxNTg3MDI5fQ.lUZigWISFhDkoPmQTzZllx4d3YelksZh0HWHiMpZFL8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"rating\": 5\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/rating/update/5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"rating",
+						"update",
+						"5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get all ratings",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJzYW5rYXJzdHlsaXNoc3RhcjMxQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlciBBZG1pbiIsImlhdCI6MTc0MTUwMDYyOSwiZXhwIjoxNzQxNTg3MDI5fQ.lUZigWISFhDkoPmQTzZllx4d3YelksZh0HWHiMpZFL8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/ratings",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"ratings"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get Rating by ID",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJzYW5rYXJzdHlsaXNoc3RhcjMxQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlciBBZG1pbiIsImlhdCI6MTc0MTUwMDYyOSwiZXhwIjoxNzQxNTg3MDI5fQ.lUZigWISFhDkoPmQTzZllx4d3YelksZh0HWHiMpZFL8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/rating/5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"rating",
+						"5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create Disputes",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJzYW5rYXJzdHlsaXNoc3RhcjMxQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlciBBZG1pbiIsImlhdCI6MTc0MTUwMDYyOSwiZXhwIjoxNzQxNTg3MDI5fQ.lUZigWISFhDkoPmQTzZllx4d3YelksZh0HWHiMpZFL8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"dispute_type\":\"rating\",\r\n    \"reason\":\"not good company\",\r\n    \"status\":\"pending\",\r\n    \"resolution_notes\":\"note1234\",\r\n    \"employee_id\":10\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/dispute",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"dispute"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get all Disputes",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJzYW5rYXJzdHlsaXNoc3RhcjMxQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlciBBZG1pbiIsImlhdCI6MTc0MTUwMDYyOSwiZXhwIjoxNzQxNTg3MDI5fQ.lUZigWISFhDkoPmQTzZllx4d3YelksZh0HWHiMpZFL8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/disputes",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"disputes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get Dispute by ID",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJzYW5rYXJzdHlsaXNoc3RhcjMxQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlciBBZG1pbiIsImlhdCI6MTc0MTUwMDYyOSwiZXhwIjoxNzQxNTg3MDI5fQ.lUZigWISFhDkoPmQTzZllx4d3YelksZh0HWHiMpZFL8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/dispute/3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"dispute",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Disputes",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJzYW5rYXJzdHlsaXNoc3RhcjMxQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlciBBZG1pbiIsImlhdCI6MTc0MTUwMDYyOSwiZXhwIjoxNzQxNTg3MDI5fQ.lUZigWISFhDkoPmQTzZllx4d3YelksZh0HWHiMpZFL8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"reason\": \"other\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/dispute/update/3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"dispute",
+						"update",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete Dispute by ID",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJzYW5rYXJzdHlsaXNoc3RhcjMxQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlciBBZG1pbiIsImlhdCI6MTc0MTUwMDYyOSwiZXhwIjoxNzQxNTg3MDI5fQ.lUZigWISFhDkoPmQTzZllx4d3YelksZh0HWHiMpZFL8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/dispute/delete/4",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"dispute",
+						"delete",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get log Activity Analysis",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJzYW5rYXJzdHlsaXNoc3RhcjMxQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlciBBZG1pbiIsImlhdCI6MTc0MTUwMDYyOSwiZXhwIjoxNzQxNTg3MDI5fQ.lUZigWISFhDkoPmQTzZllx4d3YelksZh0HWHiMpZFL8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/activity-logs/analysis",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"activity-logs",
+						"analysis"
 					]
 				}
 			},
