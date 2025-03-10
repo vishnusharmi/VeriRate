@@ -1,39 +1,58 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { FaRegEdit, FaTrashAlt, FaPlusCircle } from "react-icons/fa";
 import { FiUser, FiFileText } from "react-icons/fi";
 import { LuHistory } from "react-icons/lu";
 import Modal from "react-modal";
-import axiosInstance from "../../../../middleware/axiosInstance";
+import axios from "axios";
+import { AuthContext } from "../../../../components/Context/Contextapi";
+import { jwtDecode } from "jwt-decode";
 
+// Set the root element for accessibility (required by react-modal)
 Modal.setAppElement("#root");
 
+// Create an Axios instance with default headers
+const api = axios.create({
+  baseURL: "http://localhost:3000/api",
+  headers: {
+    Authorization: `Bearer ${sessionStorage.getItem("authToken")}`,
+    "Content-Type": "application/json",
+  },
+});
+
+// Function to decode the JWT token and get the user ID
+function Tokendecodeing() {
+  const token = sessionStorage.getItem("authToken");
+  if (!token) return null;
+  const decodedPayload = jwtDecode(token);
+  return decodedPayload.id;
+}
+
 const EmployeeManagement = () => {
+  // Get the auth context
+  const { auth } = useContext(AuthContext);
+
+  // State variables
   const [activeTab, setActiveTab] = useState("employees");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [employeeToDelete, setEmployeeToDelete] = useState(null);
   const [editableEmployee, setEditableEmployee] = useState(null);
-  const [files, setFiles] = useState([
-    {
-      id: 1,
-      name: "passport_copy.pdf",
-      type: "ID Proof",
-      employee: "John Doe",
-    },
-    {
-      id: 2,
-      name: "certification_java.pdf",
-      type: "Certification",
-      employee: "John Doe",
-    },
-  ]);
   const [employees, setEmployees] = useState([]);
-  const [companies, setCompanies] = useState([]); // Add state for companies
+  const [companies, setCompanies] = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [step, setStep] = useState(1);
   const [imagePreview, setImagePreview] = useState(null);
 
+  // Pagination states for each tab
+  const [currentPageEmployees, setCurrentPageEmployees] = useState(1);
+  const [currentPageHistory, setCurrentPageHistory] = useState(1);
+  const [currentPageDocuments, setCurrentPageDocuments] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalEmployees, setTotalEmployees] = useState(0);
+
+  // Employee data state
   const [employeeData, setEmployeeData] = useState({
     first_name: "",
     last_name: "",
@@ -49,7 +68,6 @@ const EmployeeManagement = () => {
     bankName: "",
     IFSCcode: "",
     is_verified: "Pending",
-    userId: "",
     employment_history: [],
     employee_type: "",
     gender: "",
@@ -58,46 +76,28 @@ const EmployeeManagement = () => {
     permanent_address: "",
     current_address: "",
     UPI_Id: "",
-    company_id: "", // Ensure this is initially empty
+    company_id: "",
+    department_id: "",
+    created_by: auth?.id || "",
+    userId: Tokendecodeing(),
   });
-
-  useEffect(() => {
-    fetchEmployees();
-    fetchCompanies(); // Fetch companies when the component mounts
-  }, []);
-
-  const fetchEmployees = async () => {
-    setIsLoading(true);
-    try {
-      const response = await axiosInstance.get("/all");
-      setEmployees(response.data.employees);
-      setError(null);
-    } catch (error) {
-      console.error("Error fetching employees:", error);
-      setError("Failed to load employees. Please try again later.");
-      setEmployees([]);
-    } finally {
-      setIsLoading(false);
+  
+  // Toggle modal for adding/editing employees
+const toggleModal = (employee = null) => {
+    if (!auth) {
+      console.error("Auth context is not available.");
+      return;
     }
-  };
-
-  const fetchCompanies = async () => {
-    try {
-      const response = await axiosInstance.get("/companies"); // Replace with your API endpoint to fetch companies
-      setCompanies(response.data);
-    } catch (error) {
-      console.error("Error fetching companies:", error);
-      setError("Failed to load companies. Please try again later.");
-    }
-  };
-
-  const toggleModal = (employee = null) => {
+  
     setEditableEmployee(employee);
     if (employee) {
       setEmployeeData({
         ...employee,
         employment_history: employee.employment_history || [],
-        company_id: employee.company_id || "", // Ensure company_id is set
+        company_id: employee.company_id || "",
+        department_id: employee.department_id || "",
+        created_by: auth.id || "",
+        userId: Tokendecodeing(),
       });
       setImagePreview(employee.profile_image_url || null);
     } else {
@@ -116,7 +116,6 @@ const EmployeeManagement = () => {
         bankName: "",
         IFSCcode: "",
         is_verified: "Pending",
-        userId: "",
         employment_history: [],
         employee_type: "",
         gender: "",
@@ -125,7 +124,10 @@ const EmployeeManagement = () => {
         permanent_address: "",
         current_address: "",
         UPI_Id: "",
-        company_id: "", // Ensure this is initially empty
+        company_id: "",
+        department_id: "",
+        created_by: auth.id || "",
+        userId: Tokendecodeing(),
       });
       setImagePreview(null);
     }
@@ -133,20 +135,47 @@ const EmployeeManagement = () => {
     setStep(1);
   };
 
+  const handleEdit = (employee) => toggleModal(employee);
+
+  const handleDelete = (employee) => toggleDeleteConfirm(employee);
+
+  const handleExperienceChange = (e, index, fieldName) => {
+    const { value } = e.target;
+    setEmployeeData((prevData) => {
+      const updatedExperience = [...prevData.employment_history];
+      updatedExperience[index][fieldName] = value;
+      return { ...prevData, employment_history: updatedExperience };
+    });
+  };
+
   const toggleDeleteConfirm = (employee = null) => {
     setEmployeeToDelete(employee);
     setIsDeleteConfirmOpen(!isDeleteConfirmOpen);
   };
 
-  const handleEdit = (employee) => toggleModal(employee);
-  const handleDelete = (employee) => toggleDeleteConfirm(employee);
 
+  const addExperience = () => {
+    setEmployeeData((prevData) => ({
+      ...prevData,
+      employment_history: [
+        ...prevData.employment_history,
+        { company: "", jobTitle: "", startDate: "", endDate: "", description: "" },
+      ],
+    }));
+  };
+
+  const handlePrev = () => setStep(step - 1);
+
+  // Handle delete employee
+//   const handleDelete = (employee) => toggleDeleteConfirm(employee);
+
+  //Confirm Delete
   const confirmDelete = async () => {
     if (employeeToDelete) {
       try {
-        await axiosInstance.delete(`/delete/${employeeToDelete.id}`);
-        setEmployees(
-          employees.filter((employee) => employee.id !== employeeToDelete.id)
+        await api.delete(`/delete/${employeeToDelete.id}`);
+        setEmployees((prevEmployees) =>
+          prevEmployees.filter((employee) => employee.id !== employeeToDelete.id)
         );
         toggleDeleteConfirm();
       } catch (error) {
@@ -156,41 +185,112 @@ const EmployeeManagement = () => {
     }
   };
 
-  const handleFileDelete = (fileId) => {
-    setFiles(files.filter((file) => file.id !== fileId));
+  //handle Next
+  const handleNext = (e) => {
+    e.preventDefault();
+    if (step === 3) {
+      handleFormSubmit(e); // Submit the form on the last step
+    } else {
+      setStep(step + 1); // Move to the next step
+    }
   };
 
+
+  //handleCompnyChge
+
+  const handleCompanyChange = (e) => {
+    const companyId = e.target.value;
+    setEmployeeData((prevData) => ({
+      ...prevData,
+      company_id: companyId,
+      department_id: "", // Reset department when company changes
+    }));
+    fetchDepartments(companyId); // Fetch departments for the selected company
+  };
+
+
+
+  //handle Chage
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+  
+    // Handle numeric fields (salary, company_id, department_id, pf_account)
+    if (name === "salary" || name === "company_id" || name === "department_id" || name === "pf_account") {
+      setEmployeeData((prevData) => ({
+        ...prevData,
+        [name]: value === "" ? null : parseInt(value, 10), // Convert to number or null
+      }));
+    } else {
+      // Handle other fields
+      setEmployeeData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
+  };
+
+  // Fetch employees with pagination
+  const fetchEmployees = async (page,limit) => {
+    setIsLoading(true);
+    try {
+      const response = await api.get(`/all?page=${page}&pageSize=${limit}`);
+      setEmployees(response.data.data.data);
+      setTotalEmployees(response.data.data.totalEmployees);
+      setError(null);
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+      setError("Failed to load employees. Please try again later.");
+      setEmployees([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch companies
+  const fetchCompanies = async () => {
+    try {
+      const response = await api.get("/get-companies");
+      setCompanies(response.data.companies);
+    } catch (error) {
+      console.error("Error fetching companies:", error);
+      setError("Failed to load companies. Please try again later.");
+    }
+  };
+
+  // Fetch departments for a specific company
+  const fetchDepartments = async (companyId) => {
+    try {
+      const company = companies.find((c) => c.id === companyId);
+      if (company) {
+        setDepartments(company.departments);
+      }
+    } catch (error) {
+      console.error("Error fetching departments:", error);
+      setError("Failed to load departments. Please try again later.");
+    }
+  };
+
+  // Handle form submission
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    const userId = Tokendecodeing();
+    setEmployeeData((prev) => ({ ...prev, created_by: auth?.id || "", userId: userId }));
 
-    // Validate integer fields
     const employeeDataForSubmission = {
       ...employeeData,
       salary: employeeData.salary ? parseInt(employeeData.salary, 10) : null,
-      company_id: employeeData.company_id
-        ? parseInt(employeeData.company_id, 10)
-        : null, // Ensure company_id is included
-      pf_account: employeeData.pf_account
-        ? parseInt(employeeData.pf_account, 10)
-        : null,
-      userId:
-        employeeData.userId && employeeData.userId.trim() !== ""
-          ? parseInt(employeeData.userId, 10)
-          : null,
+      company_id: employeeData.company_id ? parseInt(employeeData.company_id, 10) : null,
+      department_id: employeeData.department_id ? parseInt(employeeData.department_id, 10) : null,
+      pf_account: employeeData.pf_account ? parseInt(employeeData.pf_account, 10) : null,
     };
-
-    // Log the data being submitted for debugging
-    console.log("Submitting employee data:", employeeDataForSubmission);
 
     try {
       let response;
       if (editableEmployee) {
-        response = await axiosInstance.put(
-          `/update/${editableEmployee.id}`,
-          employeeDataForSubmission
-        );
-        setEmployees(
-          employees.map((employee) =>
+        response = await api.put(`/update/${editableEmployee.id}`, employeeDataForSubmission);
+        setEmployees((prevEmployees) =>
+          prevEmployees.map((employee) =>
             employee.id === editableEmployee.id ? response.data : employee
           )
         );
@@ -202,92 +302,54 @@ const EmployeeManagement = () => {
             "Content-Type": "application/json",
           },
         };
-        response = await axiosInstance.post(
-          "/create",
-          employeeDataForSubmission,
-          config
-        );
-        setEmployees([...employees, response.data]);
+        response = await api.post("/create", employeeDataForSubmission, config);
+        setEmployees((prevEmployees) => [...prevEmployees, response.data]);
       }
+
+      // Refresh the employee list after submission
+      fetchEmployees(currentPageEmployees, pageSize);
       toggleModal();
     } catch (error) {
       console.error("Error saving employee:", error);
       setError(
         error.response?.data?.message ||
-          "Failed to save employee. Please check the input data and try again."
+        "Failed to save employee. Please check the input data and try again."
       );
     }
   };
 
-  const addExperience = () => {
-    setEmployeeData((prevData) => ({
-      ...prevData,
-      employment_history: [
-        ...prevData.employment_history,
-        {
-          company: "",
-          jobTitle: "",
-          startDate: "",
-          endDate: "",
-          description: "",
-        },
-      ],
-    }));
-  };
-
-  const removeExperience = (index) => {
-    const updatedExperience = employeeData.employment_history.filter(
-      (_, i) => i !== index
+  // Pagination component
+  const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+    return (
+      <div className="flex justify-center items-center mt-6">
+        <button
+          onClick={() => onPageChange((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:bg-gray-300 disabled:cursor-not-allowed"
+        >
+          Previous
+        </button>
+        <span className="mx-4 text-gray-700">
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          onClick={() => onPageChange((prev) => prev + 1)}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:bg-gray-300 disabled:cursor-not-allowed"
+        >
+          Next
+        </button>
+      </div>
     );
-    setEmployeeData({ ...employeeData, employment_history: updatedExperience });
   };
 
-  const handleExperienceChange = (e, index, fieldName) => {
-    const { value } = e.target;
-    setEmployeeData((prevData) => {
-      const updatedExperience = [...prevData.employment_history];
-      updatedExperience[index][fieldName] = value;
-      return { ...prevData, employment_history: updatedExperience };
-    });
-  };
+  // Fetch employees and companies on component mount
+  useEffect(() => {
+    fetchEmployees(currentPageEmployees, pageSize);
+    fetchCompanies();
+  }, [currentPageEmployees, pageSize]);
 
-  const handleNext = (e) => {
-    e.preventDefault();
-    if (step === 3) {
-      handleFormSubmit(e);
-    } else {
-      setStep(step + 1);
-    }
-  };
-
-  const handlePrev = () => setStep(step - 1);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    // Handle integer fields
-    if (name === "salary" || name === "company_id" || name === "pf_account") {
-      if (value === "") {
-        setEmployeeData({ ...employeeData, [name]: null }); // Set to null if empty
-      } else {
-        setEmployeeData({ ...employeeData, [name]: parseInt(value, 10) }); // Parse as integer
-      }
-    } else {
-      setEmployeeData({ ...employeeData, [name]: value }); // Handle other fields normally
-    }
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setEmployeeData({ ...employeeData, [e.target.name]: file });
-
-    if (e.target.name === "profile_image" && file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result);
-      reader.readAsDataURL(file);
-    }
-  };
-
+  // Loading state
   if (isLoading && employees.length === 0) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
@@ -299,14 +361,17 @@ const EmployeeManagement = () => {
     );
   }
 
+  // Calculate total pages for each tab
+  const totalPagesEmployees = Math.ceil(totalEmployees / pageSize);
+  const totalPagesHistory = Math.ceil(employees.length / pageSize);
+  const totalPagesDocuments = Math.ceil(employees.length / pageSize);
+
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="container mx-auto p-6">
         {/* Header and Add Employee Button */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800">
-            Employee Management
-          </h1>
+          <h1 className="text-4xl font-bold text-gray-800">Employee Management</h1>
           <div className="flex gap-3">
             <button
               className="px-5 py-3 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-colors flex items-center"
@@ -359,9 +424,9 @@ const EmployeeManagement = () => {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-md">
+          <div className="mb-6 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-md shadow-md">
             <div className="flex items-center">
-              <span className="font-medium">Error:</span>
+              <span className="font-semibold">Error:</span>
               <span className="ml-2">{error}</span>
             </div>
           </div>
@@ -369,96 +434,197 @@ const EmployeeManagement = () => {
 
         {/* Employees Tab */}
         {activeTab === "employees" && (
-          <div className="bg-white rounded-xl shadow-md overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-2xl font-semibold text-gray-800">
-                Employee Directory
-              </h2>
-              <p className="text-gray-600 mt-1">
-                Manage all employee information
-              </p>
+          <div className="bg-gray-100 p-8 rounded-2xl shadow-xl border border-gray-300">
+            {/* Header Section */}
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-500 text-white p-6 rounded-xl shadow-md">
+              <h2 className="text-3xl font-extrabold">Employee Directory</h2>
+              <p className="mt-2 text-lg opacity-90">Manage and track employee details</p>
             </div>
-            <div className="p-6">
+
+            {/* Content Section */}
+            <div className="mt-6">
               {employees.length === 0 ? (
-                <div className="text-center py-12 bg-gray-50 rounded-lg">
-                  <FiUser className="mx-auto text-4xl text-gray-400 mb-3" />
-                  <p className="text-gray-600">
-                    No employees found. Add your first employee!
-                  </p>
+                <div className="flex flex-col items-center justify-center bg-white py-12 rounded-xl shadow-md">
+                  <FiUser className="text-6xl text-gray-400 mb-4" />
+                  <p className="text-gray-600 text-lg font-medium">No employees found. Add your first employee!</p>
                   <button
-                    className="mt-4 px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                    className="mt-4 px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all shadow-md"
                     onClick={() => toggleModal()}
                   >
                     Add Employee
                   </button>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full bg-white rounded-lg overflow-hidden">
-                    <thead className="bg-gray-100">
-                      <tr>
-                        <th className="py-3 px-4 text-left text-gray-700 font-semibold">
-                          Employee Name
-                        </th>
-                        <th className="py-3 px-4 text-left text-gray-700 font-semibold">
-                          Role
-                        </th>
-                        <th className="py-3 px-4 text-left text-gray-700 font-semibold">
-                          Email
-                        </th>
-                        <th className="py-3 px-4 text-left text-gray-700 font-semibold">
-                          Phone
-                        </th>
-                        <th className="py-3 px-4 text-left text-gray-700 font-semibold">
-                          Joined On
-                        </th>
-                        <th className="py-3 px-4 text-center text-gray-700 font-semibold">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {employees.map((employee) => (
-                        <tr
-                          key={employee.id}
-                          className="hover:bg-gray-50 transition-colors"
-                        >
-                          <td className="py-4 px-4 text-gray-800">
-                            {employee.first_name} {employee.last_name}
-                          </td>
-                          <td className="py-4 px-4 text-gray-700">
-                            {employee.User.role || "No Role"}
-                          </td>
-                          <td className="py-4 px-4 text-gray-700">
-                            {employee.User.email || "No Email"}
-                          </td>
-                          <td className="py-4 px-4 text-gray-700">
-                            {employee.phone_number || "No Phone"}
-                          </td>
-                          <td className="py-4 px-4 text-gray-700">
-                            {employee.dateOfJoin || "N/A"}
-                          </td>
-                          <td className="py-4 px-4 text-center">
-                            <div className="flex justify-center space-x-2">
-                              <button
-                                className="p-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors"
-                                onClick={() => handleEdit(employee)}
-                              >
-                                <FaRegEdit />
-                              </button>
-                              <button
-                                className="p-2 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors"
-                                onClick={() => handleDelete(employee)}
-                              >
-                                <FaTrashAlt />
-                              </button>
-                            </div>
-                          </td>
+                <>
+                  <div className="overflow-x-auto bg-white rounded-xl shadow-lg border border-gray-200">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-100">
+                        <tr>
+                          <th className="py-4 px-6 text-left text-gray-700 font-semibold">Employee Name</th>
+                          <th className="py-4 px-6 text-left text-gray-700 font-semibold">Role</th>
+                          <th className="py-4 px-6 text-left text-gray-700 font-semibold">Email</th>
+                          <th className="py-4 px-6 text-left text-gray-700 font-semibold">Phone</th>
+                          <th className="py-4 px-6 text-left text-gray-700 font-semibold">Joined On</th>
+                          <th className="py-4 px-6 text-center text-gray-700 font-semibold">Actions</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {employees.map((employee) => (
+                          <tr key={employee.id} className="hover:bg-gray-50 transition-all">
+                            <td className="py-4 px-6 text-gray-900 font-medium">{employee.first_name} {employee.last_name}</td>
+                            <td className="py-4 px-6 text-gray-700">{employee?.User?.role || "No Role"}</td>
+                            <td className="py-4 px-6 text-gray-700">{employee?.User?.email || "No Email"}</td>
+                            <td className="py-4 px-6 text-gray-700">{employee?.phone_number || "No Phone"}</td>
+                            <td className="py-4 px-6 text-gray-700">{employee?.dateOfJoin || "N/A"}</td>
+                            <td className="py-4 px-6 text-center">
+                              <div className="flex justify-center space-x-3">
+                                <button
+                                  className="p-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-all shadow-sm"
+                                  onClick={() => handleEdit(employee)}
+                                >
+                                  <FaRegEdit className="text-lg" />
+                                </button>
+                                <button
+                                  className="p-2 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-all shadow-sm"
+                                  onClick={() => handleDelete(employee)}
+                                >
+                                  <FaTrashAlt className="text-lg" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <Pagination
+                    currentPage={currentPageEmployees}
+                    totalPages={totalPagesEmployees}
+                    onPageChange={setCurrentPageEmployees}
+                  />
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Employee History Tab */}
+        {activeTab === "history" && (
+          <div className="bg-gray-100 p-8 rounded-2xl shadow-xl border border-gray-300">
+            {/* Header Section */}
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-500 text-white p-6 rounded-xl shadow-md">
+              <h2 className="text-3xl font-extrabold">Employment History</h2>
+              <p className="mt-2 text-lg opacity-90">Track and manage past employment records</p>
+            </div>
+
+            {/* Content Section */}
+            <div className="mt-6">
+              {employees.length === 0 ? (
+                <div className="flex flex-col items-center justify-center bg-white py-12 rounded-xl shadow-md">
+                  <LuHistory className="text-6xl text-gray-400 mb-4" />
+                  <p className="text-gray-600 text-lg font-medium">No employment history found.</p>
                 </div>
+              ) : (
+                <>
+                  <div className="space-y-6">
+                    {employees
+                      .slice((currentPageHistory - 1) * pageSize, currentPageHistory * pageSize)
+                      .map((employee) => (
+                        <div
+                          key={employee.id}
+                          className="bg-white border border-gray-200 rounded-xl shadow-lg p-6 transform transition-all hover:shadow-2xl"
+                        >
+                          {/* Employee Details */}
+                          <div className="flex flex-col md:flex-row justify-between">
+                            <div>
+                              <h3 className="text-2xl font-bold text-gray-900">
+                                {employee.first_name} {employee.last_name}
+                              </h3>
+                              <p className="text-gray-700 mt-2"><strong>Salary:</strong> ₹{employee.salary}</p>
+                              <p className="text-gray-700"><strong>Join Date:</strong> {employee.dateOfJoin}</p>
+                              <p className="text-gray-700"><strong>PF Account:</strong> {employee.pf_account}</p>
+                              <p className="text-gray-700"><strong>UPI Id:</strong> {employee.UPI_Id}</p>
+                            </div>
+                            <div className="mt-4 md:mt-0">
+                              <span className="text-sm bg-green-100 text-green-600 px-3 py-1 rounded-full">
+                                Active
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Employment History */}
+                          {Array.isArray(employee?.employment_history) && employee?.employment_history?.length > 0 ? (
+                            <div className="mt-6 space-y-4">
+                              {employee?.employment_history?.map((history) => (
+                                <div
+                                  key={history.id}
+                                  className="p-4 bg-gray-50 rounded-lg border border-gray-300 shadow-sm hover:bg-gray-100 transition-all"
+                                >
+                                  <p className="text-lg font-semibold text-gray-900">{history.company}</p>
+                                  <p className="text-gray-700"><strong>Role:</strong> {history.jobTitle}</p>
+                                  <p className="text-gray-700"><strong>Start:</strong> {history.startDate}</p>
+                                  <p className="text-gray-700"><strong>End:</strong> {history.endDate}</p>
+                                  <p className="text-gray-600 text-sm italic">{history.description}</p>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-gray-500 mt-4 italic">No employment history available.</p>
+                          )}
+                        </div>
+                      ))}
+                  </div>
+                  <Pagination
+                    currentPage={currentPageHistory}
+                    totalPages={totalPagesHistory}
+                    onPageChange={setCurrentPageHistory}
+                  />
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Documents Tab */}
+        {activeTab === "documents" && (
+          <div className="bg-gray-100 p-8 rounded-2xl shadow-xl border border-gray-300">
+            {/* Header Section */}
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-500 text-white p-6 rounded-xl shadow-md">
+              <h2 className="text-3xl font-extrabold">Documents</h2>
+              <p className="mt-2 text-lg opacity-90">View and manage employee documents</p>
+            </div>
+
+            {/* Content Section */}
+            <div className="mt-6">
+              {employees.length === 0 ? (
+                <div className="flex flex-col items-center justify-center bg-white py-12 rounded-xl shadow-md">
+                  <FiFileText className="text-6xl text-gray-400 mb-4" />
+                  <p className="text-gray-600 text-lg font-medium">No documents found.</p>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-4">
+                    {employees
+                      .slice((currentPageDocuments - 1) * pageSize, currentPageDocuments * pageSize)
+                      .map((doc) => (
+                        <div key={doc.id} className="bg-white p-6 rounded-lg shadow-lg border border-gray-200 hover:shadow-xl transition-all">
+                          <h3 className="text-xl font-semibold text-gray-800 mb-3">Employee {employees.indexOf(doc) + 1}</h3>
+                          <div className="space-y-2 text-gray-700">
+                            <p><strong>PAN Card:</strong> {doc.panCard || "Not Available"}</p>
+                            <p><strong>Aadhar Card:</strong> {doc.aadharCard || "Not Available"}</p>
+                            <p><strong>Bank Account:</strong> {doc.bankAccount || "Not Available"}</p>
+                            <p><strong>Bank Name:</strong> {doc.bankName || "Not Available"}</p>
+                            <p><strong>IFSC Code:</strong> {doc.IFSCcode || "Not Available"}</p>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                  <Pagination
+                    currentPage={currentPageDocuments}
+                    totalPages={totalPagesDocuments}
+                    onPageChange={setCurrentPageDocuments}
+                  />
+                </>
               )}
             </div>
           </div>
@@ -476,10 +642,7 @@ const EmployeeManagement = () => {
             <h2 className="text-2xl font-bold text-gray-800">
               {editableEmployee ? "Edit Employee" : "Add New Employee"}
             </h2>
-            <button
-              onClick={() => toggleModal()}
-              className="text-gray-500 hover:text-gray-700"
-            >
+            <button onClick={() => toggleModal()} className="text-gray-500 hover:text-gray-700">
               &times;
             </button>
           </div>
@@ -495,15 +658,9 @@ const EmployeeManagement = () => {
                 </div>
               </div>
               <div className="flex justify-between text-sm text-gray-600">
-                <span className={step >= 1 ? "text-blue-600 font-medium" : ""}>
-                  Personal Info
-                </span>
-                <span className={step >= 2 ? "text-blue-600 font-medium" : ""}>
-                  Employment Details
-                </span>
-                <span className={step >= 3 ? "text-blue-600 font-medium" : ""}>
-                  Documents & Banking
-                </span>
+                <span className={step >= 1 ? "text-blue-600 font-medium" : ""}>Personal Info</span>
+                <span className={step >= 2 ? "text-blue-600 font-medium" : ""}>Employment Details</span>
+                <span className={step >= 3 ? "text-blue-600 font-medium" : ""}>Documents & Banking</span>
               </div>
             </div>
 
@@ -512,9 +669,7 @@ const EmployeeManagement = () => {
                 <>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        First Name*
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">First Name*</label>
                       <input
                         type="text"
                         name="first_name"
@@ -526,9 +681,7 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Last Name*
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Last Name*</label>
                       <input
                         type="text"
                         name="last_name"
@@ -540,9 +693,7 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Gender*
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Gender*</label>
                       <select
                         name="gender"
                         value={employeeData.gender}
@@ -557,9 +708,7 @@ const EmployeeManagement = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Date of Birth*
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth*</label>
                       <input
                         type="date"
                         name="dateOfBirth"
@@ -570,9 +719,7 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Phone Number*
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number*</label>
                       <input
                         type="tel"
                         name="phone_number"
@@ -584,9 +731,7 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Qualification*
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Qualification*</label>
                       <input
                         type="text"
                         name="qualification"
@@ -598,9 +743,7 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Address*
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Address*</label>
                       <textarea
                         name="address"
                         value={employeeData.address}
@@ -611,9 +754,7 @@ const EmployeeManagement = () => {
                       ></textarea>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Permanent Address
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Permanent Address</label>
                       <textarea
                         name="permanent_address"
                         value={employeeData.permanent_address}
@@ -624,9 +765,7 @@ const EmployeeManagement = () => {
                       ></textarea>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Current Address
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Current Address</label>
                       <textarea
                         name="current_address"
                         value={employeeData.current_address}
@@ -637,9 +776,7 @@ const EmployeeManagement = () => {
                       ></textarea>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Father/Husband Name
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Father/Husband Name</label>
                       <input
                         type="text"
                         name="father_or_husband_name"
@@ -650,9 +787,7 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Employee Type*
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Employee Type*</label>
                       <select
                         name="employee_type"
                         value={employeeData.employee_type}
@@ -666,6 +801,40 @@ const EmployeeManagement = () => {
                         <option value="Full-time">Full-time</option>
                       </select>
                     </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Company*</label>
+                      <select
+                        name="company_id"
+                        value={employeeData.company_id}
+                        onChange={handleCompanyChange}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        required
+                      >
+                        <option value="">Select Company</option>
+                        {companies.map((company) => (
+                          <option key={company.id} value={company.id}>
+                            {company.companyName}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    {/* <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Department*</label>
+                      <select
+                        name="department_id"
+                        value={employeeData.department_id}
+                        onChange={handleDepartmentChange}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        required
+                      >
+                        <option value="">Select Department</option>
+                        {departments.map((department) => (
+                          <option key={department.id} value={department.id}>
+                            {department.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div> */}
                   </div>
                 </>
               )}
@@ -674,9 +843,7 @@ const EmployeeManagement = () => {
                 <>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Salary*
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Salary*</label>
                       <input
                         type="number"
                         name="salary"
@@ -688,9 +855,7 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Date of Joining*
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Date of Joining*</label>
                       <input
                         type="date"
                         name="dateOfJoin"
@@ -701,9 +866,7 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        PF Account
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">PF Account</label>
                       <input
                         type="text"
                         name="pf_account"
@@ -714,9 +877,7 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        UPI ID
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">UPI ID</label>
                       <input
                         type="text"
                         name="UPI_Id"
@@ -728,83 +889,60 @@ const EmployeeManagement = () => {
                     </div>
                   </div>
 
-                  {/* Employment History Section */}
                   <div className="mt-6">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                      Employment History
-                    </h3>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">Employment History</h3>
                     {employeeData.employment_history.map((exp, index) => (
                       <div key={index} className="border p-4 rounded-lg mb-4">
                         <div className="mb-2">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Company Name*
-                          </label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Company Name*</label>
                           <input
                             type="text"
                             name={`company_${index}`}
                             value={exp.company}
-                            onChange={(e) =>
-                              handleExperienceChange(e, index, "company")
-                            }
+                            onChange={(e) => handleExperienceChange(e, index, "company")}
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                             placeholder="Previous Company Name"
                           />
                         </div>
                         <div className="mb-2">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Job Title*
-                          </label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Job Title*</label>
                           <input
                             type="text"
                             name={`jobTitle_${index}`}
                             value={exp.jobTitle}
-                            onChange={(e) =>
-                              handleExperienceChange(e, index, "jobTitle")
-                            }
+                            onChange={(e) => handleExperienceChange(e, index, "jobTitle")}
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                             placeholder="e.g., Senior Developer"
                           />
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Start Date*
-                            </label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Start Date*</label>
                             <input
                               type="date"
                               name={`startDate_${index}`}
                               value={exp.startDate}
-                              onChange={(e) =>
-                                handleExperienceChange(e, index, "startDate")
-                              }
+                              onChange={(e) => handleExperienceChange(e, index, "startDate")}
                               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              End Date*
-                            </label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">End Date*</label>
                             <input
                               type="date"
                               name={`endDate_${index}`}
                               value={exp.endDate}
-                              onChange={(e) =>
-                                handleExperienceChange(e, index, "endDate")
-                              }
+                              onChange={(e) => handleExperienceChange(e, index, "endDate")}
                               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                             />
                           </div>
                         </div>
                         <div className="mb-2">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Description
-                          </label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                           <textarea
                             name={`description_${index}`}
                             value={exp.description}
-                            onChange={(e) =>
-                              handleExperienceChange(e, index, "description")
-                            }
+                            onChange={(e) => handleExperienceChange(e, index, "description")}
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                             placeholder="Briefly describe your responsibilities and achievements"
                           />
@@ -834,9 +972,7 @@ const EmployeeManagement = () => {
                 <>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        PAN Card*
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">PAN Card*</label>
                       <input
                         type="text"
                         name="panCard"
@@ -848,9 +984,7 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Aadhar Card*
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Aadhar Card*</label>
                       <input
                         type="text"
                         name="aadharCard"
@@ -862,9 +996,7 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Bank Account Number*
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Bank Account Number*</label>
                       <input
                         type="text"
                         name="bankAccount"
@@ -876,9 +1008,7 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Bank Name*
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Bank Name*</label>
                       <input
                         type="text"
                         name="bankName"
@@ -890,9 +1020,7 @@ const EmployeeManagement = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        IFSC Code*
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">IFSC Code*</label>
                       <input
                         type="text"
                         name="IFSCcode"
@@ -939,12 +1067,9 @@ const EmployeeManagement = () => {
         >
           <div className="text-center">
             <FaTrashAlt className="mx-auto text-4xl text-red-500 mb-4" />
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              Delete Employee
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Delete Employee</h2>
             <p className="text-gray-600 mb-6">
-              Are you sure you want to delete this employee? This action cannot
-              be undone.
+              Are you sure you want to delete this employee? This action cannot be undone.
             </p>
             <div className="flex justify-center space-x-4">
               <button

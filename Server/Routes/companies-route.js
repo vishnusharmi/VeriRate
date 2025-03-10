@@ -15,5 +15,5 @@ companiesRouter
   .get("/get-company/:id", verifyToken, companiesController.getById)
   .delete("/delete-company/:id", verifyToken, companiesController.deleteCompany)
   .put("/update-company/:id", verifyToken, companiesController.updateCompany);
- 
+
 module.exports = companiesRouter;
