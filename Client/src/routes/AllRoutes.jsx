@@ -1,4 +1,8 @@
-import { Route, Routes } from "react-router";
+import { Route, Routes,Navigate } from "react-router";
+import { useContext } from "react";
+import { AuthContext } from "../components/Context/Contextapi.jsx";
+import PrivateRoutes from "./ProtectedRoutes.jsx";
+import ErrorPage from "../components/Error.jsx"; 
 
 import Layout from "../pages/Layout/Layout.jsx";
 import Login from "../components/Auth/Login/Login.jsx";
@@ -33,12 +37,16 @@ import DepartmentManagement from "../pages/adminDashboard/pages/DepartmentManage
 import Register from "../components/Auth/register/Register.jsx";
 
 const AllRoutes = () => {
+  const {auth,token} = useContext(AuthContext);
+
   return (
     <Routes>
-      <Route index path="/" element={<Login />} />
+      <Route index path="/" element={token ? <Navigate to={auth.role === "Super Admin" ? "/admin":"/company"} replace /> : <Login />} />
       <Route path="/otp" element={<OTP />} />
       <Route path="/register" element={<Register/>}/>
 
+{/* Secure Admin Routes */}
+<Route element={<PrivateRoutes allowedRoles={["Super Admin"]} />}>
       <Route path="/admin" element={<Layout />}>
         <Route index element={<AdminDashboard />} />
         <Route
@@ -57,7 +65,8 @@ const AllRoutes = () => {
         />
         <Route path="/admin/settings" element={<AdminSettings />} />
       </Route>
-
+      </Route>
+<Route element={<PrivateRoutes allowedRoles={["Employee Admin"]} />}>
       <Route path="/company" element={<Layout />}>
         <Route index element={<EmployerDashboard />} />
         <Route path="/company/analytics" element={<Analytics />} />
@@ -81,6 +90,8 @@ const AllRoutes = () => {
           element={<EmployeeAdminSettings />}
         />
       </Route>
+      </Route>
+      <Route path="*" element={<ErrorPage/>}/>
     </Routes>
   );
 };
