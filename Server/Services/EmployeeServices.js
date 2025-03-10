@@ -2,11 +2,12 @@ const Employee = require("../Models/EmployeeModel"); // Renamed for clarity
 const Ratings = require("../Models/ratingsModel");
 const logActivity = require("../Activity/activityFunction.js");
 const Activity = require("../Models/activityModel.js");
+const User = require("../Models/user.js");
 
 exports.createEmployee = async (data) => {
   try {
     const employee = await Employee.create(data);
-    
+
     await logActivity(
       employee.id,
       "New employee profile created",
@@ -29,8 +30,9 @@ exports.updateEmployee = async (data, id) => {
       throw new Error("Employee not found");
     }
 
-    const isVerified = data.is_verified === "Verified" && employee.is_verified !== "Verified";
-    
+    const isVerified =
+      data.is_verified === "Verified" && employee.is_verified !== "Verified";
+
     const result = await Employee.update(data, {
       where: { id: id },
     });
@@ -60,10 +62,34 @@ exports.updateEmployee = async (data, id) => {
   }
 };
 
-exports.getAllEmployees = async () => {
+// exports.getAllEmployees = async () => {
+
+//   try {
+//     const employees = await Employee.findAll({ include: [Ratings, User] });
+//     return employees;
+//   } catch (error) {
+//     throw new Error(`Error fetching employees: ${error.message}`);
+//   }
+// };
+
+exports.getAllEmployees = async (page = 1, pageSize = 10) => {
+  const limit = pageSize;
+  const offset = (page - 1) * pageSize;
   try {
-    const employees = await Employee.findAll({ include: [Ratings] });
-    return employees;
+    const { count, rows } = await Employee.findAndCountAll({
+      include: [Ratings, User],
+      limit,
+      offset,
+      order: [["id", "DESC"]],
+    });
+
+    return {
+      totalEmployees: count,
+      totalPages: Math.ceil(count / pageSize),
+      currentPage: page,
+      pageSize: pageSize,
+      data: rows,
+    };
   } catch (error) {
     throw new Error(`Error fetching employees: ${error.message}`);
   }
@@ -110,6 +136,3 @@ exports.deleteEmployee = async (id) => {
     throw new Error(`Error deleting employee: ${error.message}`);
   }
 };
-
-
-//DID BY RASAGNA

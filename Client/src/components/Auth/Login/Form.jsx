@@ -56,6 +56,8 @@ const Form = () => {
       });
       if (res.status === 200) {
         const token = res.data.loginUser.jwtToken;
+        console.log(token,'token');
+        
         if (token && typeof token === "string") {
           login(token);
           // Redirect after success

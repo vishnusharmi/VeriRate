@@ -14,12 +14,28 @@ const createEmployee = async (req, res) => {
   }
 };
 
+// const getAllEmployees = async (req, res) => {
+//   try {
+//     const employees = await employeeService.getAllEmployees();
+//     res
+//       .status(200)
+//       .json({ message: "Employees fetched successfully", employees });
+//   } catch (error) {
+//     console.error("Error fetching employees:", error);
+//     res
+//       .status(500)
+//       .json({ message: "Error fetching employees", error: error.message });
+//   }
+// };
 const getAllEmployees = async (req, res) => {
+  const { page, pageSize } = req.query;
   try {
-    const employees = await employeeService.getAllEmployees();
-    res
-      .status(200)
-      .json({ message: "Employees fetched successfully", employees });
+    const result = await employeeService.getAllEmployees(page, pageSize);
+
+    res.status(200).json({
+      message: "Employees fetched successfully",
+      data: result,
+    });
   } catch (error) {
     console.error("Error fetching employees:", error);
     res
