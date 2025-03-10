@@ -4,7 +4,7 @@ const logActivity = require("../Activity/activityFunction.js");
 const Activity = require("../Models/activityModel.js");
 const User = require("../Models/user.js");
 const Company = require("../Models/companies.js");
-const Company = require("../Models/companies.js");
+
 
 exports.createEmployee = async (data) => {
   try {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Star, Check, Filter, ArrowDown, ArrowUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import axios from 'axios';
+import axiosInstance from '../../../../middleware/axiosInstance';
 
 const EmployeeRatingsFeedback = () => {
   const [employees, setEmployees] = useState([]);
@@ -11,6 +12,7 @@ const EmployeeRatingsFeedback = () => {
   const [sortDirection, setSortDirection] = useState('asc');
   const [filterVerified, setFilterVerified] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [ratingAndFeedbackUpdate, setRatingAndFeedbackUpdate] = useState(false);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -29,19 +31,15 @@ const EmployeeRatingsFeedback = () => {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const token = sessionStorage.getItem('authToken');  
-        const config = {
-          headers: { Authorization: `Bearer ${token}` }
-      }
 
-        const response = await axios.get('http://localhost:3000/api/all', config);
+        const response = await axiosInstance.get('/employee/all');
         
-        // console.log(response.data.employees);
-        const formattedEmployees = response.data.employees.map(emp => ({
+        // console.log(response.data,"employees");
+        const formattedEmployees = response.data.employees.data.map(emp => ({
           id: emp.id,
           name: `${emp.first_name} ${emp.last_name}`,
-          email: emp.User ? emp.User.email : '',  // Get email from User object
-          role: emp.User ? emp.User.role : '',    // Get role from User object
+          email: emp.User ? emp.User.email : '',  
+          role: emp.User ? emp.User.role : '',    
           position: emp.position,
           Ratings: emp.Ratings ? emp.Ratings.map(rating => ({
             id: rating.id,
@@ -62,7 +60,7 @@ const EmployeeRatingsFeedback = () => {
     };
 
     fetchEmployees();
-  }, []);
+  }, [setRatingAndFeedbackUpdate]);
 
   // Calculate average rating for an employee
   const getAverageRating = (Ratings) => {
@@ -183,36 +181,33 @@ const EmployeeRatingsFeedback = () => {
         name: feedbackData.reviewer
       };
 
-      const token = sessionStorage.getItem('authToken');  
-        const config = {
-          headers: { Authorization: `Bearer ${token}` }
-      }
 
       // Send POST request to API
-      await axios.post('http://localhost:3000/api/ratings-post', ratingData, config);
+      await axiosInstance.post('/ratings-post', ratingData);
 
-      // Fetch updated employee data after adding new rating
-      const response = await axios.get('http://localhost:3000/api/all', config);
+      // // Fetch updated employee data after adding new rating
+      // const response = await axiosInstance.get('employee/all');
 
-      // Map the API response to match our component's data structure
-      const formattedEmployees = response.data.employees.map(emp => ({
-        id: emp.id,
-        name: `${emp.first_name} ${emp.last_name}`,
-        email: emp.User ? emp.User.email : '',  // Get email from User object
-        role: emp.User ? emp.User.role : '',    // Get role from User object
-        position: emp.position,
-        Ratings: emp.Ratings ? emp.Ratings.map(rating => ({
-          id: rating.id,
-          rating: rating.rating,
-          feedback: rating.feedback,
-          date: rating.created_at ? new Date(rating.created_at).toISOString().slice(0, 10) : '',
-          verified: rating.is_verified,
-          reviewer: rating.reviewer || feedbackData.reviewer
-        })) : []
-      }));
+      // // Map the API response to match our component's data structure
+      // const formattedEmployees = response.data.employees.data.map(emp => ({
+      //   id: emp.id,
+      //   name: `${emp.first_name} ${emp.last_name}`,
+      //   email: emp.User ? emp.User.email : '',  // Get email from User object
+      //   role: emp.User ? emp.User.role : '',    // Get role from User object
+      //   position: emp.position,
+      //   Ratings: emp.Ratings ? emp.Ratings.map(rating => ({
+      //     id: rating.id,
+      //     rating: rating.rating,
+      //     feedback: rating.feedback,
+      //     date: rating.created_at ? new Date(rating.created_at).toISOString().slice(0, 10) : '',
+      //     verified: rating.is_verified,
+      //     reviewer: rating.reviewer || feedbackData.reviewer
+      //   })) : []
+      // }));
 
-      setEmployees(formattedEmployees);
-      setShowFeedbackForm(false);
+      // setEmployees(formattedEmployees);
+      // setShowFeedbackForm(false);
+      setRatingAndFeedbackUpdate(!ratingAndFeedbackUpdate);
     } catch (error) {
       console.error("Error saving feedback:", error);
       alert('Failed to save feedback. Please try again.');
@@ -290,7 +285,7 @@ const EmployeeRatingsFeedback = () => {
               value={feedbackData.feedback}
               onChange={handleInputChange}
               placeholder="Provide detailed feedback about the employee's performance..."
-              className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
               required
             />
           </div>
@@ -301,7 +296,7 @@ const EmployeeRatingsFeedback = () => {
               name="reviewer"
               value={feedbackData.reviewer}
               onChange={handleInputChange}
-              className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
               required
             />
           </div>
@@ -521,8 +516,8 @@ const EmployeeRatingsFeedback = () => {
   };
   
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <div className="flex justify-between items-center mb-6 sticky fixed top-5 z-50">
+    <div className="bg-white rounded-lg shadow p-4">
+      <div className="flex justify-between items-center mb-3 sticky fixed top-2 z-50">
         <h2 className="text-xl font-semibold">Employee Ratings & Feedback</h2>
         <div className="flex items-center space-x-2">
           <div className="flex items-center">
@@ -557,7 +552,7 @@ const EmployeeRatingsFeedback = () => {
           <p>Loading employee data...</p>
         </div>
       ) : (
-        <div className="relative max-w-7xl min-h-[75dvh] bg-white p-6 rounded-lg shadow-md z-10 content-scrollbar">
+        <div className="relative max-w-7xl min-h-[70dvh] bg-white p-6 rounded-lg shadow-md z-10 content-scrollbar">
           <div className="absolute inset-0 px-2 overflow-y-auto">
             
             <table className="min-w-full bg-white">
@@ -646,14 +641,15 @@ const EmployeeRatingsFeedback = () => {
               </tbody>
             </table>
             
-            {/* Add pagination component */}
-            {filteredEmployees.length > 0 && (
-              <Pagination />
-            )}
+            
           </div>
         </div>
+        
       )}
-
+        {/* Add pagination component */}
+        {filteredEmployees.length > 0 && (
+              <Pagination />
+            )}
       {showFeedbackForm && renderFeedbackForm()}
     </div>
   );
