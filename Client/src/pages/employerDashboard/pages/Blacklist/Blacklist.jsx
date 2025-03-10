@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import Swal from "sweetalert2";
-import axios from "axios";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import BlacklistForm from "./BlacklistForm";
@@ -14,8 +13,7 @@ import {
   Typography,
   CircularProgress,
 } from "@mui/material";
-
-const API_URL = "http://localhost:3000/api/blacklists";
+import axiosInstance from "../../../../middleware/axiosInstance";
 
 const blacklistSchema = z.object({
   fullname: z.string().min(1, "Full name is required"),
@@ -79,10 +77,11 @@ const BlacklistManagement = () => {
     }
   };
 
-  const fetchEmployees = async (signal) => {
+  const fetchEmployees = async () => {
     setIsLoading(true);
     try {
-      const response = await axiosInstance.get("/users", { signal });
+      const response = await axiosInstance.get("/users");
+      console.log(response.data);
       const employees = response.data?.data?.data || [];
       const filteredEmployees = employees.filter(
         (emp) => emp.role === "Employee"
@@ -97,12 +96,8 @@ const BlacklistManagement = () => {
   };
 
   useEffect(() => {
-    const controller = new AbortController();
-    const signal = controller.signal;
     getData();
-    fetchEmployees(signal); // Fetch employees when component loads
-
-    return () => controller.abort();
+    fetchEmployees();
   }, []);
 
   const handleSave = async (data) => {
@@ -110,19 +105,11 @@ const BlacklistManagement = () => {
 
     try {
       const token = sessionStorage.getItem("authToken");
-      const url = editEmployee ? `${API_URL}/${editEmployee}` : API_URL;
+      const url = editEmployee ? "/editEmployee" : "/blacklists";
       console.log("URL:", url);
       const method = editEmployee ? "PUT" : "POST";
 
-      const response = await axios({
-        method,
-        url,
-        data,
-        headers: {
-          "Content-Type": "application/json",
-          authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axiosInstance(method, url, data);
 
       console.log("API Response:", response);
 
@@ -139,24 +126,6 @@ const BlacklistManagement = () => {
         getData();
         closeModal();
       }
-
-      const payload = {
-        employee_id: formData.employee_id,
-        reason_code: formData.reason_code,
-        status: formData.status,
-        start_date: formData.start_date,
-        end_date: formData.end_date,
-        name: formData.name,
-        company_id: formData.company_id,
-      };
-
-      if (editEmployee) {
-        await axiosInstance.put(`blacklists/${editEmployee}`, payload);
-      } else {
-        await axiosInstance.post("/blacklists", payload);
-      }
-
-      getData();
     } catch (error) {
       console.error("Submission error:", error);
       Swal.fire({
@@ -178,12 +147,8 @@ const BlacklistManagement = () => {
 
   const handleDelete = async () => {
     try {
-      const token = sessionStorage.getItem("authToken");
-      await axios.delete(`${API_URL}/${deleteId}`, {
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-      });
+      await axiosInstance.delete(`/blacklists/${deleteId}`);
+
       Swal.fire({
         position: "center",
         icon: "success",
