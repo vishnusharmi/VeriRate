@@ -73,6 +73,7 @@ exports.registerUser = async (adminId, data, files) => {
           permanent_address: data.permanent_address,
           current_address: data.current_address,
           UPI_Id: data.UPI_Id,
+          is_verified : data.is_verified,
           created_By: adminId,
         },
         { transaction }

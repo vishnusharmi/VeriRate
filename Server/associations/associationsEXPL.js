@@ -131,7 +131,6 @@ const Employee = require("../Models/EmployeeModel");
 const AdminSettings = require("../Models/adminSettings");
 const Department = require("../Models/department");
 
-
 const Associations = () => {
   // user to employee relation
   userModel.hasOne(Employee, {
@@ -144,11 +143,11 @@ const Associations = () => {
   });
 
   userModel.hasMany(Employee, {
-    foreignKey: "createdBy",
+    foreignKey: "created_by",
     onDelete: "CASCADE",
   });
   Employee.belongsTo(userModel, {
-    foreignKey: "createdBy",
+    foreignKey: "created_by",
     onDelete: "CASCADE",
   });
 
