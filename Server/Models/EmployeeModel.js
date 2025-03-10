@@ -130,6 +130,14 @@ const Employee = database.define(
         key: "id",
       },
     },
+    createdBy: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: User,
+        key: "id",
+      },
+    },
     employment_history: {
       type: DataTypes.JSONB,
       allowNull: true,

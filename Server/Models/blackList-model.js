@@ -36,10 +36,10 @@ const blackList = database.define(
     //   type: DataTypes.STRING,
     //   allowNull: true,
     // },
-    report_by: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
+    // report_by: {
+    //   type: DataTypes.STRING,
+    //   allowNull: true,
+    // },
     employee_id: {
       type: DataTypes.INTEGER,
       allowNull: false,

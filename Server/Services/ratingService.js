@@ -2,6 +2,7 @@ const Rating = require("../Models/ratingsModel");
 const logActivity = require("../Activity/activityFunction.js");
 const User = require("../Models/user.js");
 const Employee = require("../Models/EmployeeModel.js");
+
 exports.createRating = async (data,req) => {
   try {
     // 🔍 Step 1: Check if Employee exists
@@ -30,14 +31,12 @@ exports.createRating = async (data,req) => {
         entityId : user.id
       })
     } catch (logErr) {
-      // console.error("Error logging activity:", logErr);
       throw error;
     }
 
     return rating;
   } catch (error) {
-    // console.error("Error creating rating:", err);
-    throw new Error(error.message);
+    throw error;
   }
 };
 
@@ -70,7 +69,7 @@ exports.getRatingById = async (id) => {
     }
     return ratingById;
   } catch (error) {
-    throw new Error(error.message);
+    throw error;
   }
 };
 
@@ -109,7 +108,7 @@ exports.updateRating = async (id, data, req) => {
 
     return updated;
   } catch (error) {
-    throw new Error(error.message);
+    throw error;
   }
 };
 
@@ -149,6 +148,6 @@ exports.deleteRating = async (id, req) => {
     
     return deleted;
   } catch (error) {
-    throw new Error(error.message);
+    throw error;
   }
 };

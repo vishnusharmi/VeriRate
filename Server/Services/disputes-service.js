@@ -7,7 +7,6 @@ const Employee = require("../Models/EmployeeModel.js");
 exports.createDispute = async (data, req) => {
     try {
         const newDispute = await Disputes.create({ created_by: req.userId, ...data });
-        // console.log(newDispute)
 
         const user = await User.findByPk(req.userId);
         if (!user) {
@@ -35,7 +34,6 @@ exports.createDispute = async (data, req) => {
 
         return newDispute;
     } catch (error) {
-        console.error("error:", error.message);
         throw error;
     }
 };
@@ -45,7 +43,6 @@ exports.getDisputes = async () => {
         const disputes = await Disputes.findAll();
         return disputes
     } catch (error) {
-        console.error("error:", error);
         throw error;
     }
 };
@@ -53,9 +50,11 @@ exports.getDisputes = async () => {
 exports.getDisputeById = async (id) => {
     try {
         const dispute = await Disputes.findByPk(id);
+        if(!dispute) {
+            throw new Error(`Dispute with ID ${id} does not exist.`);
+        }
         return dispute;
     } catch (error) {
-        console.error("error:", error);
         throw error;
     }
 };
@@ -96,7 +95,6 @@ exports.updateDispute = async (id, data, req) => {
         return dispute;  // Return updated dispute object
 
     } catch (error) {
-        console.error("error:", error.message);
         throw error;
     }
 };
@@ -136,7 +134,6 @@ exports.deleteDispute = async (id,req) => {
 
         return deleted;
     } catch (error) {
-        console.error("error:", error);
         throw error;
     }
 };

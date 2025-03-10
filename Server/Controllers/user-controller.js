@@ -1,8 +1,3 @@
-const bcrypt = require('bcryptjs')
-const { accessSync } = require('fs');
-const { captureRejectionSymbol } = require('events');
-const { createAuditLog } = require('./audit-controller');
-const { response } = require('express');
 require('dotenv').config();
 const definedCrypto = require("../utils/cryptoUtils.js"); // Utility for encryption/decryption
 const registerServices = require("../Services/user-service.js");
@@ -13,32 +8,8 @@ const register = async (req, res) => {
   const adminId = req.userId;
 
   try {
-
-    // if (data.email) {
-    //   data.email = definedCrypto.encrypt(data.email);
-    // }
-
     const response = await registerServices.registerUser(adminId,data, files);
-    // const userData = response.data.user;
 
-    // if (userData.role != "SuperAdmin") {
-
-    //   if (!userData) {
-    //     return res.status(500).json({ message: "User registration unsuccessful" });
-    //   }
-
-    //   const action = "CREATE";
-    //   const entityType = userData.role || "Unknown";
-    //   const entityId = userData.id || "Not available";
-    //   // performed by should contain the id of the performer which can be brought by decoding JWT token
-    //   // here i mentioned userData.id just for now after implementing JWT authentication then change it
-    //   const performedBy = data.company_id || "Self";
-    //   const details = `${entityType} account created by ${performedBy}`;
-    //   const ipAddress = req.ip || "0.0.0.0";
-    //   const auditResponse = await createAuditLog({ action, entityType, entityId, performedBy, details, ipAddress });
-
-    //   return res.status(201).json({ response, auditResponse });
-    // }
     return res.status(201).json({ response })
   } catch (error) {
     // console.error('Registration error:', error);
@@ -130,23 +101,7 @@ console.log(data,id,'ididididi');
 
 const deleteUserById = async (req, res) => {
   try {
-    // const userData = await registerServices.getUserbyid(req.params.id);
-
     const userdeleted = await registerServices.deleteUser(req.params.id);
-
-    // // console.log(userData);
-    // if (!userData) {
-    //   return res.status(500).json({ message: "User registration unsuccessful" });
-    // }
-    // const action = "DELETE";
-    // const entityType = userData.role || "Unknown";
-    // const entityId = userData.id || "Not available";
-    // // performed by should contain the id of the performer which can be brought by decoding JWT token
-    // // here i mentioned userData.id just for now after implementing JWT authentication then change it
-    // const performedBy = data.company_id || "Self";
-    // const details = `${entityType} account created by ${performedBy}`;
-    // const ipAddress = req.ip || "0.0.0.0";
-    // const auditResponse = await createAuditLog({ action, entityType, entityId, performedBy, details, ipAddress });
 
     return res.status(200).json({ message: ' user deleted succesfully' });
 

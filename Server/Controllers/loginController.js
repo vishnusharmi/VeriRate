@@ -1,19 +1,8 @@
 const loginServices = require('../Services/loginServices');
-const { createAuditLog } = require('./audit-controller');
 
 exports.login = async (req, res) => {
     try {
         const loginUser = await loginServices.validateLogin(req.body);
-
-        // const userData = loginUser.userData.dataValues;
-        // const action = "LOGIN";
-        // const entityType = userData.role;
-        // const entityId = userData.id;
-        // const performedBy = "Self"
-        // const details = `${userData.username} is logged in ${entityType}`
-        // const ipAddress = req.ip || "0.0.0.0";
-        // const auditResponse = await createAuditLog({ action, entityType,performedBy, entityId, details, ipAddress })
-
         if (loginUser.statusCode) {
             return res.status(loginUser.statusCode).json({ message: loginUser.message });
         }
