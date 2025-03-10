@@ -6,7 +6,7 @@ const SearchComponent = ({
   searchQuery,
   setSearchQuery,
 }) => (
-  <div className="bg-white rounded-lg border border-gray-200 p-6 mb-4">
+  <div className="bg-white rounded-lg border border-gray-200 p-5 mb-1">
     <div className="flex items-center gap-2 mb-2">
       <Search className="text-gray-500" />
       <h2 className="text-xl font-semibold">Advanced Search</h2>
