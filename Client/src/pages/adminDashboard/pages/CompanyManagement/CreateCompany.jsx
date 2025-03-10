@@ -15,12 +15,32 @@ const CreateCompany = ({
     const totalCards = 3;
     const [activeCard, setActiveCard] = useState(1);
 
+    
+
     useEffect(() => {
         if (showAddModal) {
             setActiveCard(1);
         }
     }, [showAddModal]);
 
+// handling department form 
+const handleDepartmentChange = (index, e) => {
+    const { name, value } = e.target;
+    
+    // Capitalize the first letter for 'name' and convert 'departmentCode' to uppercase
+    const formattedValue = (name === "name")
+        ? value.charAt(0).toUpperCase() + value.slice(1)
+        : (name === "departmentCode")
+        ? value.charAt(0).toUpperCase() + value.slice(1)  // Convert entire departmentCode to uppercase
+        : value;
+
+    setFormData(prevState => {
+        const updatedDepartments = [...prevState.departments];
+        updatedDepartments[index] = { ...updatedDepartments[index], [name]: formattedValue };
+        
+        return { ...prevState, departments: updatedDepartments };
+    });
+};
 
 // handle change 
     const handleChange = (e) => {
@@ -131,19 +151,11 @@ const CreateCompany = ({
         return true;
     };
 
-    // handling department form 
-    const handleDepartmentChange = (index, e) => {
-        const { name, value } = e.target;
-        const updatedDepartments = [...formData.departments];
-        updatedDepartments[index][name] = value;
-        setFormData({
-            ...formData,
-            departments: updatedDepartments
-        });
-    };
+   
 
     // adding department to create form
     const addDepartment = () => {
+        console.log(formData.departments)
         setFormData({
             ...formData,
             departments: [...formData.departments, { name: '', departmentCode: '' }]
@@ -153,6 +165,8 @@ const CreateCompany = ({
     // remove department in create form
     const removeDepartment = (index) => {
         const updatedDepartments = formData.departments.filter((_, i) => i !== index);
+        console.log(updatedDepartments);
+        
         setFormData({
             ...formData,
             departments: updatedDepartments
@@ -326,7 +340,7 @@ const CreateCompany = ({
                                 Department Information
                             </h2>
                         </div>
-                        <div className="p-6 space-y-2 overflow-y-scroll max-h-90">
+                        <div className="p-6 space-y-2 overflow-y-scroll max-h-100">
                             {formData.departments.map((dept, index) => (
                                 <div key={index} className="grid grid-cols-2 gap-3 items-end">
                                     <div>
@@ -570,85 +584,6 @@ ${isNextDisabled()
                             </div>
                         </div>
                     </div>
-
-                    {/* Card 4: Company document */}
-                    {/* <div
-                        className={`bg-white rounded-lg  transition-all duration-300 ${activeCard === 4 ? "block" : "hidden"
-                            }`}
-                    >
-                        <div className=" rounded-t-lg px-3 py-2">
-                            <h2 className="text-lg font-semibold text-black">
-                                Company document
-                            </h2>
-                        </div>
-                        <div className="p-6 space-y-2">
-                            <div className="mt-2">
-                                <div className="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                                    <div className="space-y-1 text-center">
-                                        <svg
-                                            className="mx-auto h-12 w-12 text-gray-400"
-                                            stroke="currentColor"
-                                            fill="none"
-                                            viewBox="0 0 48 48"
-                                            aria-hidden="true"
-                                        >
-                                            <path
-                                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4h-12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                                strokeWidth="2"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            />
-                                        </svg>
-                                        <div className="flex text-sm text-gray-600">
-                                            <label
-                                                htmlFor="document"
-                                                className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
-                                            >
-                                                <span>Upload a file</span>
-                                                <input
-                                                    id="document"
-                                                    name="document"
-                                                    type="file"
-                                                    onChange={handleFileChange}
-                                                    className="sr-only"
-                                                />
-                                            </label>
-                                            <p className="pl-1">or drag and drop</p>
-                                        </div>
-                                        <p className="text-xs text-gray-500">
-                                            {formData.document
-                                                ? formData.document.name
-                                                : "PNG, JPG, GIF up to 10MB"}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="pt-6 flex justify-between">
-                                <button
-                                    type="button"
-                                    onClick={prevCard}
-                                    className="cursor-pointer inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                >
-                                    Back
-                                </button>
-
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    onClick={handleSubmit}
-                                    className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md 
-          ${loading
-                                            ? "bg-gray-400 cursor-not-allowed"
-                                            : "bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
-                                        }
-        `}
-                                >
-                                    {loading ? "Submitting..." : "Submit Registration"}
-                                </button>
-                            </div>
-                        </div>
-                    </div> */}
                 </form>
             </div>
         </div>

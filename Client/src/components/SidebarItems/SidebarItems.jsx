@@ -30,7 +30,7 @@ const SidebarItems = ({ toggleMenu, handleToggle }) => {
       path: "/admin",
     },
     {
-      name: "Employers List",
+      name: "Companies",
       icon: <BadgeIcon className="w-5 h-5 cb1:w-6 cb1:h-6" />,
       path: "/admin/company-management",
     },
