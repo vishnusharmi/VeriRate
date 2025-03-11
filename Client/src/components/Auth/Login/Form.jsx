@@ -1,13 +1,11 @@
 import { useContext, useState } from "react";
-import axios from "axios";
 import { Link, useNavigate } from "react-router";
-import { toast } from "react-toastify";
+import { toast,ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { AuthContext } from "../../Context/Contextapi";
+import axiosInstance from "../../../middleware/axiosInstance";
 
 const Form = () => {
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [loginData, setLoginData] = useState({
     email: "",
@@ -50,23 +48,25 @@ const Form = () => {
     const { email, password } = loginData;
 
     try {
-      const res = await axios.post("http://localhost:3000/api/login", {
+      const res = await axiosInstance.post("/login", {
         email,
         password,
       });
       if (res.status === 200) {
         const token = res.data.loginUser.jwtToken;
+        console.log(token,'token');
+        
         if (token && typeof token === "string") {
-          login(token);
+          sessionStorage.setItem("tempToken", token); 
+         toast.success("OTP sent to your mail");
           // Redirect after success
           setTimeout(() => {
-            navigate("/otp", { state: { email: loginData.email } });
+            navigate("/otp", { state: { email: loginData.email,role:loginData.role } });
           }, 1500);
         } else {
           console.error("Invalid token received", token);
         }
       }
-      toast.success("OTP sent to your mail");
       console.log("Submitted:", res.data.loginUser.message);
       console.log(res);
     } catch (error) {
@@ -81,7 +81,6 @@ const Form = () => {
 
   return (
     <>
-      
       <form
         onSubmit={handleSubmit}
         className="rounded-md shadow-[0_4px_10px_rgba(0,0,0,0.2)] flex flex-col gap-7 px-6 pt-7 pb-9 w-120"
@@ -116,10 +115,10 @@ const Form = () => {
             className="outline-none border-2 border-gray-400 p-3 focus:border-gray-600 rounded-md"
             onChange={handleInputChange}
           />
-          <Link to={'/forget-password'}>
-          <span className="text-blue-400 font-medium hover:underline cursor-pointer w-fit">
-            Forgot password?
-          </span>
+          <Link to={"/forget-password"}>
+            <span className="text-blue-400 font-medium hover:underline cursor-pointer w-fit">
+              Forgot password?
+            </span>
           </Link>
         </div>
 
@@ -131,6 +130,7 @@ const Form = () => {
           {loading ? "Logging in..." : "Login"}
         </button>
       </form>
+      <ToastContainer/>
     </>
   );
 };

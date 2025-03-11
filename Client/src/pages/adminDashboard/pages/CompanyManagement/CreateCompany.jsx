@@ -2,20 +2,20 @@ import { useEffect, useState } from "react";
 import { Country, State } from "country-state-city";
 import Select from "react-select";
 import { toast } from "react-toastify";
-import { Eye, EyeOff } from "lucide-react";
 
 const CreateCompany = ({
     handleCancel,
-    formData,
     loading,
-    setFormData,
     handleSubmit,
-    showAddModal
-
+    showAddModal,
+    formData,
+    setFormData
 }) => {
-    const totalCards = 5;
+
+    const totalCards = 3;
     const [activeCard, setActiveCard] = useState(1);
-    const [showPassword, setShowPassword] = useState(false);
+
+    
 
     useEffect(() => {
         if (showAddModal) {
@@ -23,28 +23,42 @@ const CreateCompany = ({
         }
     }, [showAddModal]);
 
+// handling department form 
+const handleDepartmentChange = (index, e) => {
+    const { name, value } = e.target;
+    
+    // Capitalize the first letter for 'name' and convert 'departmentCode' to uppercase
+    const formattedValue = (name === "name")
+        ? value.charAt(0).toUpperCase() + value.slice(1)
+        : (name === "departmentCode")
+        ? value.charAt(0).toUpperCase() + value.slice(1)  // Convert entire departmentCode to uppercase
+        : value;
+
+    setFormData(prevState => {
+        const updatedDepartments = [...prevState.departments];
+        updatedDepartments[index] = { ...updatedDepartments[index], [name]: formattedValue };
+        
+        return { ...prevState, departments: updatedDepartments };
+    });
+};
+
+// handle change 
     const handleChange = (e) => {
         const { id, value } = e.target;
-
-        // Check if the field is NOT email or password
-        const formattedValue = (id === "email" || id === "password" || id === "companyWebsite")
+    
+        // Keep email and companyWebsite unchanged; capitalize first letter for other fields
+        const formattedValue = (id === "email" || id === "companyWebsite")
             ? value
             : value.charAt(0).toUpperCase() + value.slice(1);
-
+    
         setFormData((prev) => ({
             ...prev,
             [id]: formattedValue,
         }));
     };
 
-    const handleFileChange = (e) => {
-        setFormData((prevState) => ({
-            ...prevState,
-            document: e.target.files[0],
-        }));
-    };
 
-
+// handle country change
     const handleCountryChange = (selected) => {
         setFormData({
             ...formData,
@@ -53,6 +67,7 @@ const CreateCompany = ({
         });
     };
 
+// handle state change
     const handleStateChange = (selected) => {
         setFormData({
             ...formData,
@@ -60,10 +75,7 @@ const CreateCompany = ({
         });
     };
 
-    const togglePasswordVisibility = () => {
-        setShowPassword(!showPassword);
-    };
-
+  // next button for create form
     const nextCard = () => {
         if (!validateForm()) return;
         if (activeCard < totalCards) {
@@ -71,25 +83,32 @@ const CreateCompany = ({
         }
     };
 
+  // prev button for create form 
     const prevCard = () => {
         if (activeCard > 1) {
             setActiveCard(activeCard - 1);
         }
     };
 
-    const isNextDisabled = () => {
+  // next button isdisabled for create form
+   const isNextDisabled = () => {
         if (activeCard === 1) {
-            return !formData.email || !formData.password || !formData.username;
-        }
-        if (activeCard === 2) {
             return (
+                !formData.email||
                 !formData.companyName ||
                 !formData.industry ||
                 !formData.founderYear ||
                 !formData.registerNum
             );
         }
-        if (activeCard === 4) {
+        if (activeCard === 2) {
+            // Ensure there is at least one department with a name and departmentCode
+            return (
+                !formData.departments.length ||
+                formData.departments.some(dept => !dept.name || !dept.departmentCode)
+            );
+        }
+        if (activeCard === 3) {
             return (
                 !formData.address ||
                 !formData.country ||
@@ -101,9 +120,9 @@ const CreateCompany = ({
         return false;
     };
 
-
+// validation form for company
     const validateForm = () => {
-        const { email, password, companyWebsite, phonenumber } = formData;
+        const { email, companyWebsite, phonenumber } = formData;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const urlRegex = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/.*)?$/;
         const phoneRegex = /^[0-9]{10,15}$/; // Allows only digits, 10 to 15 characters long
@@ -113,13 +132,9 @@ const CreateCompany = ({
                 toast.error("Invalid email format!");
                 return false;
             }
-            if (password.length < 6) {
-                toast.error("Password must be at least 6 characters long!");
-                return false;
-            }
         }
 
-        if (activeCard === 4) {
+        if (activeCard === 3) {
             // Validate company website and phone number
             if (!urlRegex.test(companyWebsite)) {
                 toast.error("Invalid website URL format!");
@@ -135,30 +150,31 @@ const CreateCompany = ({
 
         return true;
     };
-    const handleDepartmentChange = (index, e) => {
-        const { name, value } = e.target;
-        const updatedDepartments = [...formData.departments];
-        updatedDepartments[index][name] = value;
-        setFormData({
-            ...formData,
-            departments: updatedDepartments
-        });
-    };
 
+   
+
+    // adding department to create form
     const addDepartment = () => {
+        console.log(formData.departments)
         setFormData({
             ...formData,
-            departments: [...formData.departments, { name: '', code: '' }]
+            departments: [...formData.departments, { name: '', departmentCode: '' }]
         });
     };
 
+    // remove department in create form
     const removeDepartment = (index) => {
         const updatedDepartments = formData.departments.filter((_, i) => i !== index);
+        console.log(updatedDepartments);
+        
         setFormData({
             ...formData,
             departments: updatedDepartments
         });
     };
+
+     
+    
 
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500/50">
@@ -198,100 +214,10 @@ const CreateCompany = ({
                 </div>
 
                 <form>
-                    {/* Card 1: Founder Information */}
+                   
+                    {/* Card 1: Company Information */}
                     <div
                         className={`bg-white rounded-lg  transition-all duration-300 ${activeCard === 1 ? "block" : "hidden"
-                            }`}
-                    >
-                        <div className=" rounded-t-lg px-3 pt-3">
-                            <h2 className="text-lg font-semibold text-black">
-                                Founder Information
-                            </h2>
-                        </div>
-                        <div className="p-6 space-y-2">
-                            <div>
-                                <label
-                                    htmlFor="username"
-                                    className="block text-sm font-medium text-gray-700 mb-1"
-                                >
-                                    Username
-                                </label>
-                                <input
-                                    type="text"
-                                    id="username"
-                                    value={formData.username}
-                                    onChange={handleChange}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-1 border"
-                                />
-                            </div>
-                            <div>
-                                <label
-                                    htmlFor="email"
-                                    className="block text-sm font-medium text-gray-700 mb-1"
-                                >
-                                    Email
-                                </label>
-                                <input
-                                    type="email"
-                                    id="email"
-                                    value={formData.email}
-                                    required
-                                    onChange={handleChange}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-1 border"
-                                />
-                            </div>
-
-                            <div>
-                                <label
-                                    htmlFor="password"
-                                    className="block text-sm font-medium text-gray-700 mb-1"
-                                >
-                                    Password
-                                </label>
-                                <div className="relative">
-                                    <input
-                                        type={showPassword ? "text" : "password"}
-                                        id="password"
-                                        value={formData.password}
-                                        onChange={handleChange}
-                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-1 border pr-10"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={togglePasswordVisibility}
-                                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 transition-colors"
-                                    >
-                                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="pt-4 flex justify-between">
-                                <button
-                                    type="button"
-                                    onClick={handleCancel}
-                                    className="cursor-pointer inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={nextCard}
-                                    disabled={isNextDisabled()}
-                                    className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md 
-    ${isNextDisabled()
-                                            ? "bg-gray-400 cursor-not-allowed"
-                                            : "bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
-                                        }`}
-                                >
-                                    Next
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    {/* Card 2: Company Information */}
-                    <div
-                        className={`bg-white rounded-lg  transition-all duration-300 ${activeCard === 2 ? "block" : "hidden"
                             }`}
                     >
                         <div className=" rounded-t-lg px-3 pt-3">
@@ -315,7 +241,22 @@ const CreateCompany = ({
                                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-1 border"
                                 />
                             </div>
-
+                            <div>
+                                <label
+                                    htmlFor="email"
+                                    className="block text-sm font-medium text-gray-700 mb-1"
+                                >
+                                    Email
+                                </label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    value={formData.email}
+                                    required
+                                    onChange={handleChange}
+                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-1 border"
+                                />
+                            </div>
                             <div>
                                 <label
                                     htmlFor="industry"
@@ -365,14 +306,13 @@ const CreateCompany = ({
                                     />
                                 </div>
                             </div>
-
                             <div className="pt-4 flex justify-between">
                                 <button
                                     type="button"
-                                    onClick={prevCard}
+                                    onClick={handleCancel}
                                     className="cursor-pointer inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                 >
-                                    Back
+                                    Cancel
                                 </button>
 
                                 <button
@@ -390,9 +330,9 @@ const CreateCompany = ({
                             </div>
                         </div>
                     </div>
-                    {/* Card 3: Department Information */}
+                    {/* Card 2: Department Information */}
                     <div
-                        className={`bg-white rounded-lg  transition-all duration-300 ${activeCard === 3 ? "block" : "hidden"
+                        className={`bg-white rounded-lg  transition-all duration-300 ${activeCard === 2 ? "block" : "hidden"
                             }`}
                     >
                         <div className=" rounded-t-lg px-3 pt-3">
@@ -400,7 +340,7 @@ const CreateCompany = ({
                                 Department Information
                             </h2>
                         </div>
-                        <div className="p-6 space-y-2 overflow-y-scroll max-h-90">
+                        <div className="p-6 space-y-2 overflow-y-scroll max-h-100">
                             {formData.departments.map((dept, index) => (
                                 <div key={index} className="grid grid-cols-2 gap-3 items-end">
                                     <div>
@@ -429,15 +369,15 @@ const CreateCompany = ({
                                             >
                                                 Department Code
                                             </label>
-                                            <input
-                                                type="text"
-                                                id={`departmentCode-${index}`}
-                                                name="code"
-                                                placeholder="Ex: Hr"
-                                                value={dept.code}
-                                                onChange={(e) => handleDepartmentChange(index, e)}
-                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-1 border"
-                                            />
+                                             <input
+                                            type="text"
+                                            id={`departmentcode-${index}`}
+                                            name="departmentCode"
+                                            value={dept.departmentCode}
+                                              placeholder="Ex: Hr"
+                                            onChange={(e) => handleDepartmentChange(index, e)}
+                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-1 border"
+                                        />
                                         </div>
 
                                         {index > 0 && (
@@ -493,9 +433,9 @@ ${isNextDisabled()
                             </div>
                         </div>
                     </div>
-                    {/* Card 4 Contact Information */}
+                    {/* Card 3 Contact Information */}
                     <div
-                        className={`bg-white rounded-lg  transition-all duration-300 ${activeCard === 4 ? "block" : "hidden"
+                        className={`bg-white rounded-lg  transition-all duration-300 ${activeCard === 3 ? "block" : "hidden"
                             }`}
                     >
                         <div className=" rounded-t-lg px-3 pt-3">
@@ -628,84 +568,6 @@ ${isNextDisabled()
                                 >
                                     Back
                                 </button>
-                                <button
-                                    type="button"
-                                    onClick={nextCard}
-                                    disabled={isNextDisabled()}
-                                    className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md 
-    ${isNextDisabled()
-                                            ? "bg-gray-400 cursor-not-allowed"
-                                            : "bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
-                                        }`}
-                                >
-                                    Next
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Card 5: Company document */}
-                    <div
-                        className={`bg-white rounded-lg  transition-all duration-300 ${activeCard === 5 ? "block" : "hidden"
-                            }`}
-                    >
-                        <div className=" rounded-t-lg px-3 py-2">
-                            <h2 className="text-lg font-semibold text-black">
-                                Company document
-                            </h2>
-                        </div>
-                        <div className="p-6 space-y-2">
-                            <div className="mt-2">
-                                <div className="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                                    <div className="space-y-1 text-center">
-                                        <svg
-                                            className="mx-auto h-12 w-12 text-gray-400"
-                                            stroke="currentColor"
-                                            fill="none"
-                                            viewBox="0 0 48 48"
-                                            aria-hidden="true"
-                                        >
-                                            <path
-                                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4h-12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                                strokeWidth="2"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            />
-                                        </svg>
-                                        <div className="flex text-sm text-gray-600">
-                                            <label
-                                                htmlFor="document"
-                                                className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
-                                            >
-                                                <span>Upload a file</span>
-                                                <input
-                                                    id="document"
-                                                    name="document"
-                                                    type="file"
-                                                    onChange={handleFileChange}
-                                                    className="sr-only"
-                                                />
-                                            </label>
-                                            <p className="pl-1">or drag and drop</p>
-                                        </div>
-                                        <p className="text-xs text-gray-500">
-                                            {formData.document
-                                                ? formData.document.name
-                                                : "PNG, JPG, GIF up to 10MB"}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="pt-6 flex justify-between">
-                                <button
-                                    type="button"
-                                    onClick={prevCard}
-                                    className="cursor-pointer inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                >
-                                    Back
-                                </button>
-
                                 <button
                                     type="submit"
                                     disabled={loading}

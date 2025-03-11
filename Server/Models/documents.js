@@ -15,7 +15,7 @@ const allDocuments = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: User,
+        model:Employee,
         key: "id",
       },
       onDelete: "CASCADE",
