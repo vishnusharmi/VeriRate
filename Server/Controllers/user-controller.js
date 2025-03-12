@@ -20,7 +20,7 @@ const register = async (req, res) => {
 
     req.trackUserId = userId;
 
-    trackUser(req, res);
+     trackUser(req, res);
     if (!res.headersSent) {
       return res.status(201).json({ response });
     }

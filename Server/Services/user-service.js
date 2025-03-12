@@ -1,3 +1,160 @@
+// const userModel = require("../Models/user");
+// const Documents = require("../Models/documents");
+// const employeeModel = require("../Models/EmployeeModel");
+// const logActivity = require("../Activity/activityFunction");
+// const AdminSettings = require("../Models/adminSettings");
+
+// const bcrypt = require("bcryptjs");
+
+// exports.registerUser = async (adminId, data, files) => {
+//   const transaction = await userModel.sequelize.transaction();
+//   try {
+//     if (!data.email || !data.password || !data.role) {
+//       throw new Error("Missing required fields");
+//     }
+
+//     // Check if user already exists
+//     const existingUser = await userModel.findOne({
+//       where: { email: data.email },
+//     });
+
+//     if (existingUser) {
+//       throw new Error("User already exists");
+//     }
+
+//     // Hash password
+//     const hashedPassword = await bcrypt.hash(data.password, 10);
+
+//     // Create user inside transaction
+//     const userData = await userModel.create(
+//       {
+//         email: data.email,
+//         password: hashedPassword,
+//         role: data.role,
+//         username: !data.username
+//           ? `${data.first_name} ${data.last_name} `
+//           : data.username,
+//       },
+//       { transaction }
+//     );
+
+//     let additionalData = null;
+
+//     if (data.role === "Employee" || data.role === "Employee Admin") {
+//       // Create employee entry inside transaction
+//       additionalData = await employeeModel.create(
+//         {
+//           userId: userData.id,
+//           company_id: data.company_id,
+//           first_name: data.first_name,
+//           last_name: data.last_name,
+//           salary: data.salary,
+//           dateOfBirth: data.dateOfBirth,
+//           dateOfJoin: data.dateOfJoin,
+//           phone_number: data.phone_number,
+//           qualification: data.qualification,
+//           address: data.address,
+//           panCard: data.panCard,
+//           aadharCard: data.aadharCard,
+//           bankAccount: data.bankAccount,
+//           bankName: data.bankName,
+//           IFSCcode: data.IFSCcode,
+//           position: data.position,
+//           department: data.department,
+//           employment_history: data.employment_history,
+//           employee_type: data.employee_type,
+//           gender: data.gender,
+//           pf_account: data.pf_account,
+//           father_or_husband_name: data.father_or_husband_name,
+//           permanent_address: data.permanent_address,
+//           current_address: data.current_address,
+//           UPI_Id: data.UPI_Id,
+//           created_by: adminId,
+//         },
+//         { transaction }
+//       );
+
+//       if (data.role === "Employee Admin") {
+//         try {
+//           const superAdminInfo = await userModel.findByPk(adminId);
+//           if (!superAdminInfo) {
+//             throw new Error("Super Admin not found");
+//           }
+//           if (superAdminInfo.role !== "Super Admin") {
+//             throw new Error("Only Super Admin can create Employee Admin");
+//           }
+
+//           await AdminSettings.create(
+//             {
+//               adminId: userData.id,
+//               superAdminId: adminId,
+//               accessControl: false,
+//               complianceCheck: true,
+//               blacklistControl: false,
+//               twoFactorAuth: false,
+//               systemMonitoring: true,
+//               performanceTracking: true,
+//             },
+//             { transaction }
+//           );
+//         } catch (error) {
+//           throw error;
+//         }
+//       }
+//     }
+
+//     let documentResponses = [];
+
+//     if (files && Array.isArray(files)) {
+//       for (const file of files) {
+//         if (file.path) {
+//           const document = await Documents.create({
+//             empId: userData.id,
+//             documentType: file.mimetype,
+//             file_path: file.path,
+//           });
+
+//           documentResponses.push(document);
+//         }
+//       }
+//     } else if (files && files.path) {
+//       const document = await Documents.create({
+//         empId: userData.id,
+//         documentType: files.mimetype,
+//         file_path: files.path,
+//       });
+
+//       documentResponses.push(document);
+//     }
+
+//     await logActivity({
+//       userId: userData.id,
+//       action: `New ${data.role || "Employee"} created`,
+//       details: userData.username,
+//       type: "User",
+//       entity: "User Management",
+//       entityId: userData.id,
+//     });
+
+//     await transaction.commit();
+
+//     return {
+//       message: "User created successfully",
+//       data: {
+//         user: userData,
+//         additionalData,
+//         document: documentResponses,
+//       },
+//     };
+//   } catch (error) {
+//     await transaction.rollback();
+//     throw error;
+//   }
+// };
+
+
+
+
 const userModel = require("../Models/user");
 const Documents = require("../Models/documents");
 const employeeModel = require("../Models/EmployeeModel");
