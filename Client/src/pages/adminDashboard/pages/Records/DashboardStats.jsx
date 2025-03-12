@@ -40,7 +40,6 @@ const DashboardStats = ({
             <p className="text-sm text-gray-500">Employee Management</p>
             <p className="text-2xl font-bold">{employees}</p>
             <p className="text-sm text-gray-700">Total Employees</p>
-            {renderPercentage(employePercent)}
           </div>
           <div className="bg-blue-100 p-3 rounded-full">
             <BusinessIcon className="text-blue-500" style={{ fontSize: 35 }} />
@@ -59,7 +58,6 @@ const DashboardStats = ({
             <p className="text-sm text-gray-500">Dispute Resolution</p>
             <p className="text-2xl font-bold">{disputes}</p>
             <p className="text-sm text-gray-700">Active Conflicts</p>
-            {renderPercentage(disputePercent)}
           </div>
           <div className="bg-orange-100 p-3 rounded-full">
             <ReportProblemIcon
@@ -81,7 +79,6 @@ const DashboardStats = ({
             <p className="text-sm text-gray-500">Dispute Management</p>
             <p className="text-2xl font-bold">{health}%</p>
             <p className="text-sm text-gray-700">Solved Conflicts</p>
-            {renderPercentage(solvedPercent)}
           </div>
           <div className="bg-green-100 p-3 rounded-full">
             <MonitorHeartIcon

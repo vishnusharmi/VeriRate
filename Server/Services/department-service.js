@@ -85,7 +85,7 @@ exports.deletingDepartment = async (id) => {
     }
     catch (error) {
         console.log('Error deleting department');
-
+        throw error;
     }
 }
 

@@ -30,7 +30,7 @@ const CompanyTable = ({
     return (
         <div className="container mx-auto px-1 py-4">
             <div className="bg-white shadow-xl rounded-xl overflow-hidden">
-                <div className="overflow-auto" style={{ maxHeight: "400px" }}>
+                <div className="overflow-auto" style={{ maxHeight: "350px" }}>
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gradient-to-r from-indigo-500 to-blue-600 sticky top-0 z-20">
                             <tr>
@@ -50,19 +50,19 @@ const CompanyTable = ({
                                         <td className="px-3 md:px-6 py-4 text-xs md:text-xs text-black font-semibold text-center whitespace-nowrap">
                                             {company.companyName || "N/A"}
                                         </td>
-                                        <td className="px-3 md:px-6 py-4 text-xs md:text-sm text-gray-900 text-center hidden sm:table-cell">
+                                        <td className="px-3 md:px-6 py-4 text-xs md:text-xs text-gray-900 text-center hidden sm:table-cell">
                                             {company.email || "N/A"}
                                         </td>
-                                        <td className="px-3 md:pr-6 py-4 text-xs md:text-sm text-gray-900 text-center hidden md:table-cell">
+                                        <td className="px-3 md:pr-6 py-4 text-xs md:text-xs text-gray-900 text-center hidden sm:table-cell">
                                             {company.phonenumber || "N/A"}
                                         </td>
-                                        <td className="px-3 md:px-6 py-4 text-xs md:text-sm text-gray-900 text-center hidden lg:table-cell">
+                                        <td className="px-3 md:px-6 py-4 text-xs md:text-xs text-gray-900 text-center hidden sm:table-cell">
                                             {company.registerNum || "N/A"}
                                         </td>
-                                        <td className="px-3 md:px-4 py-4 text-xs md:text-xs text-gray-900 text-center hidden xl:table-cell">
+                                        <td className="px-3 md:px-4 py-4 text-xs md:text-xs text-gray-900 text-center hidden sm:table-cell">
                                             {company.founderYear || "N/A"}
                                         </td>
-                                        <td className="px-2 md:px-4 py-4 text-xs md:text-sm text-gray-900 text-center">
+                                        <td className="px-2 md:px-4 py-4 text-xs md:text-xs text-gray-900 text-center">
                                             <button className="cursor-pointer text-blue-500 hover:text-blue-600 hover:scale-110 transition-all duration-200" onClick={() => handleView(company)}>
                                                 <Eye size={16} className="md:w-5 md:h-5 mx-auto" />
                                             </button>

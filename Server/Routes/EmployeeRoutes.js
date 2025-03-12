@@ -28,4 +28,10 @@ router.delete(
   employeeController.deleteEmployee
 );
 
+router.get(
+  "/emp/:id",
+  verifyToken,
+  employeeController.getDataByUserId
+);
+
 module.exports = router;

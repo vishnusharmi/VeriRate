@@ -57,6 +57,7 @@ const deleteDispute = async (req, res) => {
 const getEmployeesForDisputes = async (req, res) => {
   try {
     const employees = await disputeService.getEmployeesForDisputes(req.userId);
+    return res.status(200).json({ message: "Employees", data: employees });
   } catch (error) {
     return res.status(404).json({ message: error.message });
   }

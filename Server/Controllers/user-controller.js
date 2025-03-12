@@ -32,8 +32,10 @@ const register = async (req, res) => {
 };
 
 const getAllUsers = async (req, res) => {
+  const {page,pageSize} = req.query;
+  const tokenId = req.userId;
   try {
-    const users = await registerServices.getAllusers();
+    const users = await registerServices.getAllusers(page, pageSize,tokenId);
 
     return res.status(200).json({
       success: true,
@@ -41,7 +43,7 @@ const getAllUsers = async (req, res) => {
       data: users,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 };
 
@@ -129,6 +131,25 @@ const getEmployeeAdmins = async (req, res) => {
   }
 };
 
+const getEmployerByIdController = async (req, res) => {
+  try {
+    const employer = await registerServices.getEmployerbyid(req.params.id);
+
+    if (!employer) {
+      return res.status(404).json({ message: "employer not found" });
+    }
+
+    // Decrypt email before sending response
+    employer.email = definedCrypto.decrypt(employer.email);
+
+    return res
+      .status(200)
+      .json({ message: "employer retrieved successfully", data: employer });
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to retrieve employer" });
+  }
+};
+
 module.exports = {
   register,
   getAllUsers,
@@ -136,4 +157,5 @@ module.exports = {
   updateUserById,
   deleteUserById,
   getEmployeeAdmins,
+  getEmployerByIdController,
 };

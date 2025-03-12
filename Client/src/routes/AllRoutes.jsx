@@ -24,6 +24,7 @@ import Records from "../pages/adminDashboard/pages/Records/Records.jsx";
 import EmployerVerificationSearch from "../pages/employerDashboard/pages/EmployerVerificationSearch/EmployerVerificationSearch.jsx";
 import EmployeeRatingsFeedback from "../pages/employerDashboard/pages/RatingsAndFeedback/EmployeeRatingsFeedback.jsx";
 import UserManagement from "../pages/adminDashboard/pages/UserManagement/UserManagement.jsx";
+import UserById from "../pages/adminDashboard/pages/UserManagement/UserById.jsx";
 import SecurityCompliance from "../pages/employerDashboard/pages/SecurityCompliance/SecurityCompliance.jsx";
 // import ForgetPassword from "../components/Auth/Login/ForgetPassword.jsx";
 // import ResetPassword from "../components/Auth/Login/NewPassword.jsx";
@@ -42,8 +43,8 @@ const AllRoutes = () => {
   return (
     <Routes>
       <Route index path="/" element={token ? <Navigate to={auth.role === "Super Admin" ? "/admin":"/company"} replace /> : <Login />} />
-      <Route path="/otp" element={<OTP />} />
-      <Route path="/register" element={<Register/>}/>
+     {!token && <Route path="/otp" element={<OTP />} />}
+     {!token && <Route path="/register" element={<Register/>}/>}
 
 {/* Secure Admin Routes */}
 <Route element={<PrivateRoutes allowedRoles={["Super Admin"]} />}>
@@ -57,6 +58,7 @@ const AllRoutes = () => {
         <Route path="/admin/records" element={<Records />} />
         <Route path="/admin/monitoring" element={<Monitoring />} />
         <Route path="/admin/user-management" element={<UserManagement />} />
+        <Route path="/admin/user-management/:id" element={<UserById />} />
         <Route path="/admin/department" element={<DepartmentManagement />} />
 
         <Route

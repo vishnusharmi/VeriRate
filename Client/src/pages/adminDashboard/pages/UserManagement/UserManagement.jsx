@@ -9,7 +9,7 @@ import UserFormModals from "./CreateUser"
 import { Eye } from "lucide-react"
 import { useNavigate } from "react-router"
 import UpdateUser from "./UpdateUser"
-import PaginationControls from "../../../../components/Paginations/PaginationControls"
+import PaginationControls from "../../../../components/Pagination/PaginationControls"
 
 const UserManagement = () => {
   const INITIAL_DATA = {
@@ -201,7 +201,6 @@ const UserManagement = () => {
           pageSize: pagination.pageSize,
         },
       });
-console.log(response,"chand")
       if (response.data?.data?.data) {
         const setPage= response.data?.data
         const fetchedUsers = response.data?.data?.data

@@ -152,3 +152,22 @@ exports.deleteEmployee = async (id) => {
   }
 };
 
+exports.getDataUserId = async (id) => {
+  try {
+    const employee = await Employee.findOne({
+      where: { userId: id },
+      include: [
+        {
+          model: Company,
+          attributes: ["companyName", "id"],
+        },
+      ],
+    });
+    if (!employee) {
+      throw new Error("Employee not found");
+    }
+    return employee;
+  } catch (error) {
+    throw new Error(`Error fetching employee: ${error.message}`);
+  }
+};

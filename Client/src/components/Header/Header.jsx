@@ -7,13 +7,16 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import { useNavigate } from "react-router";
+import { useContext } from "react";
+import { AuthContext } from "../Context/Contextapi.jsx";
 
 const Header = () => {
+  const { auth } = useContext(AuthContext);
   const [toggleMenu, setToggleMenu] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showProfileEdit, setShowProfileEdit] = useState(false);
-  const [userName, setUserName] = useState("Rasagna"); 
-  const [email, setEmail] = useState("chitti@example.com");
+  const [userName, setUserName] = useState(auth.name); 
+  const [email, setEmail] = useState(auth.email);
   const [profilePic, setProfilePic] = useState(null);
   const dropdownRef = useRef(null);
   const fileInputRef = useRef(null);

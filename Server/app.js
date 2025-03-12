@@ -15,6 +15,9 @@ const activityRoutes = require("./Routes/activityRoutes.js");
 const departmentRoutes = require("./Routes/department-route.js");
 const employeeModel = require("./Models/EmployeeModel.js");
 const adminSettingsRouter = require("./Routes/adminSettingsRoutes.js");
+const employeeAdminsDashboard = require("./Routes/employeeAdminDashboardRoutes.js");
+
+const employerRoutes = require("./Routes/adminRoutes.js")
 
 require("dotenv").config();
 
@@ -43,6 +46,8 @@ app.use("/api", disputeRoutes);
 app.use("/api", EmployeeRoutes);
 app.use("/api", activityRoutes);
 app.use("/api", departmentRoutes);
+app.use("/api", employeeAdminsDashboard);
+app.use("/api", employerRoutes)
 
 app.use("/api/admin-settings", adminSettingsRouter);
 

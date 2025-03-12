@@ -22,20 +22,27 @@ userRouter.get(
 // Protected Routes (Require JWT)
 userRouter.get(
   "/users",
-  //  verifyToken,
+    verifyToken,
   userControllers.getAllUsers
 );
 userRouter.get(
   "/users/:id",
-  // verifyToken,
+   verifyToken,
   userControllers.getUserByIdController
 );
 userRouter.put(
   "/users/:id",
-  // verifyToken,
+   verifyToken,
   upload.single("document"),
   userControllers.updateUserById
 );
+
+userRouter.get(
+  "/employer/:id",
+   verifyToken,
+  userControllers.getEmployerByIdController
+);
+
 userRouter.delete("/users/:id", verifyToken, userControllers.deleteUserById);
 
 

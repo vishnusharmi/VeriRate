@@ -208,7 +208,7 @@ exports.validateLogin = async (data) => {
 
   // Generate JWT token
   const token = jwt.sign(
-    { id: existingUser.id, email: existingUser.email, role: existingUser.role },
+    { id: existingUser.id, email: existingUser.email, role: existingUser.role,name: existingUser.name},
     process.env.JWT_SECRET_KEY,
     { expiresIn: "30d" }
   );
