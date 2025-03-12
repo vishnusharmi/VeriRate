@@ -1,14 +1,16 @@
-import { jwtDecode } from 'jwt-decode';
-import React, { createContext, useEffect, useState } from 'react'
-import {useNavigate} from "react-router";
+import { jwtDecode } from "jwt-decode";
+import React, { createContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router";
+import PropTypes from "prop-types";
+import axiosInstance from "../../middleware/axiosInstance";
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 export const AuthContext = createContext();
 
-function AuthProvider({children}) {
-
-  const navigate = useNavigate()
+function AuthProvider({ children }) {
+  const navigate = useNavigate();
   const token = sessionStorage.getItem("authToken");
-  
+
   const [auth, setAuth] = useState(() => {
     if (token) {
       try {
@@ -21,7 +23,10 @@ function AuthProvider({children}) {
     return null;
   });
 
-  // if login success we are setting token into the session storage 
+  // useEffect(() => {
+  //   fetchCompanies();
+  // }, []);
+
   const login = (token) => {
     sessionStorage.setItem("authToken", token);
     try {
@@ -32,12 +37,12 @@ function AuthProvider({children}) {
     }
   };
 
-// logging out the dashboard  
-  const logOut =()=>{
+  // logging out the dashboard
+  const logOut = () => {
     sessionStorage.removeItem("authToken");
-    setAuth(null)
-    navigate("/")
-  }
+    setAuth(null);
+    navigate("/");
+  };
 
   useEffect(() => {
     if (token) {
@@ -49,8 +54,17 @@ function AuthProvider({children}) {
     }
   }, []);
 
+  // const fetchCompanies = async () => {
+  //   try {
+  //     const response = await axiosInstance.get(`/get-companies`);
+  //     // console.log(response, "hhhh");
+  //   } catch (error) {
+  //     console.error("Error fetching companies:", error);
+  //   }
+  // };
+
   return (
-    <AuthContext.Provider value={{ auth, login, logOut,token }}>
+    <AuthContext.Provider value={{ auth, login, logOut, token }}>
       {children}
     </AuthContext.Provider>
   );

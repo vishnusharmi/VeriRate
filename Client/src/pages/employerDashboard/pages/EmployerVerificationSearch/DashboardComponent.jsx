@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { BarChart, Star } from "@mui/icons-material";
-import { Line } from "react-chartjs-2"; // Using Chart.js for trend analysis
+import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -21,7 +21,7 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-import axios from "axios";
+import axiosInstance from "../../../../middleware/axiosInstance";
 
 const Dashboard = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
@@ -29,17 +29,13 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Fetch aggregated ratings and trend data from the API using axios
     const fetchData = async () => {
       try {
-        // Make the API request using axios
-        const response = await axios.get("http://localhost:3007/api/ratings"); // Replace this URL with your actual API
+        const response = await axiosInstance.get("/ratings");
 
         if (response.data.success) {
-          // Process the data to create the trend data structure
-          const ratings = response.data.data; // Ratings array from the response
+          const ratings = response.data.data;
 
-          // Example: Organizing the data by month for trend analysis
           const trendLabels = [];
           const trendData = [];
 
@@ -53,11 +49,10 @@ const Dashboard = () => {
               trendLabels.push(month);
               trendData.push(1);
             } else {
-              trendData[existingIndex] += 1; // Count the number of ratings for each month
+              trendData[existingIndex] += 1;
             }
           });
 
-          // Set the transformed data for trend analysis
           setAnalyticsData({
             averageRating: (
               ratings.reduce((sum, rating) => sum + rating.rating, 0) /
@@ -109,11 +104,11 @@ const Dashboard = () => {
 
   // Trend Data (based on transformed structure)
   const trendData = {
-    labels: analyticsData.trend.labels, // e.g., ["Jan", "Feb", "Mar"]
+    labels: analyticsData.trend.labels,
     datasets: [
       {
         label: "Ratings per Month",
-        data: analyticsData.trend.data, // e.g., [5, 10, 8] (number of ratings per month)
+        data: analyticsData.trend.data,
         fill: false,
         borderColor: "rgb(75, 192, 192)",
         tension: 0.1,
@@ -124,7 +119,6 @@ const Dashboard = () => {
   return (
     <div className="mt-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Aggregated Ratings */}
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center gap-2 mb-4">
             <Star className="text-gray-500" />
@@ -155,8 +149,6 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-
-        {/* Trend Analysis */}
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center gap-2 mb-4">
             <BarChart className="text-gray-500" />

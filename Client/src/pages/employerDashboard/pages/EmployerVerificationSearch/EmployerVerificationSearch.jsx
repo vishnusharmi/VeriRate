@@ -5,6 +5,9 @@ import FilterButtons from "./FilterButtonsComponent";
 import SearchComponent from "./SearchComponent";
 import Tabs from "./TabsComponent";
 import CardsComponent from "./CardsComponent";
+import VerificationDialog from "./VerificationDialog";
+import { toast } from "react-toastify";
+import axiosInstance from "../../../../middleware/axiosInstance";
 
 // ENUM Definition
 const VerificationStatus = {
@@ -12,84 +15,6 @@ const VerificationStatus = {
   PENDING: "Pending",
 };
 
-// VerificationDialog Component
-const VerificationDialog = ({ isOpen, onClose, employment, onVerify }) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  if (!isOpen || !employment) return null;
-
-  const companyName =
-    Array.isArray(employment.company) && employment.company.length > 0
-      ? employment.company[0].company
-      : typeof employment.company === "string"
-      ? employment.company
-      : "N/A";
-
-  const handleVerify = async () => {
-    setIsSubmitting(true);
-    try {
-      const result = await onVerify(employment);
-      if (result) {
-        onClose();
-      }
-    } catch (error) {
-      console.error("Verification failed:", error);
-      alert("Failed to verify employee. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-[rgba(0,0,0,50%)] flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full">
-        <h2 className="text-xl font-bold mb-4">Verify Employment</h2>
-        <div className="space-y-4">
-          <div>
-            <strong>Name:</strong> {employment.name}
-          </div>
-          <div>
-            <strong>Company:</strong> {companyName}
-          </div>
-          <div>
-            <strong>Position:</strong> {employment.position}
-          </div>
-          <div>
-            <strong>Email:</strong> {employment.email}
-          </div>
-          <div>
-            <strong>Verification Status:</strong>
-            {employment.is_verified === VerificationStatus.VERIFIED ? (
-              <span className="text-green-600"> Verified</span>
-            ) : (
-              <span className="text-yellow-600"> Pending</span>
-            )}
-          </div>
-        </div>
-        <div className="mt-6 flex justify-end space-x-3">
-          <button
-            className="px-4 py-2 text-gray-700 bg-gray-200 rounded"
-            onClick={onClose}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </button>
-          {employment.is_verified !== VerificationStatus.VERIFIED && (
-            <button
-              className="px-4 py-2 bg-blue-600 text-white rounded"
-              onClick={handleVerify}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Verifying..." : "Verify"}
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// EmploymentVerificationSearch Component
 const EmploymentVerificationSearch = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchType, setSearchType] = useState("name");
@@ -97,45 +22,45 @@ const EmploymentVerificationSearch = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [employees, setEmployees] = useState([]);
 
-  const apiUrl = "http://localhost:3007/api/get-employees";
-  const updateApiUrl = "http://localhost:3007/api/update-employees";
-
   useEffect(() => {
-    fetchEmployees();
+    const controller = new AbortController();
+    const signal = controller.signal;
+    fetchEmployees(signal);
+
+    return () => controller.abort();
   }, []);
 
-  const fetchEmployees = async () => {
+  const fetchEmployees = async (signal) => {
     try {
       setLoading(true);
-      const response = await axios.get(apiUrl);
-
+      const response = await axiosInstance.get("/all", { signal });
       const formattedEmployees =
-        response?.data?.employees?.map((employee) => ({
+        response?.data?.employees?.data?.map((employee) => ({
           id: employee.id || "N/A",
-          name: `${employee.first_name} ${employee.last_name}` || "NA",
-          employeeId: employee.employeeId || employee.id || "N/A",
-          email: employee.email || "N/A",
-          company: employee?.employment_history?.at(-1)?.company || "N/A",
-          position: employee?.employment_history?.at(-1)?.position || "N/A",
-          startDate: employee?.employment_history?.at(-1)?.start_date || "N/A",
-          endDate: employee?.employment_history?.at(-1)?.end_date || "N/A",
-          is_verified: employee.is_verified || VerificationStatus.PENDING,
-          rating: employee.rating || 0,
-          totalCompaniesWorked:
-            employee?.employment_history?.map((v) => v.company) || [],
-          originalData: employee,
+          name: `${employee.first_name} ${employee.last_name}`.trim() || "N/A",
+          email: employee.User.email || "N/A",
+          position: employee.position || "N/A",
+          salary: employee.salary || "N/A",
+          phone_number: employee.phone_number || "N/A",
+          qualification: employee.qualification || "N/A",
+          address: employee.address || "N/A",
+          bankAccount: employee.bankAccount || "N/A",
+          bankName: employee.bankName || "N/A",
+          IFSCcode: employee.IFSCcode || "N/A",
+          is_verified:
+            employee.is_verified === "Verified"
+              ? VerificationStatus.VERIFIED
+              : VerificationStatus.PENDING,
+          employment_history: employee.employment_history || "N/A",
+          company_name: employee.Company.companyName || "N/A",
         })) || [];
 
       setEmployees(formattedEmployees);
       setLoading(false);
     } catch (err) {
-      console.error("API Error:", err);
-      setError(
-        "Error fetching data from the API: " + (err.message || "Unknown error")
-      );
+      console.log("API Error:", err);
       setLoading(false);
     }
   };
@@ -150,8 +75,8 @@ const EmploymentVerificationSearch = () => {
         is_verified: VerificationStatus.VERIFIED,
       };
 
-      const response = await axios.put(
-        `${updateApiUrl}/${employeeId}`,
+      const response = await axiosInstance.put(
+        `"/update"/${employeeId}`,
         updatePayload
       );
 
@@ -165,14 +90,14 @@ const EmploymentVerificationSearch = () => {
           )
         );
 
-        alert("Employee verification successful!");
+        toast.success("Employee verification successful!");
         return true;
       } else {
         throw new Error(`Failed: ${response.statusText}`);
       }
     } catch (error) {
-      console.error("Verification Error:", error);
-      alert(`Failed to verify employee: ${error.message}`);
+      console.log("Verification Error:", error);
+      toast.error(`Failed to verify employee: ${error.message}`);
       return false;
     }
   };
@@ -185,7 +110,7 @@ const EmploymentVerificationSearch = () => {
           ? employee.name
           : searchType === "email"
           ? employee.email
-          : employee.employeeId;
+          : employee.id;
       return String(searchField || "")
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
@@ -201,14 +126,12 @@ const EmploymentVerificationSearch = () => {
     });
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="bg-gray-50 px-4">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-2">
+        <h1 className="text-3xl font-bold mb-2 pt-2">
           Employment Verification System
         </h1>
-
         <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
-
         {activeTab === 0 ? (
           <>
             <SearchComponent
@@ -223,13 +146,12 @@ const EmploymentVerificationSearch = () => {
               setActiveFilter={setActiveFilter}
               fetchEmployees={fetchEmployees}
             />
-
             {loading ? (
-              <p>Loading...</p>
-            ) : error ? (
-              <p>{error}</p>
+              <div className="flex justify-center items-center">Loading...</div>
             ) : filteredEmployees.length === 0 ? (
-              <p>No employees found</p>
+              <p className="flex justify-center mt-5 text-lg">
+                No employees found{" "}
+              </p>
             ) : (
               <CardsComponent
                 filteredEmploymentHistory={filteredEmployees}
@@ -241,7 +163,6 @@ const EmploymentVerificationSearch = () => {
           <Dashboard />
         )}
       </div>
-
       <VerificationDialog
         isOpen={!!selectedEmployee}
         onClose={() => setSelectedEmployee(null)}

@@ -1,13 +1,10 @@
 import {
-  Analytics,
   Block,
   Dashboard,
-  History,
   People,
   Person,
   Settings,
   PeopleAlt,
-  Security,
 } from "@mui/icons-material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { NavLink } from "react-router";
@@ -17,14 +14,15 @@ import BadgeIcon from "@mui/icons-material/Badge";
 import DescriptionIcon from "@mui/icons-material/Description";
 import RateReviewIcon from "@mui/icons-material/RateReview";
 import PropTypes from "prop-types";
-import { useContext } from "react";
+import {useState, useContext } from "react";
 import { AuthContext } from "../Context/Contextapi";
-import {useState} from "react";
 
 const SidebarItems = ({ toggleMenu, handleToggle }) => {
-const [isLogoutModal,setIsLogoutModal] = useState(false)
-  const {auth,logOut} = useContext(AuthContext);
-  const role = auth.role;
+  const [isLogoutModal,setIsLogoutModal] = useState(false)
+  const { auth , logOut} = useContext(AuthContext);
+  // const role = auth.role;
+  const role = auth ? auth.role : null;
+
   const adminMenuItems = [
     {
       name: "Dashboard",
@@ -32,7 +30,7 @@ const [isLogoutModal,setIsLogoutModal] = useState(false)
       path: "/admin",
     },
     {
-      name: "Employers List",
+      name: "Companies",
       icon: <BadgeIcon className="w-5 h-5 cb1:w-6 cb1:h-6" />,
       path: "/admin/company-management",
     },
@@ -89,6 +87,16 @@ const [isLogoutModal,setIsLogoutModal] = useState(false)
       icon: <DomainVerificationIcon className="w-5 h-5 cb1:w-6 cb1:h-6" />,
       path: "/company/verification",
     },
+    // {
+    //   name: "Analytics",
+    //   icon: <Analytics className="w-5 h-5 cb1:w-6 cb1:h-6" />,
+    //   path: "/company/analytics",
+    // },
+    // {
+    //   name: "History",
+    //   icon: <History className="w-5 h-5 cb1:w-6 cb1:h-6" />,
+    //   path: "/company/history",
+    // },
     {
       name: "Ratings and Feedback",
       icon: <RateReviewIcon className="w-5 h-5 cb1:w-6 cb1:h-6" />,
@@ -110,7 +118,7 @@ const [isLogoutModal,setIsLogoutModal] = useState(false)
 
   return (
     <>
-     {isLogoutModal && (
+    {isLogoutModal && (
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500/50">
             <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-lg relative">
               <h2 className="text-lg font-semibold">Confirm Deletion</h2>
@@ -140,10 +148,10 @@ const [isLogoutModal,setIsLogoutModal] = useState(false)
             key={index}
             to={item.path}
             className={({ isActive }) =>
-              `flex items-center p-4 gap-4 text-sm cursor-pointer transition-all w-full cb2:text-base hover:shadow-md border-y-2 border-[#0a3469] ${
+              `flex items-center p-4 gap-4 text-sm cursor-pointer transition-all w-full cb2:text-base hover:shadow-md border-y-1 border-[#2196f3] ${
                 isActive && item.name !== "Dashboard"
-                  ? "bg-[#d2e8ee] text-black"
-                  : "text-white  hover:bg-[#d2e8ee] hover:text-black"
+                  ? "bg-[#3f51b5] text-white"
+                  : "text-white  hover:bg-[#2196f3] hover:text-white"
               }`
             }
             onClick={() => toggleMenu && handleToggle()}
@@ -156,7 +164,7 @@ const [isLogoutModal,setIsLogoutModal] = useState(false)
         ))}
       </div>
       <div>
-        <button onClick={() => setIsLogoutModal((prev) => !prev)} className="flex items-center px-5 py-4 gap-4 text-sm cb2:text-base text-white font-medium cursor-pointer hover:bg-[#d2e8ee] hover:text-black transition-all w-full hover:shadow-md">
+      <button onClick={() => setIsLogoutModal((prev) => !prev)} className="flex items-center px-5 py-4 gap-4 text-sm cb2:text-base text-white font-medium cursor-pointer hover:bg-[#2196f3] hover:text-white transition-all w-full hover:shadow-md">
           {<LogoutIcon className="w-5 h-5 cb1:w-6 cb1:h-6" />}Logout
         </button>
       </div>

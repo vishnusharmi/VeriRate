@@ -21,13 +21,16 @@ const verifyToken = async (req, res, next) => {
           .status(403)
           .json({ status: "Error", message: "Invalid or expired token" });
       }
-
-      // Attach user ID to the request object for further use
-      req.userId = payload.userId; // Ensure payload contains `userId`
-      next(); // Proceed to the next middleware/controller
+      req.userId = payload.id;
+      console.log(
+        `payload id ${req.userId}************************************`
+      );
+      next();
     });
   } catch (e) {
-    res.status(500).json({ status: "Error", message: "Internal Server Error" });
+    return res
+      .status(500)
+      .json({ status: "Error", message: "Internal Server Error" });
   }
 };
 
