@@ -36,7 +36,7 @@ app.use(
 app.use(helmet());
 app.use(express.json());
 const PORT = process.env.PORT || 3000;
-
+// using api's
 app.use("/api", blackListRoute);
 app.use("/api", loginRoutes);
 app.use("/api", userRouters);
