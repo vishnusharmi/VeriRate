@@ -1,7 +1,7 @@
 import Form from "./Form";
 import IntroComponent from "../Login/IntroComponent";
 
-
+// register  page
 const Register = () => {
   return (
     <div className="min-h-dvh flex flex-col cb1:flex-row items-center justify-evenly">

@@ -7,6 +7,7 @@ const axiosInstance = axios.create({
   },
 });
 
+// middleware for axios 
 axiosInstance.interceptors.request.use(
     (config)=>{
         const token = sessionStorage.getItem("authToken");

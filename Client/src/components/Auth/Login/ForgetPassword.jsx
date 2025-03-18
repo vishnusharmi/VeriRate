@@ -9,10 +9,12 @@ const ForgotPassword = () => {
   const [messageType, setMessageType] = useState("");
   const navigate = useNavigate();
 
+  
   const handleEmail = (e) => {
     setEmail(e.target.value);
   };
 
+  // handle submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
