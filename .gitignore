@@ -8,8 +8,8 @@ node_modules/
 *.log
 
 # Environment files
-# *.env
-# .env
+*.env
+.env
 
 # npm-debug log files
 npm-debug.log*
