@@ -1,43 +1,40 @@
 import { PeopleOutlined } from "@mui/icons-material";
-import { useState } from "react";
-
-const mockAuditLogs = [
-  {
-    id: 1,
-    admin: "Admin John",
-    action: "Enabled 2FA",
-    timestamp: "2024-03-01 10:30:22",
-    status: "Success",
-  },
-  {
-    id: 2,
-    admin: "Admin Sarah",
-    action: "Blacklisted Employee",
-    timestamp: "2024-03-01 10:35:10",
-    status: "Success",
-  },
-  {
-    id: 3,
-    admin: "Admin Mike",
-    action: "Failed Login Attempt",
-    timestamp: "2024-03-01 11:05:45",
-    status: "Failed",
-  },
-];
+import { useState, useEffect } from "react";
+import axiosInstance from "../../../../middleware/axiosInstance"; // Adjust the import path as needed
 
 const Monitoring = () => {
-  const [filteredLogs, setFilteredLogs] = useState(mockAuditLogs);
+  const [logs, setLogs] = useState([]);
+  const [filteredLogs, setFilteredLogs] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        const response = await axiosInstance.get("/activity-logs/specific-types");
+        setLogs(response.data); // Set the logs directly from response.data
+        setFilteredLogs(response.data); // Initialize filteredLogs with all logs
+      } catch (error) {
+        console.error("Error fetching logs:", error);
+      }
+    };
+
+    fetchLogs();
+  }, []);
+
   const handleSearch = (event) => {
-    setSearchTerm(event.target.value);
-    setFilteredLogs(
-      mockAuditLogs.filter(
-        (log) =>
-          log.admin.toLowerCase().includes(event.target.value.toLowerCase()) ||
-          log.action.toLowerCase().includes(event.target.value.toLowerCase())
-      )
-    );
+    const value = event.target.value;
+    setSearchTerm(value);
+    if (value === "") {
+      setFilteredLogs(logs); // Reset to all logs if search term is cleared
+    } else {
+      setFilteredLogs(
+        logs.filter(
+          (log) =>
+            log.details.toLowerCase().includes(value.toLowerCase()) ||
+            log.action.toLowerCase().includes(value.toLowerCase())
+        )
+      );
+    }
   };
 
   return (
@@ -59,29 +56,23 @@ const Monitoring = () => {
           placeholder="Search logs..."
           value={searchTerm}
           onChange={handleSearch}
-          className="w-full p-2 border rounded-md mb-4"
+          className="w-full p-3 border rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <div className="max-h-60 overflow-y-auto border rounded-md">
+        <div className="h-100 overflow-y-auto border rounded-md content-scrollbar">
           {filteredLogs.length > 0 ? (
             filteredLogs.map((log) => (
               <div
                 key={log.id}
-                className="p-3 border-b last:border-none flex justify-between"
+                className="p-4 border-b last:border-none flex justify-between items-center hover:bg-gray-50 transition-colors"
               >
                 <div>
-                  <p className="font-medium">{log.admin}</p>
+                  <p className="font-medium text-gray-800">{log.details}</p>
                   <p className="text-sm text-gray-500">{log.action}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-500">{log.timestamp}</p>
-                  <p
-                    className={`text-xs font-semibold ${
-                      log.status === "Failed"
-                        ? "text-red-500"
-                        : "text-green-500"
-                    }`}
-                  >
-                    {log.status}
+                  <p className="text-sm text-gray-500">{new Date(log.timestamp).toLocaleString()}</p>
+                  <p className={`text-xs font-semibold ${log.priority === "high" ? "text-red-500" : "text-green-500"}`}>
+                    {log.priority}
                   </p>
                 </div>
               </div>

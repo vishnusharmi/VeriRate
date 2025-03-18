@@ -1,4 +1,4 @@
-const { DataTypes, JSONB } = require("sequelize");
+const { DataTypes } = require("sequelize");
 const database = require("../Config/DBconnection");
 const Company = require("../Models/companies");
 const User = require("./user");
@@ -90,7 +90,7 @@ const Employee = database.define(
     },
     created_by: {
       type: DataTypes.INTEGER,
-      allowNull: false, 
+      allowNull: false,
       references: {
         model: User,
         key: "id",
@@ -116,12 +116,11 @@ const Employee = database.define(
 
     is_verified: {
       // type: DataTypes.BOOLEAN,
-      type: DataTypes.ENUM("Pending","Verified"),
+      type: DataTypes.ENUM("Pending", "Verified"),
       allowNull: true,
       defaultValue: "Pending",
     },
 
-  
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -130,14 +129,14 @@ const Employee = database.define(
         key: "id",
       },
     },
-    createdBy: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: User,
-        key: "id",
-      },
-    },
+    // created_by: {
+    //   type: DataTypes.INTEGER,
+    //   allowNull: false,
+    //   references: {
+    //     model: User,
+    //     key: "id",
+    //   },
+    // },
     employment_history: {
       type: DataTypes.JSONB,
       allowNull: true,
@@ -185,7 +184,7 @@ const Employee = database.define(
     position: {
       type: DataTypes.STRING,
       allowNull: true,
-    }
+    },
   },
 
   {

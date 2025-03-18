@@ -9,9 +9,9 @@ loginRouter.post("/login", loginLimiter, loginController.login);
 loginRouter.post("/otp", loginLimiter, loginController.otp);
 loginRouter.post(
   "/forget-password",
-  verifyToken,
+  
   loginController.forgetPassword
 );
-loginRouter.post("/reset-password", verifyToken, loginController.newPassword);
+loginRouter.post("/reset-password", loginController.newPassword);
 
 module.exports = loginRouter;

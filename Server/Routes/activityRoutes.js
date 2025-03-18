@@ -13,4 +13,8 @@ router.get(
     activityController.getRecentActivitiesCards
 );
 
+// New route for fetching activity logs of specific types
+router.get("/activity-logs/specific-types", verifyToken, activityController.getSpecificTypeActivities);
+
+
 module.exports = router;

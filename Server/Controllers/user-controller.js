@@ -1,6 +1,7 @@
-require('dotenv').config();
+require("dotenv").config();
 const definedCrypto = require("../utils/cryptoUtils.js"); // Utility for encryption/decryption
 const registerServices = require("../Services/user-service.js");
+const trackUser = require("../utils/trackUser.js");
 
 const register = async (req, res) => {
   const data = req.body;
@@ -8,9 +9,22 @@ const register = async (req, res) => {
   const adminId = req.userId;
 
   try {
-    const response = await registerServices.registerUser(adminId,data, files);
+    const response = await registerServices.registerUser(adminId, data, files);
 
-    return res.status(201).json({ response })
+    if (!response || !response.data || !response.data.user) {
+      console.error("❌ Request or response object is missing.");
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+
+    const userId = response.data.user.id || response.data.user.dataValues?.id;
+
+    req.trackUserId = userId;
+
+     trackUser(req, res);
+    if (!res.headersSent) {
+      return res.status(201).json({ response });
+    }
+
   } catch (error) {
     // console.error('Registration error:', error);
     return res.status(500).json({ message: error.message });
@@ -18,14 +32,10 @@ const register = async (req, res) => {
 };
 
 const getAllUsers = async (req, res) => {
+  const {page,pageSize} = req.query;
+  const tokenId = req.userId;
   try {
-    const users = await registerServices.getAllusers();
-
-    // Decrypt email before sending response
-    // const decryptedUsers = users.map((user) => ({
-    //   ...user,
-    //   email: definedCrypto.decrypt(user.email),
-    // }));
+    const users = await registerServices.getAllusers(page, pageSize,tokenId);
 
     return res.status(200).json({
       success: true,
@@ -33,7 +43,7 @@ const getAllUsers = async (req, res) => {
       data: users,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 };
 
@@ -74,28 +84,27 @@ const getUserByIdController = async (req, res) => {
 //   }
 // };
 
-
 //delete user
-
 
 const updateUserById = async (req, res) => {
   try {
     const { id } = req.params;
     let data = req.body;
-console.log(data,id,'ididididi');
-
-    // if (data.email) {
-    //   data.email = definedCrypto.encrypt(data.email);
-    // }
 
     // Extract file path if a new file is uploaded
     const documentPath = req.file ? req.file.path : null;
 
-    const updatedUser = await registerServices.updateUserById(id, data, documentPath);
+    const updatedUser = await registerServices.updateUserById(
+      id,
+      data,
+      documentPath
+    );
 
     return res.status(200).json(updatedUser);
   } catch (error) {
-    return res.status(500).json({ message: " failed to update user", error: error.message })
+    return res
+      .status(500)
+      .json({ message: " failed to update user", error: error.message });
   }
 };
 
@@ -103,15 +112,50 @@ const deleteUserById = async (req, res) => {
   try {
     const userdeleted = await registerServices.deleteUser(req.params.id);
 
-    return res.status(200).json({ message: ' user deleted succesfully' });
-
+    return res.status(200).json({ message: " user deleted successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "user not deleted" });
   }
-  catch (error) {
-    return res.status(500).json({ message: 'user not deleted' })
+};
+
+const getEmployeeAdmins = async (req, res) => {
+  try {
+    const employeeAdmins = await registerServices.getEmployeeAdmins();
+    return res.status(200).json({
+      success: true,
+      message: "Employee Admins retrieved successfully",
+      data: employeeAdmins,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to retrieve Employee Admins", error: error.message });
   }
-}
+};
 
+const getEmployerByIdController = async (req, res) => {
+  try {
+    const employer = await registerServices.getEmployerbyid(req.params.id);
 
+    if (!employer) {
+      return res.status(404).json({ message: "employer not found" });
+    }
 
+    // Decrypt email before sending response
+    employer.email = definedCrypto.decrypt(employer.email);
 
-module.exports = { register, getAllUsers, getUserByIdController, updateUserById, deleteUserById }
+    return res
+      .status(200)
+      .json({ message: "employer retrieved successfully", data: employer });
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to retrieve employer" });
+  }
+};
+
+module.exports = {
+  register,
+  getAllUsers,
+  getUserByIdController,
+  updateUserById,
+  deleteUserById,
+  getEmployeeAdmins,
+  getEmployerByIdController,
+};

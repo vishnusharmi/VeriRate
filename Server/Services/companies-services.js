@@ -1,44 +1,51 @@
 const Company = require("../Models/companies");
 const departmentModel = require("../Models/department");
-const sequelize = require('../Config/DBconnection')
-const Department = require('../Models/department');
+const sequelize = require("../Config/DBconnection");
+const Department = require("../Models/department");
 const logActivity = require("../Activity/activityFunction.js");
 const User = require("../Models/user.js");
 
-exports.createCompany = async (company, createdBy) => {
+exports.createCompany = async (company, created_by) => {
   const t = await sequelize.transaction();
   try {
     // checking if company email already exists or not
-    const companyExists = await Company.findOne({ where: { email: company.email } });
+    const companyExists = await Company.findOne({
+      where: { email: company.email },
+    });
     if (companyExists) {
       throw new Error(`Company ${company.email} already exists`);
     }
 
     const { departments, ...companyData } = company;
-    const companyCreated = await Company.create({ ...companyData, createdBy }, { transaction: t });
+    const companyCreated = await Company.create(
+      { ...companyData, created_by },
+      { transaction: t }
+    );
     if (!companyCreated) {
       throw new Error(`Company with email: ${company.email} not created`);
     }
 
-    const finalDepartments = departments.map(department => {
+    const finalDepartments = departments.map((department) => {
       return {
         ...department,
-        companyId: companyCreated.id
+        companyId: companyCreated.id,
       };
     });
 
-    const departmentResponse = await departmentModel.bulkCreate(finalDepartments, { transaction: t });
+    const departmentResponse = await departmentModel.bulkCreate(
+      finalDepartments,
+      { transaction: t }
+    );
 
     try {
-
-      const user = await User.findOne({ where: { id: createdBy } });
+      const user = await User.findOne({ where: { id: created_by } });
       if (!user) {
-        throw new Error(`User with ID ${createdBy} not found`);
+        throw new Error(`User with ID ${created_by} not found`);
       }
       await logActivity({
         type: "Company",
         action: `New company profile created by ${user.username} with name ${company.companyName}`,
-        userId: createdBy,
+        userId: created_by,
         entity: "Company Management",
         details: `${company.companyName}`,
       });
@@ -78,7 +85,6 @@ exports.createCompany = async (company, createdBy) => {
 //   throw error;
 // }
 
-
 //get all compamies
 exports.getCompanies = async (limit, offset, page) => {
   try {
@@ -88,23 +94,21 @@ exports.getCompanies = async (limit, offset, page) => {
       include: [
         {
           model: Department,
-        }
+        },
       ],
       distinct: true, // Fixes incorrect count issue
-      order: [["createdAt", "DESC"]] // Sorting by latest created
+      order: [["createdAt", "DESC"]], // Sorting by latest created
     });
     return {
       totalRecords: result.count, // Total records count
       page: parseInt(page),
       totalPages: Math.ceil(result.count / limit),
       companies: result.rows, // Fetched company records with departments
-    }
+    };
   } catch (error) {
     throw error;
   }
-}
-
-
+};
 
 //get single comapny
 // get single company
@@ -113,9 +117,9 @@ exports.getcompanyById = async (id) => {
     const company = await Company.findByPk(id, {
       include: [
         {
-          model: Department
-        }
-      ]
+          model: Department,
+        },
+      ],
     });
     if (!company) {
       throw new Error(`Company with ID ${id} not found`);
@@ -127,15 +131,96 @@ exports.getcompanyById = async (id) => {
 };
 
 
-//updating company
+// //updating company
+// exports.updateCompany = async (id, company) => {
+//   // check weather company with that id exists or not
+//   const exists = await Company.findByPk(id);
+//   if (!exists) {
+//     throw new Error(`Company with ID ${id} not found`);
+//   }
+//   const t = await sequelize.transaction();
+//   const {
+//     companyName,
+//     email,
+//     phonenumber,
+//     address,
+//     industry,
+//     country,
+//     state,
+//     registerNum,
+//     founderYear,
+//     companyWebsite,
+//     departments,
+//     created_by,
+//   } = company;
+
+//   try {
+//     // **Update company table**
+//     const companyUpdatedData = await Company.update(
+//       {
+//         companyName,
+//         email,
+//         phonenumber,
+//         address,
+//         industry,
+//         country,
+//         state,
+//         registerNum,
+//         founderYear,
+//         companyWebsite,
+//       },
+//       { where: { id }, transaction: t }
+//     );
+
+//     if (companyUpdatedData && departments) {
+//       // here after updating companies updating departments
+//       for (const dept of departments) {
+//         const deptData = await Department.upsert(
+//           {
+//             id: dept.id, // If ID exists, it updates; otherwise, inserts
+//             name: dept.name,
+//             departmentCode: dept.departmentCode,
+//             companyId: id,
+//           },
+//           { transaction: t }
+//         );
+//       }
+//     }
+
+//     try {
+//       const user = await User.findOne({ where: { id: created_by } });
+//       if (!user) {
+//         throw new Error(`User with ID ${created_by} not found`);
+//       }
+//       await logActivity({
+//         type: "Company",
+//         action: `Company  ${company.companyName} updated by ${user.username}`,
+//         userId: id,
+//         entity: "Company Management",
+//         details: `${company.companyName}`,
+//       });
+//     } catch (error) {
+//       throw new Error(error.message);
+//     }
+//     await t.commit(); // Commit transaction
+//     return { message: "Company and departments updated successfully" };
+//   } catch (error) {
+//     await t.rollback(); // Rollback transaction if error occurs
+//     throw error;
+//   }
+// };
+
+
 exports.updateCompany = async (id, company) => {
-  // check weather company with that id exists or not
+  // Check whether company with that id exists or not
   const exists = await Company.findByPk(id);
   if (!exists) {
     throw new Error(`Company with ID ${id} not found`);
   }
+
   const t = await sequelize.transaction();
-  const { companyName,
+  const {
+    companyName,
     email,
     phonenumber,
     address,
@@ -145,12 +230,13 @@ exports.updateCompany = async (id, company) => {
     registerNum,
     founderYear,
     companyWebsite,
-    departments,
-    createdBy } = company;
+    departments = [], // Ensure it's always an array
+    created_by,
+  } = company;
 
   try {
     // **Update company table**
-    const companyUpdatedData = await Company.update(
+    await Company.update(
       {
         companyName,
         email,
@@ -161,35 +247,54 @@ exports.updateCompany = async (id, company) => {
         state,
         registerNum,
         founderYear,
-        companyWebsite
+        companyWebsite,
       },
       { where: { id }, transaction: t }
     );
 
-    if (companyUpdatedData && departments) {
+    // **Fetch existing departments for the company**
+    const existingDepartments = await Department.findAll({
+      where: { companyId: id },
+      transaction: t,
+    });
 
-      // here after updating companies updating departments
-      for (const dept of departments) {
-        const deptData = await Department.upsert(
-          {
-            id: dept.id,  // If ID exists, it updates; otherwise, inserts
-            name: dept.name,
-            departmentCode: dept.departmentCode,
-            companyId: id
-          },
-          { transaction: t }
-        );
-      }
+    const existingDeptIds = new Set(existingDepartments.map((d) => d.id));
+    const newDeptIds = new Set(departments.map((d) => d.id));
+
+    // **Update existing and insert new departments**
+    for (const dept of departments) {
+      await Department.upsert(
+        {
+          id: dept.id || undefined, // If no ID, insert a new department
+          name: dept.name,
+          departmentCode: dept.departmentCode,
+          companyId: id,
+        },
+        { transaction: t }
+      );
     }
 
+    // **Delete removed departments**
+    const departmentsToDelete = existingDepartments.filter(
+      (dept) => !newDeptIds.has(dept.id)
+    );
+
+    if (departmentsToDelete.length > 0) {
+      await Department.destroy({
+        where: { id: departmentsToDelete.map((dept) => dept.id) },
+        transaction: t,
+      });
+    }
+
+    // **Log activity**
     try {
-      const user = await User.findOne({ where: { id: createdBy } });
+      const user = await User.findOne({ where: { id: created_by } });
       if (!user) {
-        throw new Error(`User with ID ${createdBy} not found`);
+        throw new Error(`User with ID ${created_by} not found`);
       }
       await logActivity({
         type: "Company",
-        action: `Company  ${company.companyName} updated by ${user.username}`,
+        action: `Company ${company.companyName} updated by ${user.username}`,
         userId: id,
         entity: "Company Management",
         details: `${company.companyName}`,
@@ -197,13 +302,14 @@ exports.updateCompany = async (id, company) => {
     } catch (error) {
       throw new Error(error.message);
     }
+
     await t.commit(); // Commit transaction
-    return { message: 'Company and departments updated successfully' }
+    return { message: "Company and departments updated successfully" };
   } catch (error) {
     await t.rollback(); // Rollback transaction if error occurs
     throw error;
   }
-}
+};
 
 //deleting Company
 exports.deleteCompany = async (id, adminId) => {
@@ -224,7 +330,7 @@ exports.deleteCompany = async (id, adminId) => {
         userId: id,
         entity: "Company Management",
         details: `${company.companyName}`,
-      })
+      });
     } catch (error) {
       throw new Error(error.message);
     }
@@ -241,7 +347,7 @@ exports.deleteCompany = async (id, adminId) => {
   //   "Company Management"
   // );
   // return deleteCompany;
-// } catch (error) {
-//   console.error("error:", error);
-// }
+  // } catch (error) {
+  //   console.error("error:", error);
+  // }
 };

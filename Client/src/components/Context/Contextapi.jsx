@@ -23,9 +23,9 @@ function AuthProvider({ children }) {
     return null;
   });
 
-  useEffect(() => {
-    fetchCompanies();
-  }, []);
+  // useEffect(() => {
+  //   fetchCompanies();
+  // }, []);
 
   const login = (token) => {
     sessionStorage.setItem("authToken", token);
@@ -54,14 +54,14 @@ function AuthProvider({ children }) {
     }
   }, []);
 
-  const fetchCompanies = async () => {
-    try {
-      const response = await axiosInstance.get(`/get-companies`);
-      // console.log(response, "hhhh");
-    } catch (error) {
-      console.error("Error fetching companies:", error);
-    }
-  };
+  // const fetchCompanies = async () => {
+  //   try {
+  //     const response = await axiosInstance.get(`/get-companies`);
+  //     // console.log(response, "hhhh");
+  //   } catch (error) {
+  //     console.error("Error fetching companies:", error);
+  //   }
+  // };
 
   return (
     <AuthContext.Provider value={{ auth, login, logOut, token }}>

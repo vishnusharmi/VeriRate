@@ -1,4 +1,4 @@
-const Employee = require("../Models/EmployeeModel"); // Renamed for clarity
+const Employee = require("../Models/EmployeeModel");
 const Ratings = require("../Models/ratingsModel");
 const logActivity = require("../Activity/activityFunction.js");
 const Activity = require("../Models/activityModel.js");
@@ -9,13 +9,14 @@ exports.createEmployee = async (data) => {
   try {
     const employee = await Employee.create(data);
 
-    await logActivity(
-      employee.id,
-      "New employee profile created",
-      `${employee.first_name} ${employee.last_name}`,
-      "Employee",
-      "Employee Management"
-    );
+    await logActivity({
+      userId: employee.id,
+      action: "New employee profile created",
+      details: `${employee.first_name} ${employee.last_name}`,
+      type: "Employee",
+      entity: "Employee Management",
+      entityId: employee.id,
+    });
 
     return employee;
   } catch (error) {
@@ -87,6 +88,15 @@ exports.getAllEmployees = async (page, pageSize) => {
       order: [["id", "DESC"]],
     });
 
+    // const allEmployees = await Employee.findAll();
+
+    // console.log(
+    //   "*************************************************ROWS",
+    //   allEmployees
+    // );
+
+    // return allEmployees;
+
     return {
       totalRecords: count, // Total number of records
       totalPages: Math.ceil(count / pageSize), // Total pages
@@ -142,4 +152,22 @@ exports.deleteEmployee = async (id) => {
   }
 };
 
-//DID BY RASAGNA
+exports.getDataUserId = async (id) => {
+  try {
+    const employee = await Employee.findOne({
+      where: { userId: id },
+      include: [
+        {
+          model: Company,
+          attributes: ["companyName", "id"],
+        },
+      ],
+    });
+    if (!employee) {
+      throw new Error("Employee not found");
+    }
+    return employee;
+  } catch (error) {
+    throw new Error(`Error fetching employee: ${error.message}`);
+  }
+};

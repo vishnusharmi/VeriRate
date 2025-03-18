@@ -2,7 +2,6 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../Config/DBconnection");
 const User = require("./user");
 
-
 const Company = sequelize.define("Company", {
   id: {
     type: DataTypes.INTEGER,
@@ -30,7 +29,7 @@ const Company = sequelize.define("Company", {
     type: DataTypes.STRING,
     allowNull: true,
   },
-  createdBy: {
+  created_by: {
     type: DataTypes.INTEGER,
     allowNull: true,
     references: {
@@ -41,31 +40,24 @@ const Company = sequelize.define("Company", {
   },
   country: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
   },
   state: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
   },
   registerNum: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
   },
   founderYear: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
   },
   companyWebsite: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
   },
-
-
 });
 
-
-
 module.exports = Company;
-
-
-

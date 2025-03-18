@@ -5,9 +5,9 @@ import {
   Warning as AlertTriangleIcon,
   Delete as TrashIcon,
   Edit as EditIcon,
-  Business as BuildingIcon, 
-  Group as UsersIcon, 
-  Gavel as GavelIcon, 
+  Business as BuildingIcon,
+  Group as UsersIcon,
+  Gavel as GavelIcon,
   AccessTime as ClockIcon,
   Notifications as BellIcon,
 } from "@mui/icons-material";

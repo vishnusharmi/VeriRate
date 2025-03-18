@@ -32,23 +32,17 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
       set(value) {
+        if(value){
         this.setDataValue("otp", bcrypt.hashSync(value, 10));
-      },
+      }else{
+        this.setDataValue("otp", value);
+      }
+    },
     },
     otpExpiresAt: {
       type: DataTypes.DATE,
       allowNull: true,
     },
-    // phone_number: {
-    //   type: DataTypes.STRING,
-    //   allowNull: true,
-    //   set(value) {
-    //     this.setDataValue("phone_number", crypto.encrypt(value));
-    //   },
-    //   get() {
-    //     return crypto.decrypt(this.getDataValue("phone_number"));
-    //   },
-    // },
     isActive: {
       type: DataTypes.BOOLEAN,
       allowNull: false,

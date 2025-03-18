@@ -2,9 +2,8 @@ import { useState, useEffect } from "react";
 import DashboardStats from "./DashboardStats";
 import ActivityFilter from "./ActivityFilter";
 import ActivityList from "./ActivityList";
-import PaginationControls from "./PaginationControls";
 import axiosInstance from "../../../../middleware/axiosInstance";
-
+import PaginationControls from "../../../../components/Pagination/PaginationControls";
 const Records = () => {
   // Dashboard stats
   const [employees, setEmployees] = useState("0");
@@ -21,6 +20,7 @@ const Records = () => {
   // Activity data state
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [data, setData] = useState({});
 
   // Pagination states
   const [pagination, setPagination] = useState({
@@ -52,6 +52,7 @@ const Records = () => {
           limit: pagination.pageSize,
         },
       });
+      console.log(response, "new response for activity logs");
       const { totalRecords, totalPages, currentPage, pageSize, data } =
         response.data;
 
@@ -88,15 +89,18 @@ const Records = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await axiosInstance.get("/activity-logs/recent-cards");
+      const response = await axiosInstance.get("/activity-logs/analysis");
+      setData(response.data);
       const data = response.data;
 
-      setEmployees(data.totalEmployees.toLocaleString());
-      setDisputes(data.activeDisputes.toLocaleString());
-      setHealth(data.solvedDisputePercentage.toFixed(1));
-      setEmployeePercent(data.employeeGrowthPercentage.toString());
-      setDisputePercent(data.disputeChangePercentage.toString());
-      setSolvedPercent(data.solvedDisputeGrowthPercentage.toString());
+      console.log("api response", data);
+      setEmployees((data.totalEmployees ?? 0).toLocaleString());
+      setDisputes((data.activeDisputes ?? 0).toLocaleString());
+      setHealth((data.resolvedDisputes ?? 0).toLocaleString());
+
+      setEmployeePercent((data.employeeGrowthPercentage ?? 0).toString());
+      setDisputePercent((data.disputeChangePercentage ?? 0).toString());
+      setSolvedPercent((data.solvedDisputeGrowthPercentage ?? 0).toString());
     } catch (err) {
       console.log(err);
     }
@@ -120,7 +124,9 @@ const Records = () => {
     <div className="h-full flex flex-col max-w-6xl mx-auto overflow-hidden">
       <div className="space-y-2 my-3">
         <h2 className="text-3xl font-semibold">Employee Records</h2>
-        <p className="text-gray-600">Welcome John! Here's today's update.</p>
+        <p className="text-gray-600">
+          Welcome {data.name} Here's today's update.
+        </p>
       </div>
 
       <DashboardStats

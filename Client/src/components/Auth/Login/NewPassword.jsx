@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { useLocation } from "react-router";
+import { Link, useLocation,useNavigate } from "react-router";
 import axiosInstance from "../../../middleware/axiosInstance";
+import { toast,ToastContainer } from "react-toastify";
+
 
 const ResetPassword = () => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -10,6 +12,8 @@ const ResetPassword = () => {
   const [success, setSuccess] = useState("");
   const location = useLocation();
   const email = location.state?.email || "";
+
+  const navigate = useNavigate()
 
   const handleOtpChange = (e, index) => {
     const value = e.target.value;
@@ -66,6 +70,11 @@ const ResetPassword = () => {
         error.response?.data?.message ||
           "Something went wrong. Please try again."
       );
+    }finally{
+      toast.success("reset password successfully.")
+      setTimeout(() => {
+      navigate("/")
+      },1000)
     }
   };
 
@@ -127,14 +136,27 @@ const ResetPassword = () => {
             <p className="text-green-500 text-center mb-4">{success}</p>
           )}
 
+<div className="flex justify-end">
+  <Link 
+    to={'/'} 
+    className="inline-block px-4 py-2 rounded transition-all duration-200
+             text-blue-600
+             border border-transparent
+             transform hover:scale-105"
+  >
+    Back to Login
+  </Link>
+  </div>
+
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300"
+            className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300 cursor-pointer"
           >
             Reset Password
           </button>
         </form>
       </div>
+      <ToastContainer/>
     </div>
   );
 };

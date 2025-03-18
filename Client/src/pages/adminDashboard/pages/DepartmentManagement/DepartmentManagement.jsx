@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search } from "lucide-react";
+import { ChevronLeft, Search } from "lucide-react";
 import { useLocation, useNavigate } from 'react-router';
 
 const DepartmentManagement = () => {
@@ -40,7 +40,7 @@ const DepartmentManagement = () => {
                     <button
                         onClick={handleCompany}
                         className="cursor-pointer flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                    >
+                    ><ChevronLeft className="w-4 h-4" />
                         Back
                     </button>
                 </div>

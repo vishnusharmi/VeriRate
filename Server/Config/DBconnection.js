@@ -11,7 +11,6 @@ const sequelize = new Sequelize(
   }
 );
 
-
 try {
   sequelize.authenticate();
   console.log("Connection has been established successfully.");
@@ -20,3 +19,4 @@ try {
 }
 
 module.exports = sequelize;
+

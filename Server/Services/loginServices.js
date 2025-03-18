@@ -2,18 +2,19 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const userModel = require("../Models/user");
 const { generateOTP, sendOTPEmail } = require("./otpServices");
+const logActivity = require("../Activity/activityFunction");
 
 exports.validateLogin = async (data) => {
   const { email, password } = data;
   const existingUser = await userModel.findOne({ where: { email } });
 
   if (!existingUser) {
-    return { statusCode: 404, message: "Invalid credentials" };
+    throw new Error("Invalid credentials");
   }
 
   const isPasswordMatch = await bcrypt.compare(password, existingUser.password);
   if (!isPasswordMatch) {
-    return { statusCode: 401, message: "Invalid password" };
+    throw new Error("Invalid password");
   }
 
   const { otp } = generateOTP();
@@ -23,19 +24,25 @@ exports.validateLogin = async (data) => {
   try {
     await sendOTPEmail(email, otp);
   } catch (error) {
-    return {
-      statusCode: 500,
-      message: "Failed to send OTP. Try again.",
-      error,
-    };
+    throw new Error("Failed to send OTP. Try again.");
   }
 
   // Generate JWT token
   const token = jwt.sign(
-    { id: existingUser.id, email: existingUser.email, role: existingUser.role },
+    { id: existingUser.id, email: existingUser.email, role: existingUser.role,name: existingUser.username},
     process.env.JWT_SECRET_KEY,
-    { expiresIn: "1d" }
+    { expiresIn: "30d" }
   );
+
+  // Log activity
+  await logActivity({
+    userId: existingUser.id,
+    action: "User login",
+    details: `User ${existingUser.username} logged in`,
+    type: "Login",
+    entity: "User Management",
+    entityId: existingUser.id,
+  });
 
   return {
     message: "OTP sent to email. Please verify OTP to proceed.",
@@ -43,30 +50,20 @@ exports.validateLogin = async (data) => {
   };
 };
 
-
-
 exports.verifyOtp = async (data) => {
   const { email, otp } = data;
 
   try {
     const existingOtpUser = await userModel.findOne({ where: { email } });
     if (!existingOtpUser) {
-      return { statusCode: 404, message: "User does not exist" };
+      throw new Error("User does not exist");
     }
-    // console.log(existingOtpUser)
-    console.log(new Date(existingOtpUser.otpExpiresAt));
-    
+
     const isOtpValid = await bcrypt.compare(otp, existingOtpUser.otp);
-    console.log(
-      "IS OTP VALID ****************->",
-      isOtpValid,
-      "COMPARISON ***************************->",
-      new Date() < new Date(existingOtpUser.otpExpiresAt)
-    );
+
     if (!(isOtpValid && new Date() < new Date(existingOtpUser.otpExpiresAt))) {
-      return { statusCode: 400, message: "Invalid or expired OTP" };
+      throw new Error("Invalid or expired OTP");
     }
-    console.log("*************BEFORE UPDATING USER AGAIN");
     await existingOtpUser.update({
       isActive: true,
       otpExpiresAt: null,
@@ -83,26 +80,37 @@ exports.verifyOtp = async (data) => {
       { expiresIn: "1d" }
     );
 
+    // Log activity
+    await logActivity({
+      userId: existingOtpUser.id,
+      action: "OTP verified",
+      details: `User ${existingOtpUser.username} verified OTP`,
+      type: "OTP Verification",
+      entity: "User Management",
+      entityId: existingOtpUser.id,
+    });
+
     return {
       statusCode: 200,
       message: "OTP Verified successfully",
       jwtToken: token,
-      userData: { id: existingOtpUser.id, email: existingOtpUser.email,role: existingOtpUser.role }
+      userData: {
+        id: existingOtpUser.id,
+        email: existingOtpUser.email,
+        role: existingOtpUser.role,
+      },
     };
   } catch (error) {
-    console.error(error);
-    return { statusCode: 500, message: "Internal server error FROM SERVICES" };
+    throw new Error("Internal server error FROM SERVICES");
   }
 };
-
-
 
 exports.forgettedPassword = async (data) => {
   const { email } = data;
   try {
     const existingEmail = await userModel.findOne({ where: { email } });
     if (!existingEmail) {
-      return { statusCode: 404, message: "User does not exist" };
+      throw new Error("User does not exist");
     }
 
     const { otp, otpExpiresAt } = generateOTP();
@@ -110,65 +118,71 @@ exports.forgettedPassword = async (data) => {
     await existingEmail.update({ otp, otpExpiresAt });
     await sendOTPEmail(email, otp);
 
+    // Log activity
+    await logActivity({
+      userId: existingEmail.id,
+      action: "Forgot password",
+      details: `User ${existingEmail.username} requested password reset`,
+      type: "Password Reset",
+      entity: "User Management",
+      entityId: existingEmail.id,
+    });
+
     return { statusCode: 200, message: "OTP sent to mail" };
   } catch (error) {
-    console.log(error);
+    throw new Error("Internal server error");
   }
 };
-
-// exports.newPasswordCreating = async (data) => {
-//     const { email, otp,password } = data;
-//     try {
-//         const user = await userModel.findOne({ where: { email } });
-//         if (!user) {
-//             return { statusCode: 400, message: "Invalid or expired OTP" };
-//         }
-
-//         // Check OTP validity
-//         if (user.otp !== otp || new Date() > new Date(user.otpExpiresAt)) {
-//             return { statusCode: 400, message: "Invalid or expired OTP" };
-//         }
-
-//         // const hashedPassword = await bcrypt.hash(password, 10);
-//         console.log("Hashing password...");
-//         const hashedPassword = await bcrypt.hash(password, 10);
-//         console.log("Password hashed successfully:", hashedPassword);
-
-//         // Update user new password and clear OTP
-//         await user.update({
-//             // password: hashedPassword,
-//             otp: null,
-//             otpExpiresAt: null,
-//         });
-
-//         return { statusCode: 201, message: "Password reset successfully. You can now log in with your new password." };
-//     } catch (error) {
-//         console.error(error);
-//         return { statusCode: 500, message: "Internal server error"  , error}; // Return an error response
-//     }
-// };
 
 exports.newPasswordCreating = async (data) => {
   const { email, otp, password } = data;
   try {
+
+    if (!email || !otp || !password) {
+      throw new Error("Missing required fields: email, OTP, or password");
+    }
+
     const user = await userModel.findOne({ where: { email } });
+
     if (!user) {
-      return { statusCode: 400, message: "Invalid or expired OTP" };
+      throw new Error("Invalid or expired OTP");
     }
 
     // Check OTP validity
-    if (user.otp !== otp || new Date() > new Date(user.otpExpiresAt)) {
-      return { statusCode: 400, message: "Invalid or expired OTP" };
+    if (!user.otp) {
+      throw new Error("Invalid or expired OTP");
+    }
+
+    if (new Date() > new Date(user.otpExpiresAt)) {
+      throw new Error("OTP has expired");
+    }
+
+    const isOtpValid = await bcrypt.compare(otp, user.otp);
+    if (!isOtpValid || new Date() > new Date(user.otpExpiresAt)) {
+      throw new Error("Invalid or expired OTP");
     }
 
     // Hash the new password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Update user password and clear OTP fields
-    await user.update({
-      password: hashedPassword, // You missed updating this
+    await userModel.update({
+      password: hashedPassword,
       otp: null,
       otpExpiresAt: null,
+    }, {
+      where: { email },
+      individualHooks: true // Ensure setters are called properly
+    });
+
+    // Log activity
+    await logActivity({
+      userId: user.id,
+      action: "Password reset",
+      details: `User ${user.username} reset password`,
+      type: "Password Reset",
+      entity: "User Management",
+      entityId: user.id,
     });
 
     return {
@@ -177,7 +191,6 @@ exports.newPasswordCreating = async (data) => {
         "Password reset successfully. You can now log in with your new password.",
     };
   } catch (error) {
-    console.error(error);
-    return { statusCode: 500, message: "Internal server error", error };
+    throw error
   }
 };

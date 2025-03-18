@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../Config/DBconnection.js");
-const User = require("./User.js");
+const User = require("./user.js");
 const Company = require("../Models/companies.js");
 
 const Activity = sequelize.define(

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import axiosInstance from "../../../middleware/axiosInstance";
+import { toast,ToastContainer } from "react-toastify";
+
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -45,6 +47,7 @@ const ForgotPassword = () => {
       setMessage("Failed to send OTP. Please try again.");
       setMessageType("error");
     } finally {
+      toast.success("OTP sent successfully! Please check your email.")
       setIsSubmitting(false);
     }
   };
@@ -94,7 +97,7 @@ const ForgotPassword = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full py-2 px-4 rounded-md font-medium text-white ${
+            className={`w-full py-2 px-4 rounded-md font-medium text-white cursor-pointer ${
               isSubmitting
                 ? "bg-blue-400 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -130,12 +133,13 @@ const ForgotPassword = () => {
           </button>
 
           <div className="text-center text-sm mt-4">
-            <Link to={"/"} className="text-blue-600 hover:text-blue-800">
+            <Link to={"/"} className="text-blue-600 hover:text-blue-800 cursor-pointer">
               Return to Login
             </Link>
           </div>
         </form>
       </div>
+      <ToastContainer/>
     </div>
   );
 };

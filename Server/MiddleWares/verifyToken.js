@@ -21,8 +21,10 @@ const verifyToken = async (req, res, next) => {
           .status(403)
           .json({ status: "Error", message: "Invalid or expired token" });
       }
-
       req.userId = payload.id;
+      console.log(
+        `payload id ${req.userId}************************************`
+      );
       next();
     });
   } catch (e) {
