@@ -2,6 +2,7 @@ import { Navigate, Outlet } from "react-router";
 import { useContext } from "react";
 import { AuthContext } from "../components/Context/Contextapi";
 
+// private routes for login 
 const PrivateRoute = ({allowedRoles }) => {
   const {auth,token} = useContext(AuthContext);
 
